@@ -98,6 +98,32 @@ class CombatLogicTest {
     }
 
     @Test
+    void finalBlowAddsLastKnownHealthWhenDeathEventComesFirst() {
+        hit(ME, FOE, 1_000);
+        logic.onHealth(FOE, 20, 0, 20, 1_001);
+        hit(ME, FOE, 2_000);
+        logic.onHealth(FOE, 12, 2, 20, 2_030);
+        hit(ME, FOE, 3_000);
+        logic.onDeath(FOE, "entity event 3", 3_001);
+        logic.onHealth(FOE, 0, 0, 20, 3_030);
+        Fight fight = logic.lastFinished();
+        assertEquals(FightEndReason.KILL, fight.endReason());
+        assertEquals(20f, fight.damageDealt(), 1e-4);
+    }
+
+    @Test
+    void finalBlowIsNotGuessedWhenHealthWasNeverSeenDropping() {
+        hit(ME, FOE, 1_000);
+        logic.onHealth(FOE, 20, 0, 20, 1_001);
+        hit(ME, FOE, 2_000);
+        logic.onDeath(FOE, "entity event 3", 2_001);
+        Fight fight = logic.lastFinished();
+        assertEquals(FightEndReason.KILL, fight.endReason());
+        assertFalse(fight.isDamageKnown());
+        assertEquals(0f, fight.damageDealt());
+    }
+
+    @Test
     void deathLongAfterMyLastHitIsNotAKill() {
         hit(ME, FOE, 1_000);
         hit(FOE, ME, 12_000);

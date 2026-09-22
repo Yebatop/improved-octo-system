@@ -34,3 +34,6 @@ replay_*.log
 
 # game logs from dev runs
 logs/
+
+# agent worktrees
+.claude/worktrees/

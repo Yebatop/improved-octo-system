@@ -9,14 +9,14 @@ final class NumberSlider extends AbstractSliderButton {
     private final Runnable onChange;
 
     NumberSlider(int x, int y, int width, int height, NumberSetting setting, Runnable onChange) {
-        super(x, y, width, height, Component.literal(setting.format()), setting.toSlider());
+        super(x, y, width, height, Texts.number(setting), setting.toSlider());
         this.setting = setting;
         this.onChange = onChange;
     }
 
     @Override
     protected void updateMessage() {
-        setMessage(Component.literal(setting.format()));
+        setMessage(Texts.number(setting));
     }
 
     @Override

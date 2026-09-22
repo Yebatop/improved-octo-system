@@ -96,7 +96,7 @@ public final class WaypointListScreen extends Screen {
                     WaypointManager manager = WaypointManager.get();
                     Waypoint selected = manager.selected();
                     manager.select(selected != null && selected.id().equals(waypoint.id()) ? null : waypoint.id());
-                }).size(60, 20).build();
+                }).size(86, 20).build();
                 this.delete = Button.builder(Component.translatable("skirmish.waypoints.delete"), b -> {
                     WaypointManager.get().remove(waypoint.id());
                     refresh();
@@ -116,14 +116,14 @@ public final class WaypointListScreen extends Screen {
                 String distance = "";
                 Player player = Minecraft.getInstance().player;
                 if (player != null && waypoint.dimension().equals(player.level().dimension().identifier().toString())) {
-                    distance = "  " + Math.round(Math.sqrt(waypoint.distanceSq(player.getX(), player.getY(), player.getZ()))) + " m";
+                    distance = "  " + Math.round(Math.sqrt(waypoint.distanceSq(player.getX(), player.getY(), player.getZ()))) + " " + Texts.unit("m");
                 }
-                int textWidth = right - x - 124;
+                int textWidth = right - x - 150;
                 graphics.drawString(font, font.plainSubstrByWidth(waypoint.name(), textWidth), x, getContentY() + 1, 0xFF000000 | waypoint.color(), true);
                 graphics.drawString(font, font.plainSubstrByWidth(waypoint.coordsText() + "  " + dimension + distance, textWidth),
                         x, getContentY() + 11, 0xFFAAAAAA, false);
 
-                arrow.setPosition(right - 120, getContentY());
+                arrow.setPosition(right - 146, getContentY());
                 delete.setPosition(right - 58, getContentY());
                 arrow.render(graphics, mouseX, mouseY, partialTick);
                 delete.render(graphics, mouseX, mouseY, partialTick);
