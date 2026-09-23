@@ -8,12 +8,10 @@ import dev.skirmish.module.anvilcalc.calc.AnvilPlan;
 import dev.skirmish.module.anvilcalc.calc.AnvilSolver;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
-import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
+import dev.skirmish.hud.HudStyle;
+import dev.skirmish.ui.Ui;
 import net.minecraft.client.gui.screens.inventory.AnvilScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
@@ -33,16 +31,12 @@ import java.util.concurrent.ExecutorService;
 final class AnvilOverlay {
     private static final int IMAGE_WIDTH = 176;
     private static final int IMAGE_HEIGHT = 166;
-    private static final int GAP = 4;
-    private static final int PADDING = 3;
-    private static final int LINE = 10;
-    private static final int BUTTON_HEIGHT = 20;
 
     private final AnvilCalcModule module;
     private final AnvilScreen screen;
     private final ExecutorService executor;
 
-    private @Nullable Button button;
+    private dev.skirmish.ui.widget.@Nullable Button button;
     private @Nullable Snapshot snapshot;
     private @Nullable AnvilPlan plan;
     private @Nullable CompletableFuture<AnvilPlan> pending;
@@ -51,10 +45,6 @@ final class AnvilOverlay {
     private List<Component> lines = List.of();
     private boolean stale;
 
-    private int panelX;
-    private int panelY;
-    private int panelWidth;
-    private boolean rightSide;
 
     AnvilOverlay(AnvilCalcModule module, AnvilScreen screen, ExecutorService executor) {
         this.module = module;
@@ -68,31 +58,42 @@ final class AnvilOverlay {
 
     /** Called after every init/resize of the screen (Fabric recreates the per-screen events then). */
     void attach() {
-        int left = (screen.width - IMAGE_WIDTH) / 2;
-        int top = (screen.height - IMAGE_HEIGHT) / 2;
-        int roomRight = screen.width - (left + IMAGE_WIDTH) - 2 * GAP;
-        int roomLeft = left - 2 * GAP;
-        rightSide = roomRight >= 150 || roomRight >= roomLeft;
-        panelWidth = Math.max(60, Math.min(260, rightSide ? roomRight : roomLeft));
-        panelX = rightSide ? left + IMAGE_WIDTH + GAP : left - GAP - panelWidth;
-        panelY = top + BUTTON_HEIGHT + GAP;
-
-        int buttonWidth = Math.min(100, panelWidth);
-        int buttonX = rightSide ? panelX : panelX + panelWidth - buttonWidth;
-        button = Button.builder(PlanText.tr("button"), b -> calculate())
-                .bounds(buttonX, top, buttonWidth, BUTTON_HEIGHT)
-                .build();
-        button.visible = isShown() && module.showButton.get();
-        Screens.getButtons(screen).add(button);
-
-        ScreenEvents.afterBackground(screen).register((s, graphics, mouseX, mouseY, delta) -> renderPanel(graphics));
-        ScreenEvents.afterRender(screen).register((s, graphics, mouseX, mouseY, delta) -> renderSlotLabels(graphics));
+        button = new dev.skirmish.ui.widget.Button(() -> PlanText.tr("button").getString(), true, this::calculate)
+                .layout("layout.anvil.");
+        dev.skirmish.ui.widget.ScreenWidgets.attach(screen, this::draw);
         ScreenEvents.afterTick(screen).register(s -> tick());
         ScreenKeyboardEvents.afterKeyPress(screen).register((s, event) -> {
             if (module.isEnabled() && SkirmishKeys.ANVILCALC_CALCULATE.matches(event)) {
                 calculate();
             }
         });
+    }
+
+    /** Button, plan panel and slot letters, beside the anvil GUI (right side when there is room). */
+    private void draw(Ui ui, dev.skirmish.ui.widget.ScreenWidgets widgets, double mx, double my) {
+        if (!isShown()) {
+            return;
+        }
+        String l = "layout.anvil.";
+        float left = (float) Ui.toDesign((screen.width - IMAGE_WIDTH) / 2);
+        float top = (float) Ui.toDesign((screen.height - IMAGE_HEIGHT) / 2);
+        float right = left + (float) Ui.toDesign(IMAGE_WIDTH);
+        float gap = ui.num(l + "gap");
+        float width = ui.num(l + "width");
+        boolean rightSide = ui.width() - right - gap >= width || ui.width() - right >= left;
+        width = Math.min(width, Math.max(ui.num(l + "min_width"), rightSide ? ui.width() - right - gap * 2 : left - gap * 2));
+        float x = rightSide ? right + gap : left - gap - width;
+        float y = top;
+        dev.skirmish.ui.widget.Button b = button;
+        if (b != null && module.showButton.get()) {
+            float bw = Math.min(width, b.preferredWidth(ui));
+            float bh = b.preferredHeight(ui);
+            b.bounds(rightSide ? x : x + width - bw, y, bw, bh);
+            widgets.widget(ui, b, mx, my);
+            y += bh + gap;
+        }
+        renderPanel(ui, x, y, width);
+        renderSlotLabels(ui, left, top);
     }
 
     private boolean isShown() {
@@ -132,10 +133,6 @@ final class AnvilOverlay {
     }
 
     private void tick() {
-        Button b = button;
-        if (b != null) {
-            b.visible = isShown() && module.showButton.get();
-        }
         CompletableFuture<AnvilPlan> future = pending;
         Snapshot current = snapshot;
         if (future != null && future.isDone() && current != null && current.input() != null) {
@@ -180,49 +177,26 @@ final class AnvilOverlay {
         lines = out;
     }
 
-    private void renderPanel(GuiGraphics graphics) {
-        if (!isShown() || lines.isEmpty()) {
+    private void renderPanel(Ui ui, float x, float y, float width) {
+        if (lines.isEmpty()) {
             return;
         }
-        Font font = screen.getFont();
-        float scale = module.panelScale.getFloat();
-        List<FormattedCharSequence> wrapped = wrap(font, (int) (panelWidth / scale) - 2 * PADDING);
-        int availableHeight = screen.height - panelY - GAP;
-        int contentHeight = wrapped.size() * LINE + 2 * PADDING;
-        if (contentHeight * scale > availableHeight && contentHeight > 0) {
-            scale = Math.max(0.5F, (float) availableHeight / contentHeight);
-            wrapped = wrap(font, (int) (panelWidth / scale) - 2 * PADDING);
-            contentHeight = wrapped.size() * LINE + 2 * PADDING;
-        }
-        int textWidth = 0;
-        for (FormattedCharSequence line : wrapped) {
-            textWidth = Math.max(textWidth, font.width(line));
-        }
-        int boxWidth = textWidth + 2 * PADDING;
-        float x = rightSide ? panelX : panelX + panelWidth - boxWidth * scale;
-        graphics.pose().pushMatrix();
-        graphics.pose().translate(x, panelY);
-        graphics.pose().scale(scale, scale);
-        graphics.fill(0, 0, boxWidth, contentHeight, 0xD0101010);
-        graphics.renderOutline(0, 0, boxWidth, contentHeight, 0xFF505050);
-        int y = PADDING + 1;
-        for (FormattedCharSequence line : wrapped) {
-            graphics.drawString(font, line, PADDING, y, 0xFFFFFFFF, true);
-            y += LINE;
-        }
-        graphics.pose().popMatrix();
-    }
-
-    private List<FormattedCharSequence> wrap(Font font, int width) {
-        List<FormattedCharSequence> out = new ArrayList<>();
-        int max = Math.max(40, width);
+        float inset = HudStyle.insetX(ui);
+        List<FormattedCharSequence> wrapped = new ArrayList<>();
         for (Component line : lines) {
-            out.addAll(font.split(line, max));
+            wrapped.addAll(ui.wrapRich("anvil_line", line, width - inset * 2));
         }
-        return out;
+        float lh = ui.lineHeight("anvil_line") + ui.num("layout.anvil.line_gap");
+        float height = HudStyle.insetY(ui) * 2 + wrapped.size() * lh - ui.num("layout.anvil.line_gap");
+        HudStyle.panel(ui, x, y, width, height);
+        float ly = y + HudStyle.insetY(ui);
+        for (FormattedCharSequence line : wrapped) {
+            ui.richLine("anvil_line", line, x + inset, ly);
+            ly += lh;
+        }
     }
 
-    private void renderSlotLabels(GuiGraphics graphics) {
+    private void renderSlotLabels(Ui ui, float left, float top) {
         Snapshot current = snapshot;
         AnvilPlan result = plan;
         if (!isShown() || !module.slotLabels.get() || current == null || result == null || stale) {
@@ -234,24 +208,26 @@ final class AnvilOverlay {
         }
         Map<Integer, Integer> colors = new HashMap<>();
         for (AnvilPlan.Skipped skipped : result.skipped()) {
-            colors.put(skipped.book(), 0xFF808080);
+            colors.put(skipped.book(), ui.color("text_3"));
         }
         for (int book : result.leftOut()) {
-            colors.put(book, 0xFFFF5555);
+            colors.put(book, ui.color("bad"));
         }
         for (int book : result.usedBooks()) {
-            colors.put(book, 0xFFFFFF55);
+            colors.put(book, ui.color("warn"));
         }
-        int left = (screen.width - IMAGE_WIDTH) / 2;
-        int top = (screen.height - IMAGE_HEIGHT) / 2;
-        Font font = screen.getFont();
         for (Map.Entry<Integer, Integer> entry : colors.entrySet()) {
             BookRef ref = current.books().get(entry.getKey());
             Slot slot = findSlot(screen.getMenu(), player, ref);
             if (slot == null) {
                 continue;
             }
-            graphics.drawString(font, PlanText.letter(entry.getKey()), left + slot.x + 1, top + slot.y + 1, entry.getValue(), true);
+            float sx = left + (float) Ui.toDesign(slot.x);
+            float sy = top + (float) Ui.toDesign(slot.y);
+            float size = ui.num("layout.anvil.letter_size");
+            ui.rect(sx, sy, size, size, ui.theme().radius("chip"), ui.color("card"));
+            String letter = PlanText.letter(entry.getKey());
+            ui.textCentered("anvil_letter", letter, sx + (size - ui.textWidth("anvil_letter", letter)) / 2f, sy, size, entry.getValue());
         }
     }
 

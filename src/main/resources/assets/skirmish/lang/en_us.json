@@ -42,13 +42,10 @@
   "skirmish.waypoint.none_here": "No waypoints in this dimension",
   "skirmish.waypoint.not_found": "No waypoint with this id",
   "skirmish.waypoint.click_select": "Click to select for the arrow",
-  "skirmish.waypoints.title": "Waypoints (this server)",
+  "skirmish.waypoints.title": "Waypoints",
   "skirmish.waypoints.name": "Name",
   "skirmish.waypoints.add_here": "Add here",
-  "skirmish.waypoints.empty": "No waypoints on this server yet",
-  "skirmish.waypoints.delete": "Delete",
-  "skirmish.waypoints.arrow_on": "Arrow: on",
-  "skirmish.waypoints.arrow_off": "Arrow: off",
+  "skirmish.waypoints.empty": "No waypoints on this server yet.",
   "skirmish.unit.s": "s",
   "skirmish.unit.ms": "ms",
   "skirmish.unit.m": "m",
@@ -113,5 +110,9 @@
   "skirmish.module.interface.setting.edit_hud.button": "Edit",
   "skirmish.module.interface.setting.reset_hud": "Reset layout",
   "skirmish.module.interface.setting.reset_hud.tooltip": "Move every HUD element back to its default place",
-  "skirmish.module.interface.setting.reset_hud.button": "Reset"
+  "skirmish.module.interface.setting.reset_hud.button": "Reset",
+  "skirmish.waypoints.subtitle": "Waypoints of this server. The switch picks the one shown in the pill at the top.",
+  "skirmish.waypoints.default_name": "Waypoint",
+  "skirmish.waypoints.from": "from %s",
+  "skirmish.waypoints.toggle_hint": "One waypoint can be selected"
 }

@@ -16,10 +16,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientWorldEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
-import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.DeathScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
@@ -40,7 +37,7 @@ public final class KillCamModule extends Module {
     final BoolSetting hudIndicator = add(new BoolSetting("hud_indicator", true));
     private final NumberSetting radius = add(new NumberSetting("radius", 32, 8, 64, 1).unit(" m"));
     private final NumberSetting afterDeath = add(new NumberSetting("after_death", 1.0, 0, Recorder.MAX_TAIL_TICKS / 20.0, 0.5).unit(" s"));
-    private final NumberSetting defaultSpeed = add(new NumberSetting("default_speed", 1.0, 0.25, 2.0, 0.25).unit("x"));
+    private final EnumSetting<ReplaySpeed> defaultSpeed = add(new EnumSetting<>("default_speed", ReplaySpeed.X1));
     private final BoolSetting loop = add(new BoolSetting("loop", false));
     private final BoolSetting hideDrops = add(new BoolSetting("hide_drops", true));
     private final BoolSetting particles = add(new BoolSetting("particles", true));
@@ -69,7 +66,7 @@ public final class KillCamModule extends Module {
     }
 
     double defaultSpeed() {
-        return defaultSpeed.get();
+        return defaultSpeed.get().value;
     }
 
     boolean loop() {
@@ -141,13 +138,21 @@ public final class KillCamModule extends Module {
         if (!deathButton.get()) {
             log("death screen: Watch button disabled in settings (the key still works)");
         } else {
-            Button watch = Button.builder(Component.translatable("skirmish.killcam.watch"), b -> ReplaySession.start(this, recorder, "button"))
-                    .bounds(width / 2 - 100, height / 4 + 120, 200, 20)
-                    .build();
-            int[] shown = {-1};
-            updateWatchButton(watch, shown);
-            Screens.getButtons(screen).add(watch);
-            ScreenEvents.afterTick(screen).register(s -> updateWatchButton(watch, shown));
+            dev.skirmish.ui.widget.Button watch = new dev.skirmish.ui.widget.Button(
+                    () -> dev.skirmish.ui.Ui.tr("skirmish.killcam.watch"), true, () -> ReplaySession.start(this, recorder, "button"));
+            dev.skirmish.ui.widget.ScreenWidgets.attach(screen, (ui, widgets, mx, my) -> {
+                boolean available = client.player != null && recorder.hasReplay(client.player) && !ReplaySession.isActive();
+                String l = "layout.death_button.";
+                float w = ui.num(l + "width");
+                float h = ui.num(l + "height");
+                // Below vanilla's two buttons (height / 4 + 72 and + 96, 20 GUI px each).
+                float y = (float) dev.skirmish.ui.Ui.toDesign(screen.height / 4 + 96 + 20) + ui.num(l + "gap");
+                watch.enabled = available;
+                watch.bounds((ui.width() - w) / 2f, y, w, h);
+                widgets.widget(ui, watch, mx, my);
+                String info = watchInfo(available);
+                ui.text("death_info", info, (ui.width() - ui.textWidth("death_info", info)) / 2f, y + h + ui.num(l + "info_gap"));
+            });
             ReplayBuffer buffer = recorder.buffer();
             log("death screen opened: Watch button added (recorded %.2f s, %d players, dead=%s, frozen=%s)",
                     buffer == null || buffer.isEmpty() ? 0.0 : (buffer.currentTick() - buffer.oldestTick() + 1) / 20.0,
@@ -160,23 +165,17 @@ public final class KillCamModule extends Module {
         });
     }
 
-    /** {@code shown[0]}: availability the tooltip was built for (-1 = none yet). */
-    private void updateWatchButton(Button watch, int[] shown) {
-        LocalPlayer player = Minecraft.getInstance().player;
-        boolean available = player != null && recorder.hasReplay(player) && !ReplaySession.isActive();
-        if (shown[0] != (available ? 1 : 0)) {
-            shown[0] = available ? 1 : 0;
-            watch.active = available;
-            log("Watch button %s", available ? "enabled" : "disabled (no finished recording for this death yet)");
-            ReplayBuffer buffer = recorder.buffer();
-            OwnDeath death = recorder.death();
-            Combatant killer = death == null ? null : death.killer();
-            watch.setTooltip(Tooltip.create(available && buffer != null
-                    ? Component.translatable("skirmish.killcam.watch.tooltip",
-                    String.format(Locale.ROOT, "%.1f", Math.min(preDeathTicks(), recorder.deathTick() - buffer.oldestTick()) / 20.0),
-                    killer == null ? "-" : killer.name(), SkirmishKeys.KILLCAM_REPLAY.getTranslatedKeyMessage())
-                    : Component.translatable("skirmish.killcam.watch.unavailable")));
+    /** "10,0 с записи · убийца Bob · клавиша K", or why there is nothing to watch. */
+    private String watchInfo(boolean available) {
+        ReplayBuffer buffer = recorder.buffer();
+        if (!available || buffer == null) {
+            return dev.skirmish.ui.Ui.tr("skirmish.killcam.watch.unavailable");
         }
+        OwnDeath death = recorder.death();
+        Combatant killer = death == null ? null : death.killer();
+        return dev.skirmish.ui.Ui.tr("skirmish.killcam.watch.info",
+                dev.skirmish.ui.Ui.decimal(Math.min(preDeathTicks(), recorder.deathTick() - buffer.oldestTick()) / 20.0, 1),
+                killer == null ? "—" : killer.name(), dev.skirmish.ui.KeyNames.shortName(SkirmishKeys.KILLCAM_REPLAY));
     }
 
     private final class Listener implements CombatListener {

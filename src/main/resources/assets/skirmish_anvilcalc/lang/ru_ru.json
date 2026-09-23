@@ -7,9 +7,6 @@
   "skirmish.module.anvilcalc.setting.exact_limit.tooltip": "Если полезных книг не больше этого числа, проверяются все порядки объединения; если больше — быстрая эвристика. 12 книг могут считаться несколько секунд.",
   "skirmish.module.anvilcalc.setting.too_expensive_at": "«Слишком дорого» от (ур.)",
   "skirmish.module.anvilcalc.setting.too_expensive_at.tooltip": "Шаг такой стоимости и дороже запрещён в выживании (ванилла: 40). Меняйте, только если это изменено на сервере. В творческом не действует.",
-  "skirmish.module.anvilcalc.setting.panel_scale": "Масштаб панели",
-  "skirmish.module.anvilcalc.setting.panel_scale.tooltip": "Размер текста панели с планом; если она не помещается, уменьшается сама.",
-
   "skirmish.anvilcalc.button": "Рассчитать",
   "skirmish.anvilcalc.calculating": "Считаю…",
   "skirmish.anvilcalc.stale": "Наковальня или инвентарь изменились: нажмите «Рассчитать» ещё раз.",

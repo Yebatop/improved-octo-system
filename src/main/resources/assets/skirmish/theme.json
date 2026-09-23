@@ -48,7 +48,9 @@
     "toggle_off_hover": "#FFFFFF29",
     "accent_60": "#7C5CFF99",
     "accent_10": "#7C5CFF1A",
-    "hud_edit_backdrop": "#06060A66"
+    "hud_edit_backdrop": "#06060A66",
+    "fill_10": "#FFFFFF1A",
+    "play_hover": "#E4E4EC"
   },
   "accents": {
     "violet": "#7C5CFF",
@@ -492,6 +494,26 @@
       "size": 11,
       "weight": 500,
       "color": "text_2"
+    },
+    "replay_note": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_2"
+    },
+    "death_info": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_2"
+    },
+    "anvil_line": {
+      "size": 11,
+      "weight": 500,
+      "color": "text"
+    },
+    "anvil_letter": {
+      "size": 10,
+      "weight": 800,
+      "color": "warn"
     }
   },
   "layout": {
@@ -659,7 +681,8 @@
       "segment_pad": 3,
       "segment_gap": 2,
       "segment_height": 32,
-      "segment_pad_x": 12
+      "segment_pad_x": 12,
+      "note_gap": 24
     },
     "card": {
       "width": 800,
@@ -688,14 +711,20 @@
       "gear": 22
     },
     "death_button": {
-      "width": 200,
-      "height": 36,
-      "gap": 24
+      "width": 400,
+      "height": 40,
+      "gap": 8,
+      "info_gap": 8
     },
     "anvil": {
       "width": 236,
       "gap": 8,
-      "line_gap": 4
+      "line_gap": 4,
+      "min_width": 140,
+      "letter_size": 14,
+      "button_height": 30,
+      "primary_pad_x": 14,
+      "ghost_pad_x": 14
     },
     "tokens": {
       "width": 880,
@@ -710,6 +739,12 @@
       "swatch_gap": 6,
       "column_gap": 24,
       "row_gap": 10
+    },
+    "waypoints": {
+      "width": 640,
+      "height": 520,
+      "delete_size": 30,
+      "delete_icon": 14
     }
   }
 }

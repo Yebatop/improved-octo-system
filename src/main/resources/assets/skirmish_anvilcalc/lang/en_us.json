@@ -7,9 +7,6 @@
   "skirmish.module.anvilcalc.setting.exact_limit.tooltip": "With at most this many useful books every merge order is checked; with more a fast heuristic is used. 12 books can take a few seconds.",
   "skirmish.module.anvilcalc.setting.too_expensive_at": "Too Expensive at (levels)",
   "skirmish.module.anvilcalc.setting.too_expensive_at.tooltip": "A single step costing this much or more is refused in survival (vanilla: 40). Change only if the server changes it. Ignored in creative.",
-  "skirmish.module.anvilcalc.setting.panel_scale": "Panel scale",
-  "skirmish.module.anvilcalc.setting.panel_scale.tooltip": "Text size of the plan panel; it also shrinks by itself when it does not fit.",
-
   "skirmish.anvilcalc.button": "Calculate",
   "skirmish.anvilcalc.calculating": "Calculating…",
   "skirmish.anvilcalc.stale": "The anvil or inventory changed: press Calculate again.",

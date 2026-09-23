@@ -39,7 +39,9 @@ final class ReplaySession {
     static final int SCREEN_DEATH = 0;
     static final int SCREEN_CLOSE = 1;
     static final int SCREEN_KEEP = 2;
-    static final double[] SPEEDS = {0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0};
+    /** Index of the main hand in {@code EquipmentSnapshot.SLOTS} (the buffer's slot order). */
+    private static final int MAINHAND_SLOT = 4;
+    static final double[] SPEEDS = {0.25, 0.5, 1.0, 2.0};
     private static final int FAKE_ID_BASE = -1_000_000;
     private static final float MIN_DISTANCE = 1.5F;
     private static final float MAX_DISTANCE = 16.0F;
@@ -109,7 +111,9 @@ final class ReplaySession {
         this.deathTick = deathTick;
         this.victimTrack = victimTrack;
         this.killerTrack = killerTrack;
-        this.killerName = killerTrack == ReplayBuffer.NO_TRACK ? "" : buffer.name(killerTrack);
+        this.killerName = killerTrack == ReplayBuffer.NO_TRACK
+                ? (death != null && death.killer() != null ? death.killer().name() : "")
+                : buffer.name(killerTrack);
         this.killerSource = killerSource;
         this.fakeByTrack = new ReplayPlayer[buffer.allocatedTracks()];
         this.time = startTick;
@@ -439,6 +443,22 @@ final class ReplaySession {
 
     @Nullable Object equipmentNow(int track, int slot) {
         return buffer.equipmentAt(track, slot, (long) Math.floor(time));
+    }
+
+    /** Main-hand item of the killer at the moment of my death (empty when unknown). */
+    net.minecraft.world.item.ItemStack killerWeapon() {
+        if (killerTrack == ReplayBuffer.NO_TRACK) {
+            return net.minecraft.world.item.ItemStack.EMPTY;
+        }
+        Object stack = buffer.equipmentAt(killerTrack, MAINHAND_SLOT, deathTick);
+        return stack instanceof net.minecraft.world.item.ItemStack item ? item : net.minecraft.world.item.ItemStack.EMPTY;
+    }
+
+    void setSpeed(double value) {
+        if (value != speed) {
+            speed = value;
+            module.log("speed -> %.2fx", speed);
+        }
     }
 
     double elapsed() {

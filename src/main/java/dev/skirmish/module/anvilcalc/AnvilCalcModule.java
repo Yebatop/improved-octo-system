@@ -21,7 +21,6 @@ public final class AnvilCalcModule extends Module {
     final BoolSetting slotLabels = add(new BoolSetting("slot_labels", true));
     final NumberSetting exactLimit = add(new NumberSetting("exact_limit", 10, 1, 12, 1));
     final NumberSetting tooExpensiveAt = add(new NumberSetting("too_expensive_at", 40, 2, 200, 1));
-    final NumberSetting panelScale = add(new NumberSetting("panel_scale", 1.0, 0.5, 1.5, 0.1));
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(runnable -> {
         Thread thread = new Thread(runnable, "Skirmish AnvilCalc");

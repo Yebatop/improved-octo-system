@@ -301,6 +301,50 @@ public final class Ui {
         graphics.pose().popMatrix();
     }
 
+    // ---- rich text (Components with legacy colors, e.g. calculator output) ----
+
+    private static final Map<Integer, String> LEGACY_COLORS = Map.ofEntries(
+            Map.entry(0xFFAA00, "warn"), Map.entry(0xFFFF55, "warn"), Map.entry(0xFF5555, "bad"),
+            Map.entry(0xAA0000, "bad"), Map.entry(0x55FF55, "good"), Map.entry(0x00AA00, "good"),
+            Map.entry(0x55FFFF, "accent"), Map.entry(0x00AAAA, "accent"), Map.entry(0xAAAAAA, "text_3"),
+            Map.entry(0x555555, "text_4"), Map.entry(0xFFFFFF, "text"));
+
+    /** Re-fonts a Component with {@code styleKey}'s font; legacy colors become theme tokens, bold becomes weight 800. */
+    public Component rich(String styleKey, Component text) {
+        Theme.TextStyle base = style(styleKey);
+        MutableComponent out = Component.empty();
+        text.visit((style, part) -> {
+            Theme.TextStyle ts = style.isBold() ? new Theme.TextStyle(base.size(), 800, base.color(), base.tracking(), base.mono(), base.lineHeight()) : base;
+            Style next = Style.EMPTY.withFont(fontFor(ts)).withItalic(style.isItalic());
+            if (style.getColor() != null) {
+                String token = LEGACY_COLORS.get(style.getColor().getValue() & 0xFFFFFF);
+                next = next.withColor(token != null ? theme.color(token) & 0xFFFFFF : style.getColor().getValue());
+            }
+            out.append(Component.literal(part).withStyle(next));
+            return java.util.Optional.empty();
+        }, Style.EMPTY);
+        return out;
+    }
+
+    public List<net.minecraft.util.FormattedCharSequence> wrapRich(String styleKey, Component text, float maxWidth) {
+        return font.split(rich(styleKey, text), Math.max(1, (int) Math.floor(maxWidth)));
+    }
+
+    public float richWidth(net.minecraft.util.FormattedCharSequence line) {
+        return font.width(line);
+    }
+
+    /** Draws one wrapped rich line whose line box starts at {@code top}; uncolored parts use the style's color. */
+    public void richLine(String styleKey, net.minecraft.util.FormattedCharSequence line, float x, float top) {
+        Theme.TextStyle style = style(styleKey);
+        float y = top + theme.baseline(style) - GLYPH_BASELINE;
+        int c = fade(theme.color(style.color()));
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(Math.round(x), Math.round(y));
+        graphics.drawString(font, line, 0, 0, c, false);
+        graphics.pose().popMatrix();
+    }
+
     /** Word-wraps {@code text} to {@code maxWidth}; returns the lines. */
     public List<String> wrap(String styleKey, String text, float maxWidth) {
         Theme.TextStyle style = style(styleKey);
