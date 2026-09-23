@@ -308,6 +308,16 @@ public final class ReplayBuffer {
         return -1;
     }
 
+    /** Last tick in [from, to] (scanning down from {@code from}) with data for the track, or -1. */
+    public long lastPresent(int track, long from, long to) {
+        for (long at = Math.min(from, tick); at >= Math.max(to, oldestTick()); at--) {
+            if (has(track, at)) {
+                return at;
+            }
+        }
+        return -1;
+    }
+
     // ---- equipment ----
 
     /** Records an equipment change of {@code slot} at the current tick. */

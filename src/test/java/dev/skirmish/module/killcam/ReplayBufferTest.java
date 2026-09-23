@@ -98,6 +98,23 @@ class ReplayBufferTest {
     }
 
     @Test
+    void lastRecordedTickIsSampledAfterRecordingStops() {
+        ReplayBuffer buffer = new ReplayBuffer(240, 4, 16);
+        for (int tick = 0; tick < 300; tick++) {
+            buffer.beginTick();
+            record(buffer, A, at(tick, 0));
+            record(buffer, B, at(-tick, 0));
+        }
+        long end = buffer.currentTick();
+        TrackSample out = new TrackSample();
+        assertTrue(buffer.sample(buffer.findTrack(B), end, out));
+        assertEquals(-end, out.x, 1e-9);
+        assertTrue(buffer.sample(buffer.findTrack(B), end - 1e-9, out));
+        assertEquals(end, buffer.lastTick(buffer.findTrack(B)));
+        assertEquals(end, buffer.lastPresent(buffer.findTrack(B), end + 5, end - 20));
+    }
+
+    @Test
     void teleportsAreNotInterpolated() {
         ReplayBuffer buffer = new ReplayBuffer(20, 4, 16);
         buffer.beginTick();
