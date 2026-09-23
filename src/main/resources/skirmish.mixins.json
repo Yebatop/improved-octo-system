@@ -4,7 +4,9 @@
   "package": "dev.skirmish.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "ClientPacketListenerMixin"
+    "ClientPacketListenerMixin",
+    "NativeImageMixin",
+    "TrueTypeGlyphProviderMixin"
   ],
   "injectors": {
     "defaultRequire": 1
