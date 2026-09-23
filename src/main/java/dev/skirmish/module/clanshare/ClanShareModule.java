@@ -117,12 +117,17 @@ public final class ClanShareModule extends Module {
     }
 
     private boolean allowSend(String message) {
-        if (!isEnabled() || sendingOwnLine) {
+        if (sendingOwnLine) {
             return true;
         }
         String name = ShareCodec.parseShareCommand(message);
         if (name == null) {
             return true;
+        }
+        if (!isEnabled()) {
+            log("intercepted '" + ShareCodec.SHARE_COMMAND + "' while the module is disabled, nothing sent");
+            showLocal(ShareText.error(Component.translatable("skirmish.clanshare.disabled")));
+            return false;
         }
         log("intercepted '" + ShareCodec.SHARE_COMMAND + "' from chat, not sent to the server (name " + name.length() + " chars)");
         requestShare(name);
