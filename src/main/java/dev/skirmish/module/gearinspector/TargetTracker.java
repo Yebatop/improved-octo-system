@@ -1,6 +1,7 @@
 package dev.skirmish.module.gearinspector;
 
 import dev.skirmish.combat.EquipmentSnapshot;
+import dev.skirmish.gui.Texts;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
@@ -114,7 +115,8 @@ final class TargetTracker {
         Player candidate = aimed != null ? aimed : recent;
         if (candidate == null) {
             module.log("lock key pressed, but no player under the crosshair within %s", module.maxDistance.format());
-            message(mc, Component.translatable("skirmish.gearinspector.msg.no_target", module.maxDistance.format()));
+            message(mc, Component.translatable("skirmish.gearinspector.msg.no_target",
+                    module.maxDistance.formatValue() + " " + Texts.unit("m")));
             return;
         }
         locked = candidate;
