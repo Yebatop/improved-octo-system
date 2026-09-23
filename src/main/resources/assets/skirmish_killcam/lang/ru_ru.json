@@ -46,5 +46,7 @@
   "skirmish.module.killcam.setting.default_camera.orbit": "Орбита",
   "skirmish.module.killcam.setting.replay_key": "Клавиша",
   "skirmish.module.killcam.setting.replay_key.tooltip": "Открыть последний повтор",
-  "skirmish.killcam.camera_short.orbit": "Орбита"
+  "skirmish.killcam.camera_short.orbit": "Орбита",
+  "skirmish.module.killcam.setting.hud_indicator": "Индикатор записи",
+  "skirmish.module.killcam.setting.hud_indicator.tooltip": "Плашка «KillCam · последние N с» на экране"
 }

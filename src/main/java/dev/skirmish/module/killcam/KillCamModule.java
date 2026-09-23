@@ -37,6 +37,7 @@ public final class KillCamModule extends Module {
     private final EnumSetting<CameraMode> defaultCamera = add(new EnumSetting<>("default_camera", CameraMode.KILLER));
     private final BoolSetting deathButton = add(new BoolSetting("death_button", true));
     private final KeySetting replayKey = add(new KeySetting("replay_key", "key.skirmish.killcam.replay"));
+    final BoolSetting hudIndicator = add(new BoolSetting("hud_indicator", true));
     private final NumberSetting radius = add(new NumberSetting("radius", 32, 8, 64, 1).unit(" m"));
     private final NumberSetting afterDeath = add(new NumberSetting("after_death", 1.0, 0, Recorder.MAX_TAIL_TICKS / 20.0, 0.5).unit(" s"));
     private final NumberSetting defaultSpeed = add(new NumberSetting("default_speed", 1.0, 0.25, 2.0, 0.25).unit("x"));
@@ -90,6 +91,7 @@ public final class KillCamModule extends Module {
     @Override
     public void onInitialize() {
         CombatTracker.get().addListener(new Listener());
+        dev.skirmish.hud.Hud.get().register(new KillCamIndicator(this, recorder));
         ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {
             if (screen instanceof DeathScreen && isEnabled()) {
                 decorateDeathScreen(client, screen, width, height);

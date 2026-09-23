@@ -42,12 +42,13 @@
     "separator": "#FFFFFF1F",
     "backdrop": "#06060A8C",
     "bar": "#06060AD9",
-    "hud_edit_outline": "#7C5CFF99",
-    "hud_edit_fill": "#7C5CFF1A",
     "fill_00": "#FFFFFF00",
     "fill_04": "#FFFFFF0A",
     "fill_08": "#FFFFFF14",
-    "toggle_off_hover": "#FFFFFF29"
+    "toggle_off_hover": "#FFFFFF29",
+    "accent_60": "#7C5CFF99",
+    "accent_10": "#7C5CFF1A",
+    "hud_edit_backdrop": "#06060A66"
   },
   "accents": {
     "violet": "#7C5CFF",
@@ -481,6 +482,16 @@
       "size": 12,
       "weight": 500,
       "color": "text"
+    },
+    "hud_edit_label": {
+      "size": 11,
+      "weight": 700,
+      "color": "text"
+    },
+    "hud_edit_hint": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_2"
     }
   },
   "layout": {
@@ -602,7 +613,14 @@
       "toast_pad": 10,
       "toast_gap": 8,
       "toast_ms": 5000,
-      "snap": 6
+      "snap": 6,
+      "combat_linger_ms": 5000,
+      "edit_pad": 4,
+      "edit_label_gap": 4,
+      "edit_gap": 10,
+      "pill_name_max": 200,
+      "world_label_max": 160,
+      "world_label_dot": 6
     },
     "replay": {
       "top_bar": 64,

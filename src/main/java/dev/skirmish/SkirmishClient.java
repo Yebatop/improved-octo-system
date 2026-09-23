@@ -4,6 +4,8 @@ import dev.skirmish.combat.CombatTrackerModule;
 import dev.skirmish.command.SkirmishCommand;
 import dev.skirmish.config.ConfigManager;
 import dev.skirmish.debug.DebugLog;
+import dev.skirmish.hud.Hud;
+import dev.skirmish.hud.InterfaceModule;
 import dev.skirmish.gui.SkirmishScreen;
 import dev.skirmish.module.ModuleManager;
 import dev.skirmish.module.anvilcalc.AnvilCalcModule;
@@ -43,12 +45,14 @@ public final class SkirmishClient implements ClientModInitializer {
         modules.register(new GearInspectorModule());
         modules.register(new AnvilCalcModule());
         modules.register(new KillCardModule());
+        modules.register(new InterfaceModule());
 
         config = new ConfigManager(dir.resolve("config.json"), modules::all);
         modules.setConfig(config);
         config.load();
 
         SkirmishKeys.register();
+        Hud.install(dir.resolve("hud.json"));
         modules.initializeAll();
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> SkirmishCommand.register(dispatcher));

@@ -26,8 +26,7 @@ public final class WaypointsModule extends Module {
     final BoolSetting showLabels = add(new BoolSetting("show_labels", true));
     final NumberSetting maxLabelDistance = add(new NumberSetting("max_label_distance", 0, 0, 10000, 50).unit(" m"));
     final NumberSetting labelScale = add(new NumberSetting("label_scale", 1.0, 0.5, 2.0, 0.1));
-    final BoolSetting showArrow = add(new BoolSetting("show_arrow", true));
-    final NumberSetting arrowY = add(new NumberSetting("arrow_y", 24, 4, 200, 1));
+    final BoolSetting showPill = add(new BoolSetting("show_pill", true));
 
     private final WaypointManager manager;
 
@@ -46,6 +45,7 @@ public final class WaypointsModule extends Module {
         manager.load();
         HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, Identifier.fromNamespaceAndPath("skirmish", "waypoints"),
                 new WaypointHud(this, manager));
+        dev.skirmish.hud.Hud.get().register(new WaypointHud.Pill(this, manager));
     }
 
     @Override

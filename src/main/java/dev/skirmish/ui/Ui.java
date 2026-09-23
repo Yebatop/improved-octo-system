@@ -87,6 +87,38 @@ public final class Ui {
         return Component.translatable(key, args).getString();
     }
 
+    /** Number with the current language's decimal separator ("2,33" in Russian). */
+    public static String decimal(double value, int digits) {
+        String text = String.format(java.util.Locale.ROOT, "%." + digits + "f", value);
+        String lang = Minecraft.getInstance().options.languageCode;
+        return lang.startsWith("en") ? text : text.replace('.', ',');
+    }
+
+    /** Plural form from lang keys {@code <base>.one/.few/.many} (Russian rules; English uses one/many). */
+    public static String plural(String base, long n) {
+        long mod10 = n % 10;
+        long mod100 = n % 100;
+        String form;
+        if (mod10 == 1 && mod100 != 11) {
+            form = "one";
+        } else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
+            form = "few";
+        } else {
+            form = "many";
+        }
+        String key = base + "." + form;
+        if (!net.minecraft.locale.Language.getInstance().has(key)) {
+            key = base + (n == 1 ? ".one" : ".many");
+        }
+        return tr(key);
+    }
+
+    /** m:ss */
+    public static String duration(long ms) {
+        long s = Math.max(0, ms / 1000);
+        return (s / 60) + ":" + String.format(java.util.Locale.ROOT, "%02d", s % 60);
+    }
+
     // ---- alpha ----
 
     public void pushAlpha(float multiplier) {

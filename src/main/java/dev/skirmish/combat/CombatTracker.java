@@ -34,6 +34,12 @@ public final class CombatTracker {
     CombatTracker(CombatTrackerModule module) {
         this.module = module;
         this.logic = new CombatLogic(module, module::log, (msg, t) -> DebugLog.error(module.id(), msg, t));
+        this.logic.addListener(new CombatListener() {
+            @Override
+            public void onFightStart(Fight fight) {
+                countOpeningAttempt(fight);
+            }
+        });
     }
 
     static CombatTracker install(CombatTrackerModule module) {
@@ -46,6 +52,23 @@ public final class CombatTracker {
             throw new IllegalStateException("CombatTracker is created by CombatTrackerModule");
         }
         return instance;
+    }
+
+    private long lastAttackAttemptMs = -1;
+
+    /** Left-click attack attempt by the local player (read from Minecraft.startAttack, never sent anywhere). */
+    public void onAttackAttempt() {
+        lastAttackAttemptMs = now();
+        for (Fight fight : logic.activeFights()) {
+            fight.attackAttempts++;
+        }
+    }
+
+    /** The attempt that opened a fight happened before the fight existed; count it. */
+    void countOpeningAttempt(Fight fight) {
+        if (lastAttackAttemptMs >= 0 && fight.startMs() - lastAttackAttemptMs < 1000 && fight.attackAttempts == 0) {
+            fight.attackAttempts = 1;
+        }
     }
 
     public void addListener(CombatListener listener) {

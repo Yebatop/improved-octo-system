@@ -46,5 +46,7 @@
   "skirmish.module.killcam.setting.default_camera.orbit": "Orbit",
   "skirmish.module.killcam.setting.replay_key": "Key",
   "skirmish.module.killcam.setting.replay_key.tooltip": "Open the last replay",
-  "skirmish.killcam.camera_short.orbit": "Orbit"
+  "skirmish.killcam.camera_short.orbit": "Orbit",
+  "skirmish.module.killcam.setting.hud_indicator": "Recording indicator",
+  "skirmish.module.killcam.setting.hud_indicator.tooltip": "“KillCam · last N s” pill on screen"
 }

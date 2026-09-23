@@ -26,6 +26,7 @@ public final class Fight {
     float opponentMaxHealth = -1;
     int opponentTotems;
     int myTotems;
+    int attackAttempts;
     @Nullable String lastDamageTypeDealt;
 
     Fight(int id, Combatant opponent, long startMs) {
@@ -78,6 +79,11 @@ public final class Fight {
 
     public int hitsDealt() {
         return hitsDealt;
+    }
+
+    /** My attack attempts (swings at air or entities, not block breaking) during the fight; at least the hits. */
+    public int attackAttempts() {
+        return Math.max(attackAttempts, hitsDealt);
     }
 
     public int hitsTaken() {
