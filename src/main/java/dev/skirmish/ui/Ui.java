@@ -78,6 +78,15 @@ public final class Ui {
         return theme.num(path);
     }
 
+    /** Translated UI string (lang files), or the key itself. */
+    public static String tr(String key) {
+        return net.minecraft.locale.Language.getInstance().getOrDefault(key);
+    }
+
+    public static String tr(String key, Object... args) {
+        return Component.translatable(key, args).getString();
+    }
+
     // ---- alpha ----
 
     public void pushAlpha(float multiplier) {
@@ -140,6 +149,13 @@ public final class Ui {
     /** Line with round caps (SVG stroke-linecap: round). */
     public void line(float ax, float ay, float bx, float by, float thickness, int color) {
         Shapes.segment(graphics, ax, ay, bx, by, thickness / 2f, fade(color));
+    }
+
+    public void triangle(float ax, float ay, float bx, float by, float cx, float cy, float rounding, int color) {
+        if ((color >>> 24) == 0) {
+            return;
+        }
+        Shapes.triangle(graphics, ax, ay, bx, by, cx, cy, rounding, fade(color));
     }
 
     public void polyline(float thickness, int color, float... points) {
@@ -247,7 +263,8 @@ public final class Ui {
 
     private void drawAt(Component component, float x, float y, int color) {
         graphics.pose().pushMatrix();
-        graphics.pose().translate(x, y);
+        // Whole design px (= physical px at GUI scale 2): glyph atlases are sampled NEAREST.
+        graphics.pose().translate(Math.round(x), Math.round(y));
         graphics.drawString(font, component, 0, 0, color, false);
         graphics.pose().popMatrix();
     }

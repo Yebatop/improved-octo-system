@@ -19,6 +19,7 @@ public record ShapeRenderState(
         float lx0, float ly0, float lx1, float ly1,
         int shapeA, int shapeB, int shapeC, int shapeD,
         float mode,
+        float rounding,
         int color,
         @Nullable ScreenRectangle scissorArea,
         @Nullable ScreenRectangle bounds
@@ -40,7 +41,7 @@ public record ShapeRenderState(
                 .setUv(lx, ly)
                 .setUv1(shapeA, shapeB)
                 .setUv2(shapeC, shapeD)
-                .setNormal(mode, 0f, 0f);
+                .setNormal(mode, rounding / 8f, 0f);
     }
 
     @Override

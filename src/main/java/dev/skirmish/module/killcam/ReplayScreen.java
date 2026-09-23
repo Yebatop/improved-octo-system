@@ -254,10 +254,9 @@ final class ReplayScreen extends Screen {
             case GLFW.GLFW_KEY_UP -> session.changeSpeed(1);
             case GLFW.GLFW_KEY_DOWN -> session.changeSpeed(-1);
             case GLFW.GLFW_KEY_C -> session.setMode(session.mode().next());
-            case GLFW.GLFW_KEY_1 -> session.setMode(CameraMode.KILLER);
-            case GLFW.GLFW_KEY_2 -> session.setMode(CameraMode.ORBIT_KILLER);
-            case GLFW.GLFW_KEY_3 -> session.setMode(CameraMode.ORBIT_VICTIM);
-            case GLFW.GLFW_KEY_4 -> session.setMode(CameraMode.FREE);
+            case GLFW.GLFW_KEY_1 -> session.setMode(CameraMode.FREE);
+            case GLFW.GLFW_KEY_2 -> session.setMode(CameraMode.KILLER);
+            case GLFW.GLFW_KEY_3 -> session.setMode(CameraMode.ORBIT);
             case GLFW.GLFW_KEY_R -> session.restart();
             default -> {
                 return super.keyPressed(event);

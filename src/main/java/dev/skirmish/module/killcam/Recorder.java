@@ -22,9 +22,10 @@ import java.util.UUID;
  * replay window stays put while the death screen is open; resumes with an empty buffer after respawn.
  */
 final class Recorder {
-    static final int PRE_DEATH_TICKS = 200;
+    /** Longest pre-death window the {@code record_seconds} setting allows; the buffer is sized for it. */
+    static final int MAX_PRE_DEATH_TICKS = 300;
     static final int MAX_TAIL_TICKS = 40;
-    static final int CAPACITY = PRE_DEATH_TICKS + MAX_TAIL_TICKS;
+    static final int CAPACITY = MAX_PRE_DEATH_TICKS + MAX_TAIL_TICKS;
     static final int MAX_TRACKS = 64;
     static final int EVENT_CAPACITY = 512;
     private static final int SLOTS = ReplayBuffer.EQUIPMENT_SLOTS;
@@ -273,7 +274,7 @@ final class Recorder {
         }
         frozen = true;
         ReplayBuffer buf = buffer;
-        long start = Math.max(buf.oldestTick(), deathTick - PRE_DEATH_TICKS);
+        long start = Math.max(buf.oldestTick(), deathTick - module.preDeathTicks());
         module.log("buffer frozen (%s) at tick %d: window %d..%d = %.2f s (%.2f s before death, %.2f s after), %d players, %d events, %d equipment copies",
                 reason, buf.currentTick(), start, buf.currentTick(), (buf.currentTick() - start + 1) / 20.0,
                 (deathTick - start) / 20.0, (buf.currentTick() - deathTick + 1) / 20.0, buf.assignedTracks(), buf.eventCount(),

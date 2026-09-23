@@ -2,6 +2,7 @@ package dev.skirmish.waypoint;
 
 import dev.skirmish.SkirmishKeys;
 import dev.skirmish.module.Module;
+import dev.skirmish.setting.ActionSetting;
 import dev.skirmish.setting.BoolSetting;
 import dev.skirmish.setting.NumberSetting;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
@@ -18,6 +19,10 @@ import java.util.Date;
 public final class WaypointsModule extends Module {
     public static final String ID = "waypoints";
 
+    final ActionSetting openList = add(new ActionSetting("open_list", () -> {
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        mc.setScreen(new dev.skirmish.gui.WaypointListScreen(mc.screen));
+    }));
     final BoolSetting showLabels = add(new BoolSetting("show_labels", true));
     final NumberSetting maxLabelDistance = add(new NumberSetting("max_label_distance", 0, 0, 10000, 50).unit(" m"));
     final NumberSetting labelScale = add(new NumberSetting("label_scale", 1.0, 0.5, 2.0, 0.1));
@@ -25,6 +30,11 @@ public final class WaypointsModule extends Module {
     final NumberSetting arrowY = add(new NumberSetting("arrow_y", 24, 4, 200, 1));
 
     private final WaypointManager manager;
+
+    @Override
+    public int menuOrder() {
+        return 10;
+    }
 
     public WaypointsModule() {
         super(ID, true);

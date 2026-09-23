@@ -26,6 +26,14 @@ public final class UiFonts {
     }
 
     /**
+     * Rounds the unhinted advance to whole pixels so every glyph quad of
+     * a string starts on a pixel: the atlas is sampled NEAREST, and quads at half-pixel offsets drop texel rows.
+     */
+    public static float advance(FT_Face face, float advance) {
+        return isUiFont(face) ? Math.round(advance) : advance;
+    }
+
+    /**
      * Applies {@code font.coverage_gamma} to an 8-bit coverage bitmap. Browsers boost the coverage of light text on
      * dark backgrounds; without it the same outlines look a weight lighter in game.
      */

@@ -153,7 +153,7 @@ final class ReplaySession {
         }
         long end = buffer.currentTick();
         long death = recorder.deathTick();
-        long start = Math.max(buffer.oldestTick(), death - Recorder.PRE_DEATH_TICKS);
+        long start = Math.max(buffer.oldestTick(), death - module.preDeathTicks());
         int victim = buffer.findTrack(player.getUUID());
         OwnDeath ownDeath = recorder.death();
 
@@ -317,13 +317,9 @@ final class ReplaySession {
                     orbit(victim);
                 }
             }
-            case ORBIT_KILLER -> {
+            case ORBIT -> {
                 cameraNote = killer == null ? (killerTrack == ReplayBuffer.NO_TRACK ? "no_killer" : "killer_away") : "";
                 orbit(killer != null ? killer : victim);
-            }
-            case ORBIT_VICTIM -> {
-                cameraNote = victim == null ? "victim_away" : "";
-                orbit(victim != null ? victim : killer);
             }
             case FREE -> {
                 cameraNote = "";

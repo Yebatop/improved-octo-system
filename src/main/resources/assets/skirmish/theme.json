@@ -43,7 +43,11 @@
     "backdrop": "#06060A8C",
     "bar": "#06060AD9",
     "hud_edit_outline": "#7C5CFF99",
-    "hud_edit_fill": "#7C5CFF1A"
+    "hud_edit_fill": "#7C5CFF1A",
+    "fill_00": "#FFFFFF00",
+    "fill_04": "#FFFFFF0A",
+    "fill_08": "#FFFFFF14",
+    "toggle_off_hover": "#FFFFFF29"
   },
   "accents": {
     "violet": "#7C5CFF",
@@ -80,7 +84,8 @@
     "easing": "ease-out",
     "hp_smooth_ms": 120,
     "toggle_ms": 160,
-    "hover_ms": 160
+    "hover_ms": 160,
+    "hover_lighten": 0.1
   },
   "font": {
     "sans": "manrope",
@@ -487,6 +492,8 @@
     "panel_header_gap": 8,
     "panel_icon": 15,
     "panel_row_gap": 7,
+    "disabled_alpha": 0.45,
+    "appear_offset": 8,
     "menu": {
       "width": 860,
       "height": 520,
@@ -539,7 +546,16 @@
       "ghost_pad_x": 16,
       "primary_pad_x": 18,
       "footer_gap": 8,
-      "scroll_step": 36
+      "scroll_step": 36,
+      "logo_icon_stroke": 2.4,
+      "slider_thumb_hover": 2,
+      "scrollbar_width": 3,
+      "scrollbar_min": 24,
+      "input_icon": 16,
+      "input_icon_gap": 8,
+      "small_button_height": 30,
+      "small_ghost_pad_x": 12,
+      "small_primary_pad_x": 12
     },
     "hud": {
       "pill_pad_top": 8,
