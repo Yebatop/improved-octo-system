@@ -37,11 +37,17 @@ public final class Texts {
     /** Value plus unit; the unit is translated via {@code skirmish.unit.<unit>} when such a key exists. */
     public static Component number(NumberSetting setting) {
         String unit = setting.unit().trim();
+        String value = localizeDecimal(setting.formatValue());
         if (unit.isEmpty()) {
-            return Component.literal(setting.formatValue());
+            return Component.literal(value);
         }
         String separator = setting.unit().startsWith(" ") ? " " : "";
-        return Component.literal(setting.formatValue() + separator).append(tr("skirmish.unit." + unit, unit));
+        return Component.literal(value + separator).append(tr("skirmish.unit." + unit, unit));
+    }
+
+    /** "0.25" → "0,25" outside English, matching the mockup's number style. */
+    public static String localizeDecimal(String number) {
+        return net.minecraft.client.Minecraft.getInstance().options.languageCode.startsWith("en") ? number : number.replace('.', ',');
     }
 
     /** Translated short unit ({@code skirmish.unit.<unit>}), or the unit itself. */

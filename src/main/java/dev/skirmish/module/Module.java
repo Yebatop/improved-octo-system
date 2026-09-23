@@ -59,6 +59,11 @@ public abstract class Module {
         return defaultEnabled;
     }
 
+    /** Position in the menu's module list (lower first; equal values keep registration order). */
+    public int menuOrder() {
+        return 0;
+    }
+
     /** Modules that others depend on (e.g. the combat tracker) return false and stay enabled. */
     public boolean canToggle() {
         return true;

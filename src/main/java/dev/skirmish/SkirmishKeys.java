@@ -18,7 +18,7 @@ public final class SkirmishKeys {
     public static final KeyMapping WAYPOINT_ADD = key("key.skirmish.waypoint_add", InputConstants.UNKNOWN.getValue());
     public static final KeyMapping WAYPOINT_CYCLE = key("key.skirmish.waypoint_cycle", InputConstants.UNKNOWN.getValue());
 
-    public static final KeyMapping KILLCAM_REPLAY = key("key.skirmish.killcam.replay", InputConstants.UNKNOWN.getValue());
+    public static final KeyMapping KILLCAM_REPLAY = key("key.skirmish.killcam.replay", GLFW.GLFW_KEY_K);
     public static final KeyMapping CLANSHARE_SHARE = key("key.skirmish.clanshare.share", InputConstants.UNKNOWN.getValue());
     public static final KeyMapping GEARINSPECTOR_LOCK = key("key.skirmish.gearinspector.lock", InputConstants.UNKNOWN.getValue());
     public static final KeyMapping ANVILCALC_CALCULATE = key("key.skirmish.anvilcalc.calculate", InputConstants.UNKNOWN.getValue());

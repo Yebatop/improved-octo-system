@@ -13,7 +13,10 @@ public final class CombatTrackerModule extends Module implements CombatLogic.Con
     private final NumberSetting killWindow = add(new NumberSetting("kill_window", 10, 1, 30, 1).unit(" s"));
     private final NumberSetting fightTimeout = add(new NumberSetting("fight_timeout", 20, 5, 120, 1).unit(" s"));
     private final BoolSetting playersOnly = add(new BoolSetting("players_only", true));
+    final BoolSetting combatPanel = add(new BoolSetting("combat_panel", true));
+    final BoolSetting sessionPanel = add(new BoolSetting("session_panel", true));
     private final CombatTracker tracker;
+    private final SessionStats session = new SessionStats();
 
     public CombatTrackerModule() {
         super(ID, true);
@@ -25,8 +28,16 @@ public final class CombatTrackerModule extends Module implements CombatLogic.Con
         return false;
     }
 
+    public SessionStats session() {
+        return session;
+    }
+
     @Override
     public void onInitialize() {
+        tracker.addListener(session);
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> session.reset());
+        dev.skirmish.hud.Hud.get().register(new CombatHud.FightPanel(this));
+        dev.skirmish.hud.Hud.get().register(new CombatHud.SessionPanel(this));
         ClientWorldEvents.AFTER_CLIENT_WORLD_CHANGE.register((client, level) ->
                 tracker.reset("world changed to " + level.dimension().identifier()));
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> tracker.reset("disconnected"));

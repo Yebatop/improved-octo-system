@@ -44,6 +44,10 @@ public final class SkirmishCommand {
                     SkirmishClient.openScreenNextTick(() -> new SkirmishScreen(null));
                     return 1;
                 }))
+                .then(literal("theme").executes(ctx -> {
+                    SkirmishClient.openScreenNextTick(() -> new dev.skirmish.gui.TokensScreen(null));
+                    return 1;
+                }))
                 .then(literal("wp")
                         .executes(ctx -> {
                             SkirmishClient.openScreenNextTick(() -> new WaypointListScreen(null));

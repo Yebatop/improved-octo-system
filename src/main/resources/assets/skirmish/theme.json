@@ -1,0 +1,750 @@
+{
+  "version": 1,
+  "unit": "Sizes are design px: 1 px of the 1280x720 mockup = 1 screen pixel at GUI scale 2 = 0.5 GUI px.",
+  "colors": {
+    "page": "#0B0B12",
+    "panel": "#0D0D14EB",
+    "window": "#0D0D14F5",
+    "card": "#0D0D14",
+    "accent": "#7C5CFF",
+    "accent_16": "#7C5CFF29",
+    "accent_18": "#7C5CFF2E",
+    "accent_14": "#7C5CFF24",
+    "accent_08": "#7C5CFF14",
+    "text": "#F2F2F7",
+    "text_2": "#A3A3B5",
+    "text_3": "#6E6E82",
+    "text_4": "#8A8A9E",
+    "white": "#FFFFFF",
+    "good": "#3DDC97",
+    "bad": "#FF6B78",
+    "warn": "#FFB547",
+    "rec": "#FF5C6C",
+    "rec_text": "#FF8792",
+    "rec_16": "#FF5C6C29",
+    "selected": "#2A2A3A",
+    "stroke": "#FFFFFF0F",
+    "stroke_07": "#FFFFFF12",
+    "stroke_08": "#FFFFFF14",
+    "stroke_10": "#FFFFFF1A",
+    "stroke_12": "#FFFFFF1F",
+    "divider": "#FFFFFF0D",
+    "sidebar": "#FFFFFF05",
+    "tile": "#FFFFFF0A",
+    "fill_05": "#FFFFFF0D",
+    "fill_06": "#FFFFFF0F",
+    "track": "#FFFFFF1A",
+    "hp_track": "#FFFFFF14",
+    "toggle_off": "#FFFFFF1F",
+    "dot_off": "#FFFFFF2E",
+    "marker": "#FFFFFF8C",
+    "slot_empty": "#FFFFFF26",
+    "separator": "#FFFFFF1F",
+    "backdrop": "#06060A8C",
+    "bar": "#06060AD9",
+    "fill_00": "#FFFFFF00",
+    "fill_04": "#FFFFFF0A",
+    "fill_08": "#FFFFFF14",
+    "toggle_off_hover": "#FFFFFF29",
+    "accent_60": "#7C5CFF99",
+    "accent_10": "#7C5CFF1A",
+    "hud_edit_backdrop": "#06060A66",
+    "fill_10": "#FFFFFF1A",
+    "play_hover": "#E4E4EC"
+  },
+  "accents": {
+    "violet": "#7C5CFF",
+    "blue": "#3D8BFF",
+    "pink": "#FF5C8A",
+    "green": "#3DDC97"
+  },
+  "radius": {
+    "window": 16,
+    "panel": 12,
+    "button": 9,
+    "button_sm": 8,
+    "segment": 7,
+    "segment_group": 9,
+    "control": 10,
+    "chip": 5,
+    "slot": 4,
+    "gear_row": 8,
+    "face": 8,
+    "tile": 12,
+    "logo": 8,
+    "card_logo": 7,
+    "card_avatar": 12,
+    "card_gear": 5,
+    "marker": 2,
+    "totem_marker": 3,
+    "pill": 999
+  },
+  "stroke": {
+    "width": 1
+  },
+  "motion": {
+    "appear_ms": 160,
+    "easing": "ease-out",
+    "hp_smooth_ms": 120,
+    "toggle_ms": 160,
+    "hover_ms": 160,
+    "hover_lighten": 0.1
+  },
+  "font": {
+    "sans": "manrope",
+    "mono": "jetbrains_mono",
+    "sans_ascent": 1.066,
+    "sans_descent": 0.3,
+    "mono_ascent": 1.02,
+    "mono_descent": 0.3,
+    "sizes": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      20,
+      22,
+      24
+    ],
+    "weights": [
+      500,
+      600,
+      700,
+      800
+    ],
+    "mono_sizes": [
+      10,
+      11,
+      12
+    ],
+    "mono_weights": [
+      500,
+      600
+    ],
+    "coverage_gamma": 1.45
+  },
+  "text": {
+    "panel_title": {
+      "size": 13,
+      "weight": 700,
+      "color": "text"
+    },
+    "row": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_2"
+    },
+    "row_value": {
+      "size": 11,
+      "weight": 700,
+      "color": "text"
+    },
+    "menu_brand": {
+      "size": 15,
+      "weight": 800,
+      "color": "text",
+      "tracking": -0.2
+    },
+    "menu_brand_sub": {
+      "size": 10,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "menu_section": {
+      "size": 10,
+      "weight": 700,
+      "color": "text_3",
+      "tracking": 0.8
+    },
+    "menu_module": {
+      "size": 13,
+      "weight": 600,
+      "color": "text_2"
+    },
+    "menu_module_on": {
+      "size": 13,
+      "weight": 600,
+      "color": "white"
+    },
+    "menu_hint": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "menu_hint_key": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_2",
+      "mono": true
+    },
+    "menu_title": {
+      "size": 20,
+      "weight": 800,
+      "color": "text",
+      "tracking": -0.3
+    },
+    "menu_desc": {
+      "size": 12,
+      "weight": 500,
+      "color": "text_2",
+      "line_height": 1.5
+    },
+    "menu_row_title": {
+      "size": 13,
+      "weight": 600,
+      "color": "text"
+    },
+    "menu_row_desc": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "menu_value": {
+      "size": 12,
+      "weight": 500,
+      "color": "text",
+      "mono": true
+    },
+    "segment": {
+      "size": 12,
+      "weight": 600,
+      "color": "text_4"
+    },
+    "segment_on": {
+      "size": 12,
+      "weight": 600,
+      "color": "white"
+    },
+    "keybind": {
+      "size": 12,
+      "weight": 500,
+      "color": "text",
+      "mono": true
+    },
+    "input": {
+      "size": 12,
+      "weight": 500,
+      "color": "text",
+      "mono": true
+    },
+    "input_hint": {
+      "size": 12,
+      "weight": 500,
+      "color": "text_3",
+      "mono": true
+    },
+    "button_ghost": {
+      "size": 12,
+      "weight": 600,
+      "color": "text_2"
+    },
+    "button_primary": {
+      "size": 12,
+      "weight": 700,
+      "color": "white"
+    },
+    "pill_label": {
+      "size": 12,
+      "weight": 600,
+      "color": "text_2"
+    },
+    "pill_name": {
+      "size": 12,
+      "weight": 700,
+      "color": "text"
+    },
+    "pill_coords": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_2",
+      "mono": true
+    },
+    "pill_dist": {
+      "size": 12,
+      "weight": 700,
+      "color": "accent"
+    },
+    "panel_meta": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_3",
+      "mono": true
+    },
+    "target_name": {
+      "size": 12,
+      "weight": 700,
+      "color": "text"
+    },
+    "target_hp": {
+      "size": 10,
+      "weight": 500,
+      "color": "text_2"
+    },
+    "target_hp_value": {
+      "size": 10,
+      "weight": 600,
+      "color": "text"
+    },
+    "target_hp_max": {
+      "size": 10,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "target_ping": {
+      "size": 9,
+      "weight": 600,
+      "color": "text_3"
+    },
+    "rec_title": {
+      "size": 11,
+      "weight": 700,
+      "color": "text"
+    },
+    "rec_sub": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "stat_value": {
+      "size": 16,
+      "weight": 800,
+      "color": "text"
+    },
+    "stat_label": {
+      "size": 10,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "world_label": {
+      "size": 12,
+      "weight": 700,
+      "color": "text"
+    },
+    "world_label_dist": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_2",
+      "mono": true
+    },
+    "toast_title": {
+      "size": 12,
+      "weight": 700,
+      "color": "text"
+    },
+    "toast_sub": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "replay_badge": {
+      "size": 11,
+      "weight": 800,
+      "color": "rec_text",
+      "tracking": 0.6
+    },
+    "replay_title": {
+      "size": 14,
+      "weight": 600,
+      "color": "text_2"
+    },
+    "replay_name": {
+      "size": 14,
+      "weight": 800,
+      "color": "text"
+    },
+    "replay_time": {
+      "size": 12,
+      "weight": 500,
+      "color": "text",
+      "mono": true
+    },
+    "replay_time_end": {
+      "size": 12,
+      "weight": 500,
+      "color": "text_3",
+      "mono": true
+    },
+    "replay_legend": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_4"
+    },
+    "replay_segment": {
+      "size": 12,
+      "weight": 600,
+      "color": "text_4"
+    },
+    "replay_segment_on": {
+      "size": 12,
+      "weight": 700,
+      "color": "white"
+    },
+    "card_brand": {
+      "size": 13,
+      "weight": 800,
+      "color": "text"
+    },
+    "card_badge": {
+      "size": 11,
+      "weight": 800,
+      "color": "accent",
+      "tracking": 1.0
+    },
+    "card_name": {
+      "size": 22,
+      "weight": 800,
+      "color": "text",
+      "tracking": -0.4
+    },
+    "card_name_lost": {
+      "size": 22,
+      "weight": 800,
+      "color": "text_2",
+      "tracking": -0.4
+    },
+    "card_sub_good": {
+      "size": 12,
+      "weight": 600,
+      "color": "good"
+    },
+    "card_sub_bad": {
+      "size": 12,
+      "weight": 600,
+      "color": "bad"
+    },
+    "card_vs": {
+      "size": 13,
+      "weight": 700,
+      "color": "text_3"
+    },
+    "card_stat_value": {
+      "size": 24,
+      "weight": 800,
+      "color": "text"
+    },
+    "card_stat_label": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "card_footer": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "card_date": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_3",
+      "mono": true
+    },
+    "tokens_title": {
+      "size": 20,
+      "weight": 800,
+      "color": "text"
+    },
+    "tokens_sub": {
+      "size": 12,
+      "weight": 500,
+      "color": "text_2"
+    },
+    "tokens_name": {
+      "size": 11,
+      "weight": 700,
+      "color": "text"
+    },
+    "tokens_value": {
+      "size": 10,
+      "weight": 500,
+      "color": "text_4",
+      "mono": true
+    },
+    "tokens_section": {
+      "size": 11,
+      "weight": 700,
+      "color": "text_3",
+      "tracking": 0.8
+    },
+    "tokens_key": {
+      "size": 12,
+      "weight": 500,
+      "color": "text_2"
+    },
+    "tokens_val": {
+      "size": 12,
+      "weight": 500,
+      "color": "text",
+      "mono": true
+    },
+    "tokens_val_sans": {
+      "size": 12,
+      "weight": 500,
+      "color": "text"
+    },
+    "hud_edit_label": {
+      "size": 11,
+      "weight": 700,
+      "color": "text"
+    },
+    "hud_edit_hint": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_2"
+    },
+    "replay_note": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_2"
+    },
+    "death_info": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_2"
+    },
+    "anvil_line": {
+      "size": 11,
+      "weight": 500,
+      "color": "text"
+    },
+    "anvil_letter": {
+      "size": 10,
+      "weight": 800,
+      "color": "warn"
+    }
+  },
+  "layout": {
+    "design_scale": 0.5,
+    "screen_edge": 18,
+    "panel_pad_y": 12,
+    "panel_pad_x": 14,
+    "panel_gap": 10,
+    "panel_header_gap": 8,
+    "panel_icon": 15,
+    "panel_row_gap": 7,
+    "disabled_alpha": 0.45,
+    "appear_offset": 8,
+    "menu": {
+      "width": 860,
+      "height": 520,
+      "sidebar_width": 224,
+      "sidebar_pad_y": 18,
+      "sidebar_pad_x": 12,
+      "sidebar_gap": 4,
+      "brand_pad_top": 2,
+      "brand_pad_x": 8,
+      "brand_pad_bottom": 16,
+      "brand_gap": 10,
+      "logo": 28,
+      "logo_icon": 16,
+      "section_pad_x": 8,
+      "section_pad_bottom": 4,
+      "module_height": 36,
+      "module_pad_x": 10,
+      "module_gap": 10,
+      "dot": 7,
+      "hint_pad": 8,
+      "hint_gap": 8,
+      "hint_key_pad_x": 6,
+      "hint_key_pad_y": 2,
+      "content_pad_y": 24,
+      "content_pad_x": 28,
+      "content_gap": 18,
+      "header_gap": 16,
+      "header_text_gap": 4,
+      "rows_gap": 4,
+      "row_min_height": 48,
+      "row_gap": 16,
+      "row_text_gap": 2,
+      "slider_width": 180,
+      "slider_track": 4,
+      "slider_thumb": 16,
+      "value_width": 44,
+      "segment_pad": 3,
+      "segment_gap": 2,
+      "segment_height": 28,
+      "segment_pad_x": 12,
+      "toggle_width": 44,
+      "toggle_height": 26,
+      "toggle_pad": 3,
+      "toggle_knob": 20,
+      "keybind_min_width": 64,
+      "keybind_height": 30,
+      "keybind_pad_x": 12,
+      "input_width": 180,
+      "button_height": 36,
+      "ghost_pad_x": 16,
+      "primary_pad_x": 18,
+      "footer_gap": 8,
+      "scroll_step": 36,
+      "logo_icon_stroke": 2.4,
+      "slider_thumb_hover": 2,
+      "scrollbar_width": 3,
+      "scrollbar_min": 24,
+      "input_icon": 16,
+      "input_icon_gap": 8,
+      "small_button_height": 30,
+      "small_ghost_pad_x": 12,
+      "small_primary_pad_x": 12
+    },
+    "hud": {
+      "pill_pad_top": 8,
+      "pill_pad_right": 14,
+      "pill_pad_bottom": 8,
+      "pill_pad_left": 10,
+      "pill_gap": 12,
+      "pill_icon_circle": 26,
+      "pill_icon": 14,
+      "pill_separator_height": 14,
+      "combat_width": 212,
+      "combat_default_x": 18,
+      "combat_default_y": 150,
+      "target_width": 200,
+      "target_default_dy": 44,
+      "target_pad": 10,
+      "target_gap": 9,
+      "target_header_gap": 10,
+      "face": 34,
+      "hp_bar": 5,
+      "target_stack_gap": 6,
+      "hp_text_gap": 2,
+      "ping_pad_x": 6,
+      "ping_pad_y": 3,
+      "gear_row_pad_y": 5,
+      "gear_row_pad_x": 6,
+      "gear_row_gap": 4,
+      "gear_slot_width": 26,
+      "gear_icon": 18,
+      "gear_bar_height": 2,
+      "gear_slot_gap": 3,
+      "rec_pad_y": 7,
+      "rec_pad_x": 12,
+      "rec_gap": 8,
+      "session_width": 212,
+      "session_default_bottom": 70,
+      "session_grid_gap": 6,
+      "session_value_gap": 2,
+      "world_label_pad_y": 5,
+      "world_label_pad_x": 9,
+      "world_label_gap": 6,
+      "world_label_stem": 6,
+      "toast_width": 240,
+      "toast_pad": 10,
+      "toast_gap": 8,
+      "toast_ms": 5000,
+      "snap": 6,
+      "combat_linger_ms": 5000,
+      "edit_pad": 4,
+      "edit_label_gap": 4,
+      "edit_gap": 10,
+      "pill_name_max": 200,
+      "world_label_max": 160,
+      "world_label_dot": 6
+    },
+    "replay": {
+      "top_bar": 64,
+      "bottom_bar": 128,
+      "edge_x": 24,
+      "top_y": 16,
+      "top_gap": 12,
+      "badge_pad_y": 5,
+      "badge_pad_x": 10,
+      "badge_gap": 6,
+      "badge_dot": 7,
+      "close_size": 36,
+      "close_right": 20,
+      "close_top": 14,
+      "close_icon": 16,
+      "bottom_edge": 20,
+      "bottom_gap": 16,
+      "timeline_gap": 14,
+      "time_width": 44,
+      "timeline_height": 24,
+      "track": 6,
+      "hit_width": 3,
+      "hit_height": 14,
+      "death_height": 18,
+      "totem": 10,
+      "thumb": 16,
+      "controls_gap": 12,
+      "step_size": 40,
+      "play_size": 48,
+      "control_icon": 16,
+      "legend_margin": 12,
+      "legend_gap": 14,
+      "legend_item_gap": 6,
+      "legend_mark_height": 10,
+      "legend_totem": 8,
+      "segment_pad": 3,
+      "segment_gap": 2,
+      "segment_height": 32,
+      "segment_pad_x": 12,
+      "note_gap": 24
+    },
+    "card": {
+      "width": 800,
+      "height": 420,
+      "pad_y": 32,
+      "pad_x": 36,
+      "gap": 24,
+      "deco_right": -60,
+      "deco_top": -60,
+      "deco_size": 240,
+      "deco_width": 40,
+      "header_gap": 10,
+      "logo": 24,
+      "logo_icon": 13,
+      "badge_pad_y": 5,
+      "badge_pad_x": 10,
+      "players_gap": 20,
+      "player_gap": 12,
+      "avatar": 56,
+      "name_gap": 3,
+      "stats_gap": 10,
+      "tile_pad": 14,
+      "tile_gap": 4,
+      "footer_gap": 12,
+      "gear_gap": 4,
+      "gear": 22
+    },
+    "death_button": {
+      "width": 400,
+      "height": 40,
+      "gap": 8,
+      "info_gap": 8
+    },
+    "anvil": {
+      "width": 236,
+      "gap": 8,
+      "line_gap": 4,
+      "min_width": 140,
+      "letter_size": 14,
+      "button_height": 30,
+      "primary_pad_x": 14,
+      "ghost_pad_x": 14
+    },
+    "tokens": {
+      "width": 880,
+      "height": 560,
+      "pad": 32,
+      "gap": 22,
+      "head_gap": 4,
+      "grid_gap": 10,
+      "columns": 5,
+      "swatch_height": 48,
+      "swatch_radius": 10,
+      "swatch_gap": 6,
+      "column_gap": 24,
+      "row_gap": 10
+    },
+    "waypoints": {
+      "width": 640,
+      "height": 520,
+      "delete_size": 30,
+      "delete_icon": 14
+    }
+  }
+}

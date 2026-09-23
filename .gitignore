@@ -37,3 +37,6 @@ logs/
 
 # agent worktrees
 .claude/worktrees/
+
+# second dev client for tests
+run2/
