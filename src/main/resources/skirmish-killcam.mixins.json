@@ -3,7 +3,14 @@
   "minVersion": "0.8",
   "package": "dev.skirmish.module.killcam.mixin",
   "compatibilityLevel": "JAVA_21",
-  "client": [],
+  "client": [
+    "CameraMixin",
+    "EntityRenderDispatcherMixin",
+    "GameRendererMixin",
+    "GuiMixin",
+    "ItemInHandRendererMixin",
+    "ScreenEffectRendererMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }
