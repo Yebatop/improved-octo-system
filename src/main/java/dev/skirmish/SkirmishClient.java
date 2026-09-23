@@ -4,6 +4,8 @@ import dev.skirmish.combat.CombatTrackerModule;
 import dev.skirmish.command.SkirmishCommand;
 import dev.skirmish.config.ConfigManager;
 import dev.skirmish.debug.DebugLog;
+import dev.skirmish.holyworld.FeatureControl;
+import dev.skirmish.holyworld.HolyApi;
 import dev.skirmish.hud.Hud;
 import dev.skirmish.hud.InterfaceModule;
 import dev.skirmish.gui.SkirmishScreen;
@@ -45,7 +47,7 @@ public final class SkirmishClient implements ClientModInitializer {
         modules.register(new GearInspectorModule());
         modules.register(new AnvilCalcModule());
         modules.register(new KillCardModule());
-        modules.register(new InterfaceModule());
+        InterfaceModule iface = modules.register(new InterfaceModule());
 
         config = new ConfigManager(dir.resolve("config.json"), modules::all);
         modules.setConfig(config);
@@ -53,6 +55,8 @@ public final class SkirmishClient implements ClientModInitializer {
 
         SkirmishKeys.register();
         Hud.install(dir.resolve("hud.json"));
+        FeatureControl.install(iface::holyworldSafeMode);
+        HolyApi.install(iface::holyworldApi);
         modules.initializeAll();
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> SkirmishCommand.register(dispatcher));

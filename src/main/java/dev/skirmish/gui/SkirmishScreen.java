@@ -105,8 +105,19 @@ public final class SkirmishScreen extends UiScreen {
         ModuleManager.get().markDirty();
     }
 
+    /** Modules not blocked by Feature Control (blocked ones must not even be mentioned). */
+    private List<Module> visibleModules() {
+        return modules.stream().filter(m -> !m.isBlocked()).toList();
+    }
+
     @Override
     protected void draw(Ui ui, double mx, double my) {
+        if (selected.isBlocked()) {
+            List<Module> visible = visibleModules();
+            if (!visible.isEmpty()) {
+                select(visible.getFirst());
+            }
+        }
         float t = appearProgress();
         ui.rect(0, 0, ui.width(), ui.height(), 0, ui.color("backdrop"));
 
@@ -180,7 +191,7 @@ public final class SkirmishScreen extends UiScreen {
         float listBottom = hy - hintPad - gap;
         float moduleH = ui.num(L + "module_height");
         pushClip(ui, cx, cy, cx + cwid, listBottom);
-        for (Module module : modules) {
+        for (Module module : visibleModules()) {
             ModuleRow row = moduleRows.get(module);
             row.bounds(cx, cy, cwid, moduleH);
             widget(ui, row, mx, my);
@@ -399,11 +410,10 @@ public final class SkirmishScreen extends UiScreen {
     }
 
     private <E extends Enum<E>> Segmented enumControl(EnumSetting<E> setting) {
-        List<E> values = setting.values();
         return new Segmented(Segmented.Spec.MENU,
-                () -> values.stream().map(v -> Texts.enumValue(setting, v).getString()).toList(),
-                () -> values.indexOf(setting.get()),
-                i -> setting.set(values.get(i)));
+                () -> setting.visibleValues().stream().map(v -> Texts.enumValue(setting, v).getString()).toList(),
+                () -> setting.visibleValues().indexOf(setting.get()),
+                i -> setting.set(setting.visibleValues().get(i)));
     }
 
     @Override

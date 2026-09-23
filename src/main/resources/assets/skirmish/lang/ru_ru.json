@@ -116,5 +116,10 @@
   "skirmish.waypoints.subtitle": "Метки этого сервера. Переключатель выбирает метку для плашки сверху экрана.",
   "skirmish.waypoints.default_name": "Метка",
   "skirmish.waypoints.from": "от %s",
-  "skirmish.waypoints.toggle_hint": "Можно выбрать одну метку"
+  "skirmish.waypoints.toggle_hint": "Можно выбрать одну метку",
+  "skirmish.module.interface.setting.holyworld_safe": "Безопасный режим HolyWorld",
+  "skirmish.module.interface.setting.holyworld_safe.tooltip": "На HolyWorld скрывать свободную камеру повтора и «сквозь стены» (правило 2.4)",
+  "skirmish.module.interface.setting.holyworld_api": "Данные HolyWorld",
+  "skirmish.module.interface.setting.holyworld_api.tooltip": "Запрашивать ивенты и курс с api.holyworld.me (только на HolyWorld)",
+  "skirmish.features.header": "Функции Skirmish для Feature Control (HolyWorld: %s), красные — заблокированы:"
 }

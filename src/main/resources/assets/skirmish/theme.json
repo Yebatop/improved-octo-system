@@ -1,6 +1,12 @@
 {
   "version": 1,
   "unit": "Sizes are design px: 1 px of the 1280x720 mockup = 1 screen pixel at GUI scale 2 = 0.5 GUI px.",
+  "include": [
+    "theme/pvp.json",
+    "theme/events.json",
+    "theme/holyprofile.json",
+    "theme/market.json"
+  ],
   "colors": {
     "page": "#0B0B12",
     "panel": "#0D0D14EB",

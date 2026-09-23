@@ -114,5 +114,10 @@
   "skirmish.waypoints.subtitle": "Waypoints of this server. The switch picks the one shown in the pill at the top.",
   "skirmish.waypoints.default_name": "Waypoint",
   "skirmish.waypoints.from": "from %s",
-  "skirmish.waypoints.toggle_hint": "One waypoint can be selected"
+  "skirmish.waypoints.toggle_hint": "One waypoint can be selected",
+  "skirmish.module.interface.setting.holyworld_safe": "HolyWorld safe mode",
+  "skirmish.module.interface.setting.holyworld_safe.tooltip": "On HolyWorld hide the replay free camera and through-walls targeting (rule 2.4)",
+  "skirmish.module.interface.setting.holyworld_api": "HolyWorld data",
+  "skirmish.module.interface.setting.holyworld_api.tooltip": "Fetch events and rates from api.holyworld.me (HolyWorld only)",
+  "skirmish.features.header": "Skirmish features for Feature Control (HolyWorld: %s), red = blocked:"
 }

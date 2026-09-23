@@ -13,14 +13,20 @@ public final class CombatTrackerModule extends Module implements CombatLogic.Con
     private final NumberSetting killWindow = add(new NumberSetting("kill_window", 10, 1, 30, 1).unit(" s"));
     private final NumberSetting fightTimeout = add(new NumberSetting("fight_timeout", 20, 5, 120, 1).unit(" s"));
     private final BoolSetting playersOnly = add(new BoolSetting("players_only", true));
-    final BoolSetting combatPanel = add(new BoolSetting("combat_panel", true));
-    final BoolSetting sessionPanel = add(new BoolSetting("session_panel", true));
+    final BoolSetting combatPanel = (BoolSetting) add(new BoolSetting("combat_panel", true)).feature("fight_hud");
+    final BoolSetting sessionPanel = (BoolSetting) add(new BoolSetting("session_panel", true)).feature("session_hud");
     private final CombatTracker tracker;
     private final SessionStats session = new SessionStats();
 
     public CombatTrackerModule() {
         super(ID, true);
         this.tracker = CombatTracker.install(this);
+    }
+
+    /** Core module: never blocked as a whole (its HUD panels have their own feature ids). */
+    @Override
+    public String featureId() {
+        return null;
     }
 
     @Override

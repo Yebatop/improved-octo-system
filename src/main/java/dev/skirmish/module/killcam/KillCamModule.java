@@ -31,7 +31,8 @@ public final class KillCamModule extends Module {
     public static final String ID = "killcam";
 
     private final NumberSetting recordSeconds = add(new NumberSetting("record_seconds", 10, 4, Recorder.MAX_PRE_DEATH_TICKS / 20.0, 1).unit(" s"));
-    private final EnumSetting<CameraMode> defaultCamera = add(new EnumSetting<>("default_camera", CameraMode.KILLER));
+    private final EnumSetting<CameraMode> defaultCamera = add(new EnumSetting<>("default_camera", CameraMode.KILLER))
+            .valueFeature(CameraMode.FREE, "freecam");
     private final BoolSetting deathButton = add(new BoolSetting("death_button", true));
     private final KeySetting replayKey = add(new KeySetting("replay_key", "key.skirmish.killcam.replay"));
     final BoolSetting hudIndicator = add(new BoolSetting("hud_indicator", true));
@@ -59,6 +60,11 @@ public final class KillCamModule extends Module {
 
     int tailTicks() {
         return (int) Math.round(afterDeath.get() * 20);
+    }
+
+    /** Free camera is a Feature Control id ("freecam"): hidden and unusable while blocked. */
+    boolean cameraAllowed(CameraMode mode) {
+        return !defaultCamera.isValueBlocked(mode);
     }
 
     CameraMode defaultCamera() {

@@ -542,8 +542,13 @@ final class ReplaySession {
         module.log("speed -> %.2fx", speed);
     }
 
+    /** Camera modes not blocked by Feature Control (free camera may be). */
+    java.util.List<CameraMode> allowedModes() {
+        return java.util.Arrays.stream(CameraMode.values()).filter(module::cameraAllowed).toList();
+    }
+
     void setMode(CameraMode next) {
-        if (next == mode) {
+        if (next == mode || !module.cameraAllowed(next)) {
             return;
         }
         if (next == CameraMode.FREE) {

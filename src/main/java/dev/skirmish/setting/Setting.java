@@ -20,6 +20,7 @@ public abstract class Setting<T> {
     private BooleanSupplier visible = () -> true;
     private String translationKey;
     private Runnable saveHook = () -> {};
+    private String featureId;
 
     protected Setting(String id, T defaultValue) {
         this.id = Objects.requireNonNull(id);
@@ -84,7 +85,25 @@ public abstract class Setting<T> {
     }
 
     public boolean isVisible() {
-        return visible.getAsBoolean();
+        return !isBlocked() && visible.getAsBoolean();
+    }
+
+    /**
+     * Ties this setting to a feature id reported to the server's Feature Control (e.g. {@code through_walls}).
+     * While the feature is blocked the setting is hidden and, for switches, reads as off.
+     */
+    public Setting<T> feature(String id) {
+        this.featureId = id;
+        FeatureGate.declare(id);
+        return this;
+    }
+
+    public String featureId() {
+        return featureId;
+    }
+
+    public boolean isBlocked() {
+        return FeatureGate.isBlocked(featureId);
     }
 
     /** Whether the value is written to config.json. */

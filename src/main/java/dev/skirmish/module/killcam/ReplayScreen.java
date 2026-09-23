@@ -74,11 +74,10 @@ final class ReplayScreen extends UiScreen {
                 () -> speeds.stream().map(s -> Texts.localizeDecimal(trimZeros(s.value)) + "×").toList(),
                 () -> speeds.indexOf(ReplaySpeed.nearest(session.speed())),
                 i -> session.setSpeed(speeds.get(i).value));
-        List<CameraMode> modes = Arrays.asList(CameraMode.values());
         this.camera = new Segmented(Segmented.Spec.REPLAY,
-                () -> modes.stream().map(m -> Ui.tr("skirmish.killcam.camera_short." + m.name().toLowerCase(Locale.ROOT))).toList(),
-                () -> modes.indexOf(session.mode()),
-                i -> session.setMode(modes.get(i)));
+                () -> session.allowedModes().stream().map(m -> Ui.tr("skirmish.killcam.camera_short." + m.name().toLowerCase(Locale.ROOT))).toList(),
+                () -> session.allowedModes().indexOf(session.mode()),
+                i -> session.setMode(session.allowedModes().get(i)));
         this.title = weaponText(session.killerWeapon());
     }
 
@@ -323,7 +322,10 @@ final class ReplayScreen extends UiScreen {
             case GLFW.GLFW_KEY_RIGHT -> session.seekSeconds(event.hasShiftDown() ? 0.05 : 1.0);
             case GLFW.GLFW_KEY_UP -> session.changeSpeed(1);
             case GLFW.GLFW_KEY_DOWN -> session.changeSpeed(-1);
-            case GLFW.GLFW_KEY_C -> session.setMode(session.mode().next());
+            case GLFW.GLFW_KEY_C -> {
+                List<CameraMode> allowed = session.allowedModes();
+                session.setMode(allowed.get((allowed.indexOf(session.mode()) + 1) % allowed.size()));
+            }
             case GLFW.GLFW_KEY_1 -> session.setMode(CameraMode.FREE);
             case GLFW.GLFW_KEY_2 -> session.setMode(CameraMode.KILLER);
             case GLFW.GLFW_KEY_3 -> session.setMode(CameraMode.ORBIT);

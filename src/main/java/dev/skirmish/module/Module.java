@@ -2,6 +2,7 @@ package dev.skirmish.module;
 
 import dev.skirmish.debug.DebugLog;
 import dev.skirmish.setting.BoolSetting;
+import dev.skirmish.setting.FeatureGate;
 import dev.skirmish.setting.Setting;
 
 import java.util.ArrayList;
@@ -25,6 +26,8 @@ public abstract class Module {
     private final boolean defaultEnabled;
     private final List<Setting<?>> settings = new ArrayList<>();
     private boolean enabled;
+    /** Whether onEnable ran last (effective state: switched on and not blocked). */
+    private boolean active;
     private boolean initialized;
     private Runnable saveHook = () -> {};
 
@@ -51,8 +54,21 @@ public abstract class Module {
         return "skirmish.module." + id + ".description";
     }
 
+    /** On and not blocked by Feature Control (see {@link #featureId()}). */
     public final boolean isEnabled() {
-        return enabled;
+        return enabled && !isBlocked();
+    }
+
+    /**
+     * Id reported to the server's Feature Control ({@code liteapi:feature-control}); null for core modules that
+     * cannot be blocked. A blocked module is off and hidden from the menu, HUD and editor.
+     */
+    public String featureId() {
+        return id;
+    }
+
+    public final boolean isBlocked() {
+        return FeatureGate.isBlocked(featureId());
     }
 
     public boolean defaultEnabled() {
@@ -91,12 +107,27 @@ public abstract class Module {
             return;
         }
         enabled = value;
-        if (!initialized) {
+        syncActive();
+    }
+
+    /** The user's own switch, saved to config.json (independent of Feature Control blocks). */
+    public final boolean isSwitchedOn() {
+        return enabled;
+    }
+
+    /**
+     * Runs onEnable/onDisable when the effective state changed: after a toggle, after initialization, or when
+     * Feature Control blocks or unblocks the module.
+     */
+    final void syncActive() {
+        boolean now = isEnabled();
+        if (!initialized || now == active) {
             return;
         }
-        log(value ? "enabled" : "disabled");
+        active = now;
+        log(now ? "enabled" : (enabled ? "blocked by Feature Control" : "disabled"));
         try {
-            if (value) {
+            if (now) {
                 onEnable();
             } else {
                 onDisable();

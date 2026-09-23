@@ -44,6 +44,16 @@ public final class SkirmishCommand {
                     SkirmishClient.openScreenNextTick(() -> new SkirmishScreen(null));
                     return 1;
                 }))
+                .then(literal("features")
+                        .executes(SkirmishCommand::features)
+                        .then(literal("simulate")
+                                .then(argument("blocked", StringArgumentType.greedyString()).executes(ctx -> {
+                                    String raw = StringArgumentType.getString(ctx, "blocked").trim();
+                                    java.util.Set<String> ids = raw.equals("-") ? java.util.Set.of()
+                                            : new java.util.HashSet<>(java.util.Arrays.asList(raw.split("[,\\s]+")));
+                                    dev.skirmish.holyworld.FeatureControl.setServerBlocklist(ids);
+                                    return features(ctx);
+                                }))))
                 .then(literal("theme").executes(ctx -> {
                     SkirmishClient.openScreenNextTick(() -> new dev.skirmish.gui.TokensScreen(null));
                     return 1;
@@ -75,6 +85,21 @@ public final class SkirmishCommand {
                             ctx.getSource().sendFeedback(Component.translatable("skirmish.waypoint.unselected"));
                             return 1;
                         }))));
+    }
+
+    /** Prints the feature ids reported to HolyWorld Feature Control and which are blocked now. */
+    private static int features(CommandContext<FabricClientCommandSource> ctx) {
+        java.util.List<String> declared = dev.skirmish.setting.FeatureGate.declared();
+        java.util.Set<String> blocked = dev.skirmish.setting.FeatureGate.blocked();
+        ctx.getSource().sendFeedback(Component.translatable("skirmish.features.header",
+                dev.skirmish.holyworld.HolyWorld.isConnected() ? Component.translatable("gui.yes") : Component.translatable("gui.no")));
+        MutableComponent line = Component.empty();
+        for (String id : declared) {
+            line.append(Component.literal(id + " ").withStyle(blocked.contains(id)
+                    ? net.minecraft.ChatFormatting.RED : net.minecraft.ChatFormatting.GRAY));
+        }
+        ctx.getSource().sendFeedback(line);
+        return 1;
     }
 
     private static int here(CommandContext<FabricClientCommandSource> ctx, String name) {
