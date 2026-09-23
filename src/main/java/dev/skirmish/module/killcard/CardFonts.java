@@ -1,8 +1,13 @@
 package dev.skirmish.module.killcard;
 
+import dev.skirmish.ui.Theme;
+
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
+import java.awt.font.TextAttribute;
+import java.io.InputStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -10,64 +15,70 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Picks installed font families that can draw the card's text. Only fonts the OS provides are used: a preferred
- * sans-serif when it covers the text (Cyrillic included), otherwise the JDK logical "SansSerif" font, which maps to
- * a composite of system fonts, and finally any installed family that covers the string.
+ * The card's fonts: Manrope and JetBrains Mono from the mod's resources (same files as the in-game UI), with an
+ * installed system font as fallback for characters they lack (e.g. CJK nicknames).
  */
 public final class CardFonts {
-    private static final List<String> PREFERRED = List.of("Segoe UI", "Helvetica Neue", "Inter", "Noto Sans", "Roboto",
-            "DejaVu Sans", "Liberation Sans", "Arial", "FreeSans", "Verdana", "Tahoma");
-    private static final Map<String, String> FALLBACK_BY_TEXT = new ConcurrentHashMap<>();
+    private static final String DIR = "/assets/skirmish/font/";
+    private static final Map<String, Font> BASE = new ConcurrentHashMap<>();
+    private static final List<String> FALLBACKS = List.of("Noto Sans", "DejaVu Sans", "Segoe UI", "Arial Unicode MS", "Arial");
     private static volatile Set<String> installed;
 
-    private final String family;
-
-    private CardFonts(String family) {
-        this.family = family;
+    private CardFonts() {
     }
 
-    /** A font set whose main family covers {@code sample} (all labels and names of one card). */
-    public static CardFonts forSample(String sample) {
-        Set<String> families = installed();
-        for (String name : PREFERRED) {
-            if (families.contains(name) && covers(name, sample)) {
-                return new CardFonts(name);
+    private static Font base(String file) {
+        return BASE.computeIfAbsent(file, f -> {
+            try (InputStream in = CardFonts.class.getResourceAsStream(DIR + f)) {
+                if (in == null) {
+                    throw new IllegalStateException("Missing font " + f);
+                }
+                return Font.createFont(Font.TRUETYPE_FONT, in);
+            } catch (Exception e) {
+                throw new IllegalStateException("Cannot load font " + f, e);
             }
+        });
+    }
+
+    private static String file(Theme.TextStyle style) {
+        if (style.mono()) {
+            return style.weight() >= 600 ? "jetbrainsmono-semibold.ttf" : "jetbrainsmono-medium.ttf";
         }
-        return new CardFonts(Font.SANS_SERIF);
+        return switch (style.weight()) {
+            case 800 -> "manrope-extrabold.ttf";
+            case 700 -> "manrope-bold.ttf";
+            case 600 -> "manrope-semibold.ttf";
+            default -> "manrope-medium.ttf";
+        };
     }
 
-    public String family() {
-        return family;
-    }
-
-    /** The main family, or a fallback family for text it cannot display (exotic characters in nicknames). */
-    public Font font(int style, float size, String text) {
-        String name = family;
-        if (!covers(family, text)) {
-            name = FALLBACK_BY_TEXT.computeIfAbsent(text, CardFonts::findFallback);
+    /** Font for a text style, or a system fallback of similar weight when {@code text} has unsupported characters. */
+    public static Font font(Theme.TextStyle style, String text) {
+        Font font = base(file(style)).deriveFont(style.size());
+        if (font.canDisplayUpTo(text) != -1) {
+            font = new Font(fallbackFamily(text), style.weight() >= 700 ? Font.BOLD : Font.PLAIN, 12).deriveFont(style.size());
         }
-        return new Font(name, style, 12).deriveFont(style, size);
-    }
-
-    public boolean canDisplay(String text) {
-        return covers(family, text);
-    }
-
-    private static String findFallback(String text) {
-        if (covers(Font.SANS_SERIF, text)) {
-            return Font.SANS_SERIF;
+        if (style.tracking() != 0f) {
+            Map<TextAttribute, Object> attributes = new HashMap<>();
+            attributes.put(TextAttribute.TRACKING, style.tracking() / style.size());
+            font = font.deriveFont(attributes);
         }
-        for (String name : installed()) {
-            if (covers(name, text)) {
+        return font;
+    }
+
+    /** Family used for the card's names (for the debug log). */
+    public static String describe(String text) {
+        return base("manrope-extrabold.ttf").canDisplayUpTo(text) == -1 ? "Manrope" : "Manrope + " + fallbackFamily(text);
+    }
+
+    private static String fallbackFamily(String text) {
+        Set<String> families = installed();
+        for (String name : FALLBACKS) {
+            if (families.contains(name) && new Font(name, Font.PLAIN, 12).canDisplayUpTo(text) == -1) {
                 return name;
             }
         }
         return Font.SANS_SERIF;
-    }
-
-    private static boolean covers(String family, String text) {
-        return new Font(family, Font.PLAIN, 12).canDisplayUpTo(text) == -1;
     }
 
     private static Set<String> installed() {

@@ -3,20 +3,21 @@ package dev.skirmish.module.killcard;
 import org.jspecify.annotations.Nullable;
 
 import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-/** Render → PNG → file → clipboard for one card. Blocking; runs on the card thread. */
+/** Render → PNG → file for one card. Blocking; runs on the card thread. */
 public final class CardExporter {
     /**
-     * @param file      saved PNG, null when rendering or saving failed ({@code error} is set)
-     * @param clipboard null when copying was disabled or nothing was saved
+     * @param file  saved PNG, null when rendering or saving failed ({@code error} is set)
+     * @param image the rendered card (for the in-game preview), null on failure
      */
     public record Outcome(@Nullable Path file, int width, int height, String font, List<String> warnings,
                           long renderMs, long encodeMs, int pngBytes, long saveMs,
-                          ImageClipboard.@Nullable Result clipboard, @Nullable Throwable error) {
+                          @Nullable BufferedImage image, @Nullable Throwable error) {
         public boolean saved() {
             return file != null;
         }
@@ -25,7 +26,7 @@ public final class CardExporter {
     private CardExporter() {
     }
 
-    public static Outcome export(KillCardData data, Path directory, boolean copyToClipboard) {
+    public static Outcome export(KillCardData data, Path directory) {
         long t0 = System.nanoTime();
         CardRenderer.Result rendered;
         try {
@@ -55,8 +56,7 @@ public final class CardExporter {
         }
         long saveMs = ms(t2);
 
-        ImageClipboard.Result clipboard = copyToClipboard ? ImageClipboard.copy(file, rendered.image()) : null;
-        return new Outcome(file, w, h, rendered.fontFamily(), rendered.warnings(), renderMs, encodeMs, png.length, saveMs, clipboard, null);
+        return new Outcome(file, w, h, rendered.fontFamily(), rendered.warnings(), renderMs, encodeMs, png.length, saveMs, rendered.image(), null);
     }
 
     private static byte[] encode(CardRenderer.Result rendered) throws IOException {

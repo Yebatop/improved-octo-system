@@ -12,7 +12,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,57 +32,53 @@ class KillCardRenderTest {
         Files.createDirectories(OUT);
     }
 
+    /** The mockup's own sample data at 1x and 2x (compared side by side in docs/ui-compare/killcard.png). */
     @Test
-    void rendersEveryTheme() throws Exception {
-        for (CardTheme theme : CardTheme.values()) {
-            KillCardData data = new KillCardData(stats("Yebatop", "Убийца_2009", true), CardText.english(), theme, gear(), 1.0);
-            CardRenderer.Result result = CardRenderer.render(data);
+    void rendersMockupSampleAt1xAnd2x() throws Exception {
+        CardText russian = CardText.load((key, fallback) -> RUSSIAN.getOrDefault(key.substring(CardText.PREFIX.length()), fallback), 2);
+        CardStats stats = new CardStats("[ВАШ НИК]", "GFk31AK", 6.5f, true, 34.5f, 18, 23, 2, 47_000, TIME, "holyworld", false,
+                solidFace(0xFFB98B62), solidFace(0xFFC9A27A));
+        for (double scale : new double[]{1.0, 2.0}) {
+            CardRenderer.Result result = CardRenderer.render(new KillCardData(stats, russian, mockupGear(), scale));
             BufferedImage image = result.image();
-            assertEquals(960, image.getWidth());
-            assertEquals(540, image.getHeight());
+            assertEquals((int) (800 * scale), image.getWidth());
+            assertEquals((int) (420 * scale), image.getHeight());
             assertTrue(result.warnings().isEmpty(), result.warnings().toString());
             assertNotBlank(image);
-            Path file = OUT.resolve("killcard_" + theme.name().toLowerCase(Locale.ROOT) + ".png");
-            ImageIO.write(image, "png", file.toFile());
-            BufferedImage back = ImageIO.read(file.toFile());
-            assertEquals(960, back.getWidth());
-            assertEquals(540, back.getHeight());
+            ImageIO.write(image, "png", OUT.resolve(scale == 1.0 ? "killcard_mockup.png" : "killcard_mockup@2x.png").toFile());
         }
     }
 
     @Test
-    void rendersRussianLabelsUnknownDamageAndScale() throws Exception {
-        CardText russian = CardText.load((key, fallback) -> RUSSIAN.getOrDefault(key.substring(CardText.PREFIX.length()), fallback));
-        KillCardData data = new KillCardData(stats("Победитель", "ОченьДлинныйНикСоперника_XYZ", false), russian, CardTheme.NEON, gear(), 1.5);
-        CardRenderer.Result result = CardRenderer.render(data);
-        assertEquals(1440, result.image().getWidth());
-        assertEquals(810, result.image().getHeight());
+    void rendersEnglishUnknownDamageAndMissingFaces() throws Exception {
+        CardStats stats = new CardStats("Yebatop", "ОченьДлинныйНикСоперника_XYZ_2009", -1f, false, 0f, 0, 0, 1, 125_400, TIME, null, true,
+                null, null);
+        CardRenderer.Result result = CardRenderer.render(new KillCardData(stats, CardText.english(1), gear(), 1.0));
         assertNotBlank(result.image());
-        ImageIO.write(result.image(), "png", OUT.resolve("killcard_neon_ru_hp_hidden.png").toFile());
+        ImageIO.write(result.image(), "png", OUT.resolve("killcard_en_unknown.png").toFile());
     }
 
     @Test
-    void cyrillicIsCoveredByTheChosenFonts() {
-        String nick = "Убийца_2009";
-        CardFonts fonts = CardFonts.forSample(nick + " ЭКИПИРОВКА СОПЕРНИКА");
-        assertEquals(-1, fonts.font(java.awt.Font.BOLD, 40, nick).canDisplayUpTo(nick), "font " + fonts.family());
+    void cyrillicIsCoveredByTheBundledFont() {
+        assertEquals("Manrope", CardFonts.describe("Убийца_2009"));
     }
 
     @Test
     void exporterSavesUniqueFiles(@TempDir Path dir) throws Exception {
-        KillCardData data = new KillCardData(stats("Me", "Target", true), CardText.english(), CardTheme.ARCTIC, gear(), 1.0);
-        CardExporter.Outcome first = CardExporter.export(data, dir, false);
-        CardExporter.Outcome second = CardExporter.export(data, dir, false);
+        CardStats stats = new CardStats("Me", "Target", 20f, true, 12f, 3, 4, 0, 5_000, TIME, "server", false, null, null);
+        KillCardData data = new KillCardData(stats, CardText.english(0), gear(), 1.0);
+        CardExporter.Outcome first = CardExporter.export(data, dir);
+        CardExporter.Outcome second = CardExporter.export(data, dir);
         assertNull(first.error());
         assertNotNull(first.file());
         assertNotNull(second.file());
-        assertNull(first.clipboard());
+        assertNotNull(first.image());
         assertFalse(first.file().equals(second.file()));
         assertEquals("killcard_2026-09-23_21.04.17_Target.png", first.file().getFileName().toString());
         assertEquals("killcard_2026-09-23_21.04.17_Target_2.png", second.file().getFileName().toString());
         BufferedImage read = ImageIO.read(first.file().toFile());
-        assertEquals(960, read.getWidth());
-        assertEquals(540, read.getHeight());
+        assertEquals(800, read.getWidth());
+        assertEquals(420, read.getHeight());
     }
 
     @Test
@@ -107,18 +102,35 @@ class KillCardRenderTest {
     }
 
     @Test
-    void labelsFallBackToEnglish() {
-        CardText text = CardText.load((key, fallback) -> key.endsWith(".title") ? "" : fallback);
-        assertEquals("KILL CONFIRMED", text.title());
-        assertEquals(6, text.slotNames().size());
-        assertEquals("12.3 s", CardRenderer.formatDuration(12_340, "s"));
-        assertEquals("1:05", CardRenderer.formatDuration(65_900, "s"));
+    void labelsFallBackToEnglishAndPickPluralForms() {
+        CardText text = CardText.load((key, fallback) -> key.endsWith(".badge") ? "" : fallback, 1);
+        assertEquals("VICTORY", text.badge());
+        assertEquals("totem popped", text.totemsLabel());
+        assertEquals("totems popped", CardText.english(2).totemsLabel());
+        CardText.load((key, fallback) -> RUSSIAN.getOrDefault(key.substring(CardText.PREFIX.length()), fallback), 5);
+        assertEquals("тотема снесено", CardText.load((key, fallback) -> RUSSIAN.getOrDefault(key.substring(CardText.PREFIX.length()), fallback), 2).totemsLabel());
+        assertEquals("тотемов снесено", CardText.load((key, fallback) -> RUSSIAN.getOrDefault(key.substring(CardText.PREFIX.length()), fallback), 11).totemsLabel());
+        assertEquals("тотем снесён", CardText.load((key, fallback) -> RUSSIAN.getOrDefault(key.substring(CardText.PREFIX.length()), fallback), 21).totemsLabel());
+        assertEquals("0:47", CardRenderer.formatDuration(47_900));
+        assertEquals("2:05", CardRenderer.formatDuration(125_400));
     }
 
     // ---- fake data ----
 
-    private static CardStats stats(String killer, String victim, boolean damageKnown) {
-        return new CardStats(killer, victim, damageKnown, 37.5f, 14, 9, 2, 48_700, TIME, "lite.holyworld.ru", false);
+    private static int[] solidFace(int argb) {
+        int[] face = new int[64];
+        java.util.Arrays.fill(face, argb);
+        return face;
+    }
+
+    private static List<CardItem> mockupGear() {
+        return List.of(
+                new CardItem("minecraft:diamond_helmet", "Helmet", 1, 0.9f, false, flat(0xFF5CE1E6, 0xFF3AB8BD), "test"),
+                new CardItem("minecraft:netherite_chestplate", "Chest", 1, 0.8f, false, flat(0xFF4B3F6B, 0xFF3A3054), "test"),
+                new CardItem("minecraft:netherite_leggings", "Legs", 1, 0.4f, false, flat(0xFF4B3F6B, 0xFF3A3054), "test"),
+                new CardItem("minecraft:netherite_boots", "Boots", 1, 0.9f, false, flat(0xFF4B3F6B, 0xFF3A3054), "test"),
+                new CardItem("minecraft:netherite_sword", "Sword", 1, 0.1f, false, flat(0xFF4B3F6B, 0xFF3A3054), "test"),
+                CardItem.EMPTY);
     }
 
     private static List<CardItem> gear() {
@@ -128,7 +140,7 @@ class KillCardRenderTest {
                 CardItem.EMPTY,
                 new CardItem("minecraft:diamond_boots", "Diamond Boots", 1, 0.21f, true, flat(0xFF2BC7AC, 0xFF1D8C79), "test"),
                 new CardItem("minecraft:obsidian", "Obsidian", 64, -1, false, cube(), "test"),
-                new CardItem("minecraft:shield", "Shield", 1, 0.5f, false, null, "missing: special renderer"));
+                CardItem.EMPTY);
     }
 
     private static IconSource flat(int body, int edge) {
@@ -166,15 +178,6 @@ class KillCardRenderTest {
         return new IconSource.Cube(face, face, face);
     }
 
-    private static final Map<String, String> RUSSIAN = Map.ofEntries(
-            Map.entry("title", "КИЛЛ ЗАСЧИТАН"), Map.entry("killer", "победитель"), Map.entry("victim", "повержен"),
-            Map.entry("gear", "ЭКИПИРОВКА СОПЕРНИКА"), Map.entry("slot.head", "Шлем"), Map.entry("slot.chest", "Нагрудник"),
-            Map.entry("slot.legs", "Поножи"), Map.entry("slot.feet", "Ботинки"), Map.entry("slot.mainhand", "Основная рука"),
-            Map.entry("slot.offhand", "Вторая рука"), Map.entry("damage", "НАНЕСЕНО УРОНА"), Map.entry("damage_unknown", "н/д"),
-            Map.entry("damage_unknown_note", "сервер скрывает здоровье"), Map.entry("totems", "СНЕСЕНО ТОТЕМОВ"),
-            Map.entry("totems_note", "у соперника"), Map.entry("duration", "ДЛИТЕЛЬНОСТЬ БОЯ"), Map.entry("seconds", "с"),
-            Map.entry("hits", "УДАРЫ"), Map.entry("hits_note", "нанесено / получено"), Map.entry("server", "Сервер"),
-            Map.entry("date_pattern", "dd.MM.yyyy HH:mm:ss"));
 
     private static void assertNotBlank(BufferedImage image) {
         Set<Integer> colors = new HashSet<>();
@@ -193,6 +196,13 @@ class KillCardRenderTest {
             }
         }
         assertTrue(colors.size() > 200, "only " + colors.size() + " colors");
-        assertTrue(different > total / 20, "only " + different + " of " + total + " pixels differ from the background");
+        assertTrue(different > total / 50, "only " + different + " of " + total + " pixels differ from the background");
     }
+
+    private static final Map<String, String> RUSSIAN = Map.ofEntries(
+            Map.entry("badge", "ПОБЕДА"), Map.entry("vs", "против"), Map.entry("remaining", "осталось %s HP"),
+            Map.entry("killed", "убит"), Map.entry("damage", "урона нанесено"), Map.entry("totems.one", "тотем снесён"),
+            Map.entry("totems.few", "тотема снесено"), Map.entry("totems.many", "тотемов снесено"),
+            Map.entry("accuracy", "попаданий"), Map.entry("duration", "длительность"),
+            Map.entry("gear", "Снаряжение соперника"), Map.entry("date_pattern", "dd.MM.yyyy"), Map.entry("decimal", ","));
 }

@@ -2,82 +2,77 @@ package dev.skirmish.module.killcard;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
- * Localized labels printed on the card. Resolved from the game language on the client thread
- * ({@code skirmish.module.killcard.card.<name>}); {@link #english()} is the built-in fallback.
+ * Localized labels printed on the card, resolved on the client thread from
+ * {@code skirmish.module.killcard.card.<name>}; {@link #english()} is the built-in fallback.
  *
- * @param slotNames   captions of the six equipment slots in {@code EquipmentSnapshot.SLOTS} order
- * @param datePattern {@link java.time.format.DateTimeFormatter} pattern
+ * @param remaining   format with one {@code %s} (my remaining HP)
+ * @param totemsLabel already in the plural form for the card's totem count
+ * @param decimal     decimal separator of the language
  */
-public record CardText(String title, String previewTitle, String killerCaption, String victimCaption, String gearTitle,
-                       List<String> slotNames, String damageLabel, String hpUnit, String damageNote,
-                       String damageUnknownValue, String damageUnknownNote, String totemsLabel, String totemsNote,
-                       String durationLabel, String secondsUnit, String hitsLabel, String hitsNote, String serverLabel,
-                       String datePattern, String footer) {
+public record CardText(String badge, String previewBadge, String vs, String remaining, String killed, String damageLabel,
+                       String damageUnknown, String totemsLabel, String accuracyLabel, String durationLabel,
+                       String gearLabel, String datePattern, char decimal) {
     public static final String PREFIX = "skirmish.module.killcard.card.";
 
-    /** Translation key suffix → English text. Order matches the record components. */
+    /** Translation key suffix → English text. */
     public static final Map<String, String> DEFAULTS = defaults();
-
-    public CardText {
-        slotNames = List.copyOf(slotNames);
-        if (slotNames.size() != 6) {
-            throw new IllegalArgumentException("Expected 6 slot names, got " + slotNames.size());
-        }
-    }
 
     private static Map<String, String> defaults() {
         Map<String, String> map = new LinkedHashMap<>();
-        map.put("title", "KILL CONFIRMED");
-        map.put("preview_title", "PREVIEW");
-        map.put("killer", "killer");
-        map.put("victim", "eliminated");
-        map.put("gear", "OPPONENT'S GEAR");
-        map.put("slot.head", "Helmet");
-        map.put("slot.chest", "Chestplate");
-        map.put("slot.legs", "Leggings");
-        map.put("slot.feet", "Boots");
-        map.put("slot.mainhand", "Main hand");
-        map.put("slot.offhand", "Off hand");
-        map.put("damage", "DAMAGE DEALT");
-        map.put("hp", "HP");
-        map.put("damage_note", "estimate from health updates");
-        map.put("damage_unknown", "N/A");
-        map.put("damage_unknown_note", "server hides health");
-        map.put("totems", "TOTEMS POPPED");
-        map.put("totems_note", "by the opponent");
-        map.put("duration", "FIGHT DURATION");
-        map.put("seconds", "s");
-        map.put("hits", "HITS");
-        map.put("hits_note", "dealt / taken");
-        map.put("server", "Server");
-        map.put("date_pattern", "yyyy-MM-dd HH:mm:ss");
-        map.put("footer", "Skirmish · KillCard");
+        map.put("badge", "VICTORY");
+        map.put("preview_badge", "PREVIEW");
+        map.put("vs", "vs");
+        map.put("remaining", "%s HP left");
+        map.put("killed", "killed");
+        map.put("damage", "damage dealt");
+        map.put("damage_unknown", "n/a");
+        map.put("totems.one", "totem popped");
+        map.put("totems.many", "totems popped");
+        map.put("accuracy", "hit rate");
+        map.put("duration", "duration");
+        map.put("gear", "Opponent's gear");
+        map.put("date_pattern", "dd.MM.yyyy");
+        map.put("decimal", ".");
         return Collections.unmodifiableMap(map);
     }
 
-    /** Builds the labels from {@code lookup(fullKey, englishFallback)}, e.g. {@code Language.getInstance()::getOrDefault}. */
-    public static CardText load(BiFunction<String, String, String> lookup) {
-        BiFunction<String, String, String> safe = (key, fallback) -> {
-            String value = lookup.apply(key, fallback);
+    /** Builds the labels from {@code lookup(fullKey, englishFallback)}; {@code totems} picks the plural form. */
+    public static CardText load(BiFunction<String, String, String> lookup, int totems) {
+        BiFunction<String, String, String> t = (name, fallback) -> {
+            String value = lookup.apply(PREFIX + name, fallback);
             return value == null || value.isBlank() ? fallback : value;
         };
-        Function<String, String> t = name -> safe.apply(PREFIX + name, DEFAULTS.get(name));
-        return new CardText(t.apply("title"), t.apply("preview_title"), t.apply("killer"), t.apply("victim"), t.apply("gear"),
-                List.of(t.apply("slot.head"), t.apply("slot.chest"), t.apply("slot.legs"), t.apply("slot.feet"),
-                        t.apply("slot.mainhand"), t.apply("slot.offhand")),
-                t.apply("damage"), t.apply("hp"), t.apply("damage_note"), t.apply("damage_unknown"),
-                t.apply("damage_unknown_note"), t.apply("totems"), t.apply("totems_note"), t.apply("duration"),
-                t.apply("seconds"), t.apply("hits"), t.apply("hits_note"), t.apply("server"), t.apply("date_pattern"),
-                t.apply("footer"));
+        String form = pluralForm(totems);
+        String many = t.apply("totems.many", DEFAULTS.get("totems.many"));
+        String totemsLabel = t.apply("totems." + form, form.equals("one") ? DEFAULTS.get("totems.one") : many);
+        String decimal = t.apply("decimal", ".");
+        return new CardText(t.apply("badge", DEFAULTS.get("badge")), t.apply("preview_badge", DEFAULTS.get("preview_badge")),
+                t.apply("vs", DEFAULTS.get("vs")), t.apply("remaining", DEFAULTS.get("remaining")),
+                t.apply("killed", DEFAULTS.get("killed")), t.apply("damage", DEFAULTS.get("damage")),
+                t.apply("damage_unknown", DEFAULTS.get("damage_unknown")), totemsLabel,
+                t.apply("accuracy", DEFAULTS.get("accuracy")), t.apply("duration", DEFAULTS.get("duration")),
+                t.apply("gear", DEFAULTS.get("gear")), t.apply("date_pattern", DEFAULTS.get("date_pattern")),
+                decimal.isEmpty() ? '.' : decimal.charAt(0));
     }
 
-    public static CardText english() {
-        return load((key, fallback) -> fallback);
+    public static CardText english(int totems) {
+        return load((key, fallback) -> fallback, totems);
+    }
+
+    /** Russian plural rule (one / few / many); languages without "few" fall back to "many". */
+    static String pluralForm(long n) {
+        long mod10 = n % 10;
+        long mod100 = n % 100;
+        if (mod10 == 1 && mod100 != 11) {
+            return "one";
+        }
+        if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
+            return "few";
+        }
+        return "many";
     }
 }
