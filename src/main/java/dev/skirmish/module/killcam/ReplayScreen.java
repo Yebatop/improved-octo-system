@@ -9,9 +9,12 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -25,6 +28,8 @@ final class ReplayScreen extends Screen {
     private static final int RED = 0xFFFF6060;
     private static final int GOLD = 0xFFFFD040;
     private static final int FEED_EVENTS = 5;
+    private static final int ITEM_GAP = 6;
+    private static final int ITEM_STEP = 13;
 
     private final ReplaySession session;
     private Button playButton;
@@ -32,6 +37,9 @@ final class ReplayScreen extends Screen {
     private Button cameraButton;
     private boolean draggingCamera;
     private final TrackSample hud = new TrackSample();
+    private int buttonY;
+    private List<FormattedCharSequence> helpLines = List.of();
+    private List<FormattedCharSequence> freeHelpLines = List.of();
 
     ReplayScreen(ReplaySession session) {
         super(Component.translatable("skirmish.killcam.title"));
@@ -44,9 +52,9 @@ final class ReplayScreen extends Screen {
         int gap = 4;
         int total = Math.min(width - 2 * margin, 460);
         int left = (width - total) / 2;
-        int buttonY = height - 46;
-        int[] weights = {2, 2, 2, 4, 2};
-        int unit = (total - gap * (weights.length - 1)) / 14;
+        buttonY = height - 46;
+        int[] weights = {2, 2, 2, 5, 2};
+        int unit = (total - gap * (weights.length - 1)) / 13;
         int x = left;
         addRenderableWidget(Button.builder(Component.translatable("skirmish.killcam.restart"), b -> session.restart())
                 .bounds(x, buttonY, unit * weights[0], 20).build());
@@ -63,14 +71,19 @@ final class ReplayScreen extends Screen {
         addRenderableWidget(Button.builder(Component.translatable("skirmish.killcam.exit"), b -> onClose())
                 .bounds(x, buttonY, left + total - x, 20).build());
         addRenderableWidget(new TimelineWidget(session, left, height - 20, total, 12));
+        helpLines = font.split(Component.translatable("skirmish.killcam.help"), width - 2 * margin);
+        freeHelpLines = font.split(Component.translatable("skirmish.killcam.help_free"), width - 2 * margin);
         updateLabels();
     }
 
     private void updateLabels() {
         playButton.setMessage(Component.translatable(session.isPlaying() ? "skirmish.killcam.pause" : "skirmish.killcam.play"));
         speedButton.setMessage(Component.literal(formatSpeed(session.speed())));
-        cameraButton.setMessage(Component.translatable("skirmish.killcam.camera",
-                Component.translatable("skirmish.module.killcam.setting.default_camera." + session.mode().name().toLowerCase(Locale.ROOT))));
+        String mode = session.mode().name().toLowerCase(Locale.ROOT);
+        Component full = Component.translatable("skirmish.killcam.camera",
+                Component.translatable("skirmish.module.killcam.setting.default_camera." + mode));
+        cameraButton.setMessage(font.width(full) <= cameraButton.getWidth() - 8 ? full
+                : Component.translatable("skirmish.killcam.camera_short." + mode));
     }
 
     private static String formatSpeed(double speed) {
@@ -86,68 +99,87 @@ final class ReplayScreen extends Screen {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         updateLabels();
         renderOverlay(graphics);
+        renderHelp(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
+    }
+
+    /** One overlay line: text plus optional item icons after it. */
+    private record Row(Component text, int color, List<ItemStack> items, int spacing) {
+        int width(Font font) {
+            return font.width(text) + (items.isEmpty() ? 0 : ITEM_GAP + items.size() * ITEM_STEP);
+        }
     }
 
     private void renderOverlay(GuiGraphics graphics) {
         Font font = this.font;
-        int x = 8;
-        int y = 8;
-        int line = font.lineHeight + 2;
+        List<Row> rows = new ArrayList<>();
         String status = String.format(Locale.ROOT, "%.2f / %.2f %s", session.elapsed(), session.duration(), Texts.unit("s"));
         double toDeath = session.deathAt() - session.elapsed();
-        Component header = Component.translatable("skirmish.killcam.hud.header", status,
-                String.format(Locale.ROOT, "%+.2f", -toDeath), formatSpeed(session.speed()));
-        int panelWidth = Math.max(font.width(header), 200) + 8;
-        graphics.fill(x - 4, y - 4, x + panelWidth, y + line * 4 + 22, PANEL);
-        graphics.drawString(font, header, x, y, TEXT, true);
-        y += line;
+        rows.add(new Row(Component.translatable("skirmish.killcam.hud.header", status,
+                String.format(Locale.ROOT, "%+.2f", -toDeath), formatSpeed(session.speed())), TEXT, List.of(), 2));
         String note = session.cameraNote();
         if (!note.isEmpty()) {
-            graphics.drawString(font, Component.translatable("skirmish.killcam.camera_note." + note), x, y, GOLD, true);
-            y += line;
+            rows.add(new Row(Component.translatable("skirmish.killcam.camera_note." + note), GOLD, List.of(), 2));
         }
-        y = renderPlayer(graphics, font, x, y, session.killerTrack, "skirmish.killcam.hud.killer", RED);
-        y = renderPlayer(graphics, font, x, y, session.victimTrack, "skirmish.killcam.hud.me", TEXT);
-        renderFeed(graphics, font, x, y + 2);
-        Component help = Component.translatable("skirmish.killcam.help");
-        graphics.drawCenteredString(font, help, width / 2, height - 58, DIM);
-    }
-
-    private int renderPlayer(GuiGraphics graphics, Font font, int x, int y, int track, String key, int color) {
-        if (track == ReplayBuffer.NO_TRACK) {
-            if (key.endsWith("killer")) {
-                graphics.drawString(font, Component.translatable("skirmish.killcam.hud.no_killer"), x, y, DIM, true);
-                return y + font.lineHeight + 2;
-            }
-            return y;
-        }
-        String name = session.buffer.name(track);
-        Component text;
-        if (session.hudSample(track, hud)) {
-            String hp = hud.absorption > 0
-                    ? String.format(Locale.ROOT, "%.1f (+%.1f)", hud.health, hud.absorption)
-                    : String.format(Locale.ROOT, "%.1f", hud.health);
-            text = Component.translatable(key, name, hp);
+        if (session.killerTrack == ReplayBuffer.NO_TRACK) {
+            rows.add(new Row(Component.translatable("skirmish.killcam.hud.no_killer"), DIM, List.of(), 2));
         } else {
-            text = Component.translatable(key, name, "-");
+            rows.add(playerRow(session.killerTrack, "skirmish.killcam.hud.killer", RED));
         }
-        graphics.drawString(font, text, x, y, color, true);
-        int itemX = x + font.width(text) + 6;
-        for (int slot = 0; slot < ReplayBuffer.EQUIPMENT_SLOTS; slot++) {
-            if (session.equipmentNow(track, slot) instanceof ItemStack stack && !stack.isEmpty()) {
+        if (session.victimTrack != ReplayBuffer.NO_TRACK) {
+            rows.add(playerRow(session.victimTrack, "skirmish.killcam.hud.me", TEXT));
+        }
+        feedRows(rows);
+
+        int x = 8;
+        int top = 8;
+        int contentWidth = 0;
+        int contentHeight = 0;
+        for (Row row : rows) {
+            contentWidth = Math.max(contentWidth, row.width(font));
+            contentHeight += font.lineHeight + row.spacing();
+        }
+        graphics.fill(x - 4, top - 4, x + contentWidth + 4, top + contentHeight + 2, PANEL);
+        int y = top;
+        for (Row row : rows) {
+            graphics.drawString(font, row.text(), x, y, row.color(), true);
+            int itemX = x + font.width(row.text()) + ITEM_GAP;
+            for (ItemStack stack : row.items()) {
                 graphics.pose().pushMatrix();
-                graphics.pose().translate(itemX, y - 3);
+                graphics.pose().translate(itemX, y - 2);
                 graphics.pose().scale(0.75F, 0.75F);
                 graphics.renderItem(stack, 0, 0);
                 graphics.pose().popMatrix();
-                itemX += 13;
+                itemX += ITEM_STEP;
             }
+            y += font.lineHeight + row.spacing();
         }
-        return y + font.lineHeight + 6;
     }
 
-    private void renderFeed(GuiGraphics graphics, Font font, int x, int y) {
+    private Row playerRow(int track, String key, int color) {
+        String name = session.buffer.name(track);
+        long age = session.hudSample(track, hud);
+        String hp;
+        if (age < 0) {
+            hp = "-";
+        } else {
+            hp = hud.absorption > 0
+                    ? String.format(Locale.ROOT, "%.1f (+%.1f)", hud.health, hud.absorption)
+                    : String.format(Locale.ROOT, "%.1f", hud.health);
+            if (age > 0) {
+                hp += String.format(Locale.ROOT, " (-%.1f %s)", age / 20.0, Texts.unit("s"));
+            }
+        }
+        List<ItemStack> items = new ArrayList<>();
+        for (int slot = 0; slot < ReplayBuffer.EQUIPMENT_SLOTS; slot++) {
+            if (session.equipmentNow(track, slot) instanceof ItemStack stack && !stack.isEmpty()) {
+                items.add(stack);
+            }
+        }
+        return new Row(Component.translatable(key, name, hp), age > 0 ? DIM : color, items, 5);
+    }
+
+    private void feedRows(List<Row> rows) {
         ReplayBuffer buffer = session.buffer;
         double now = session.startTick + session.elapsed() * 20.0;
         int shown = 0;
@@ -160,9 +192,25 @@ final class ReplayScreen extends Screen {
             if (text == null) {
                 continue;
             }
-            int alpha = shown == 0 ? 0xFF : 0xFF - shown * 0x28;
-            graphics.drawString(font, text, x, y + shown * (font.lineHeight + 1), (alpha << 24) | 0xE0E0E0, true);
+            int alpha = 0xFF - shown * 0x28;
+            rows.add(new Row(text, (alpha << 24) | 0xE0E0E0, List.of(), 1));
             shown++;
+        }
+    }
+
+    private void renderHelp(GuiGraphics graphics) {
+        int step = font.lineHeight + 1;
+        boolean free = session.mode() == CameraMode.FREE;
+        int y = buttonY - 3 - (helpLines.size() + (free ? freeHelpLines.size() : 0)) * step;
+        for (FormattedCharSequence line : helpLines) {
+            graphics.drawCenteredString(font, line, width / 2, y, DIM);
+            y += step;
+        }
+        if (free) {
+            for (FormattedCharSequence line : freeHelpLines) {
+                graphics.drawCenteredString(font, line, width / 2, y, GOLD);
+                y += step;
+            }
         }
     }
 

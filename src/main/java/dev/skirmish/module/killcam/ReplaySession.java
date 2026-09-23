@@ -62,6 +62,7 @@ final class ReplaySession {
     private final @Nullable ReplayPlayer[] fakeByTrack;
     private final TrackSample sample = new TrackSample();
     private final TrackSample hudSample = new TrackSample();
+    private final java.util.Set<Integer> hudMissLogged = new java.util.HashSet<>();
 
     private double time;
     private boolean playing = true;
@@ -416,13 +417,28 @@ final class ReplaySession {
         return fake != null && fake.present ? fake : null;
     }
 
-    /** Recorded state of a track at the current replay time (for the overlay), or false. */
-    boolean hudSample(int track, TrackSample out) {
-        if (track == ReplayBuffer.NO_TRACK || !buffer.sample(track, time, hudSample)) {
-            return false;
+    /**
+     * State of a track for the overlay: at the current replay time, else the last recorded tick before it.
+     * Returns the age in ticks of the shown state (0 = current), or -1 when the player has no data up to now.
+     */
+    long hudSample(int track, TrackSample out) {
+        if (track == ReplayBuffer.NO_TRACK) {
+            return -1;
         }
-        out.copyFrom(hudSample);
-        return true;
+        if (buffer.sample(track, time, hudSample)) {
+            out.copyFrom(hudSample);
+            return 0;
+        }
+        long now = (long) Math.floor(time);
+        long last = buffer.lastPresent(track, now, startTick);
+        if (hudMissLogged.add(track)) {
+            module.log("hud: no sample for %s at tick %d (%.2f s); last recorded tick in the window %d, track last written %d, window %d..%d",
+                    buffer.name(track), now, elapsed(), last, buffer.lastTick(track), startTick, endTick);
+        }
+        if (last < 0 || !buffer.read(track, last, out)) {
+            return -1;
+        }
+        return now - last;
     }
 
     @Nullable Object equipmentNow(int track, int slot) {
