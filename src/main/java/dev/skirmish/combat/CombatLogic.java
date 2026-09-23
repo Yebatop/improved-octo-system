@@ -228,6 +228,18 @@ public final class CombatLogic {
         if (fight.lastHitDealtMs >= 0 && now - fight.lastHitDealtMs <= window) {
             DamageInfo last = lastDamage.get(entity.entityId());
             String lastHitter = last == null || last.attacker() == null ? "unknown" : last.attacker().name();
+            // The death event usually arrives before the health update of the killing blow; only trust the remaining
+            // health if real drops were already seen (a spoofed constant health would otherwise become fake damage).
+            float remaining = Math.max(0, fight.opponentHealth) + fight.opponentAbsorption;
+            if (last != null && last.byMe() && now - last.timeMs() <= DAMAGE_TO_HEALTH_WINDOW_MS
+                    && fight.healthDropsObserved > 0 && remaining > 0) {
+                fight.damageDealt += remaining;
+                fight.healthDropsObserved++;
+                fight.opponentHealth = 0;
+                fight.opponentAbsorption = 0;
+                log.accept(String.format(Locale.ROOT, "final blow on %s: +%.1f hp (last known health), total dealt %.1f",
+                        entity.name(), remaining, fight.damageDealt));
+            }
             log.accept("KILL " + entity.name() + " (" + signal + "): my last hit " + (now - fight.lastHitDealtMs)
                     + " ms ago <= " + window + " ms, last damage by " + lastHitter + "; " + fight);
             endFight(fight, FightEndReason.KILL, now);

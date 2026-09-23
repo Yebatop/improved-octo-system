@@ -77,9 +77,13 @@ public class NumberSetting extends Setting<Double> {
     }
 
     public String format() {
+        return unit.isEmpty() ? formatValue() : formatValue() + unit;
+    }
+
+    /** The number alone, formatted to the step's precision. */
+    public String formatValue() {
         double v = get();
-        String text = isInteger() ? Long.toString(Math.round(v)) : String.format(Locale.ROOT, stepDecimals() == 1 ? "%.1f" : "%.2f", v);
-        return unit.isEmpty() ? text : text + unit;
+        return isInteger() ? Long.toString(Math.round(v)) : String.format(Locale.ROOT, stepDecimals() == 1 ? "%.1f" : "%.2f", v);
     }
 
     private int stepDecimals() {

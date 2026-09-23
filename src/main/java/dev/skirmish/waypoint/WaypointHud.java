@@ -1,5 +1,6 @@
 package dev.skirmish.waypoint;
 
+import dev.skirmish.gui.Texts;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
@@ -132,8 +133,8 @@ final class WaypointHud implements HudElement {
 
     static String formatDistance(double distance) {
         if (distance >= 10_000) {
-            return String.format(Locale.ROOT, "%.1f km", distance / 1000.0);
+            return String.format(Locale.ROOT, "%.1f ", distance / 1000.0) + Texts.unit("km");
         }
-        return Math.round(distance) + " m";
+        return Math.round(distance) + " " + Texts.unit("m");
     }
 }

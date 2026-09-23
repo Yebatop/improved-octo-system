@@ -26,7 +26,7 @@
   "skirmish.module.waypoints.name": "Метки",
   "skirmish.module.waypoints.description": "Метки с дистанцией в мире и стрелка к выбранной метке. Хранятся по серверу и измерению.",
   "skirmish.module.waypoints.setting.show_labels": "Метки в мире",
-  "skirmish.module.waypoints.setting.max_label_distance": "Макс. дистанция меток (0 = любая)",
+  "skirmish.module.waypoints.setting.max_label_distance": "Дальность меток",
   "skirmish.module.waypoints.setting.label_scale": "Масштаб меток",
   "skirmish.module.waypoints.setting.show_arrow": "Стрелка к выбранной",
   "skirmish.module.waypoints.setting.arrow_y": "Высота стрелки",
@@ -53,5 +53,12 @@
   "skirmish.waypoints.empty": "На этом сервере пока нет меток",
   "skirmish.waypoints.delete": "Удалить",
   "skirmish.waypoints.arrow_on": "Стрелка: вкл",
-  "skirmish.waypoints.arrow_off": "Стрелка: выкл"
+  "skirmish.waypoints.arrow_off": "Стрелка: выкл",
+  "skirmish.unit.s": "с",
+  "skirmish.unit.ms": "мс",
+  "skirmish.unit.m": "м",
+  "skirmish.unit.km": "км",
+  "skirmish.unit.x": "x",
+  "skirmish.unit.%": "%",
+  "skirmish.module.waypoints.setting.max_label_distance.tooltip": "Скрывать метки дальше этого расстояния. 0 = без ограничения."
 }

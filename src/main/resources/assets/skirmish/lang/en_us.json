@@ -26,7 +26,7 @@
   "skirmish.module.waypoints.name": "Waypoints",
   "skirmish.module.waypoints.description": "Labels with distance in the world and an arrow to the selected waypoint. Stored per server and dimension.",
   "skirmish.module.waypoints.setting.show_labels": "Labels in the world",
-  "skirmish.module.waypoints.setting.max_label_distance": "Max label distance (0 = any)",
+  "skirmish.module.waypoints.setting.max_label_distance": "Label range",
   "skirmish.module.waypoints.setting.label_scale": "Label scale",
   "skirmish.module.waypoints.setting.show_arrow": "Arrow to selected",
   "skirmish.module.waypoints.setting.arrow_y": "Arrow height",
@@ -53,5 +53,12 @@
   "skirmish.waypoints.empty": "No waypoints on this server yet",
   "skirmish.waypoints.delete": "Delete",
   "skirmish.waypoints.arrow_on": "Arrow: on",
-  "skirmish.waypoints.arrow_off": "Arrow: off"
+  "skirmish.waypoints.arrow_off": "Arrow: off",
+  "skirmish.unit.s": "s",
+  "skirmish.unit.ms": "ms",
+  "skirmish.unit.m": "m",
+  "skirmish.unit.km": "km",
+  "skirmish.unit.x": "x",
+  "skirmish.unit.%": "%",
+  "skirmish.module.waypoints.setting.max_label_distance.tooltip": "Hide labels farther than this. 0 = no limit."
 }

@@ -1,6 +1,7 @@
 package dev.skirmish.gui;
 
 import dev.skirmish.setting.EnumSetting;
+import dev.skirmish.setting.NumberSetting;
 import dev.skirmish.setting.Setting;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -31,6 +32,21 @@ public final class Texts {
 
     public static <E extends Enum<E>> Component enumValue(EnumSetting<E> setting, E value) {
         return tr(setting.valueTranslationKey(value), humanize(value.name()));
+    }
+
+    /** Value plus unit; the unit is translated via {@code skirmish.unit.<unit>} when such a key exists. */
+    public static Component number(NumberSetting setting) {
+        String unit = setting.unit().trim();
+        if (unit.isEmpty()) {
+            return Component.literal(setting.formatValue());
+        }
+        String separator = setting.unit().startsWith(" ") ? " " : "";
+        return Component.literal(setting.formatValue() + separator).append(tr("skirmish.unit." + unit, unit));
+    }
+
+    /** Translated short unit ({@code skirmish.unit.<unit>}), or the unit itself. */
+    public static String unit(String unit) {
+        return Language.getInstance().getOrDefault("skirmish.unit." + unit, unit);
     }
 
     /** {@code max_label_distance -> Max label distance}. */
