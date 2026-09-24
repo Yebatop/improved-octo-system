@@ -3,6 +3,7 @@ package dev.skirmish;
 import dev.skirmish.combat.CombatTrackerModule;
 import dev.skirmish.command.SkirmishCommand;
 import dev.skirmish.config.ConfigManager;
+import dev.skirmish.config.RemovedModules;
 import dev.skirmish.debug.DebugLog;
 import dev.skirmish.holyworld.FeatureControl;
 import dev.skirmish.holyworld.HolyApi;
@@ -19,7 +20,6 @@ import dev.skirmish.module.coords.DeathWaypointModule;
 import dev.skirmish.module.effects.ArmorHudModule;
 import dev.skirmish.module.effects.EffectHudModule;
 import dev.skirmish.module.fullbright.FullbrightModule;
-import dev.skirmish.module.sprint.ToggleSprintModule;
 import dev.skirmish.module.zoom.ZoomModule;
 import dev.skirmish.module.clanshare.ClanShareModule;
 import dev.skirmish.module.events.EventsModule;
@@ -72,9 +72,10 @@ public final class SkirmishClient implements ClientModInitializer {
         modules.register(new LowFireModule());
         modules.register(new CoordsHudModule());
         modules.register(new DeathWaypointModule());
-        modules.register(new ToggleSprintModule());
         InterfaceModule iface = modules.register(new InterfaceModule());
 
+        Runnable restoreRemoved = RemovedModules.read(dir.resolve("config.json"));
+        ClientLifecycleEvents.CLIENT_STARTED.register(client -> restoreRemoved.run());
         config = new ConfigManager(dir.resolve("config.json"), modules::all);
         modules.setConfig(config);
         config.load();

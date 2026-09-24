@@ -1,8 +1,0 @@
-{
-  "skirmish.module.toggle_sprint.name": "Toggle sprint",
-  "skirmish.module.toggle_sprint.description": "Turns on vanilla's toggle sprint (Controls → \"Sprint: Toggle\"): press the sprint key once and sprinting stays on. Your previous setting comes back when the module is turned off. The mod never presses anything itself.",
-  "skirmish.module.toggle_sprint.setting.indicator": "\"Sprint\" indicator",
-  "skirmish.module.toggle_sprint.setting.indicator.tooltip": "Small pill in the bottom-left corner while toggled sprint is on",
-  "skirmish.hud.element.toggle_sprint": "Sprint",
-  "skirmish.toggle_sprint.indicator": "Sprint"
-}

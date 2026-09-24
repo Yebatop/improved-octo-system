@@ -9,7 +9,6 @@ import dev.skirmish.module.coords.DeathWaypointModule;
 import dev.skirmish.module.effects.ArmorHudModule;
 import dev.skirmish.module.effects.EffectHudModule;
 import dev.skirmish.module.fullbright.FullbrightModule;
-import dev.skirmish.module.sprint.ToggleSprintModule;
 import dev.skirmish.module.zoom.ZoomModule;
 import dev.skirmish.setting.EnumSetting;
 import dev.skirmish.setting.KeySetting;
@@ -34,7 +33,6 @@ class QolModulesTest {
 
     private static List<Case> cases() {
         return List.of(
-                new Case(new ToggleSprintModule(), "skirmish_sprint", "toggle_sprint", Category.UTILITY),
                 new Case(new FullbrightModule(), "skirmish_fullbright", "fullbright", Category.VISUAL),
                 new Case(new ZoomModule(), "skirmish_zoom", "zoom", Category.VISUAL),
                 new Case(new EffectHudModule(), "skirmish_effects", "effect_hud", Category.COMBAT),
@@ -64,7 +62,7 @@ class QolModulesTest {
 
     @Test
     void bothLanguagesHaveTheSameKeys() throws IOException {
-        for (String ns : List.of("skirmish_sprint", "skirmish_fullbright", "skirmish_zoom", "skirmish_effects", "skirmish_camera", "skirmish_coords")) {
+        for (String ns : List.of("skirmish_fullbright", "skirmish_zoom", "skirmish_effects", "skirmish_camera", "skirmish_coords")) {
             assertEquals(lang(ns, "en_us").keySet(), lang(ns, "ru_ru").keySet(), ns);
         }
     }
