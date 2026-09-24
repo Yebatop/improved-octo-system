@@ -36,7 +36,7 @@
   "layout": {
     "pvp": {
       "arc_segments": 64,
-      "tag_width": 212,
+      "tag_width": 256,
       "tag_ring": 56,
       "tag_ring_width": 4,
       "tag_gap": 12,

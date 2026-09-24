@@ -94,9 +94,15 @@ final class EventRows {
 
     private static void row(Ui ui, Row r, float x, float y, float w) {
         float lineH = Math.max(ui.lineHeight("event_name"), Math.max(ui.lineHeight("event_time"), chipHeight(ui)));
-        float rightW = r.right().isEmpty() ? 0f : ui.textWidth("event_time", r.right());
         float chipW = r.rarity() == null || r.chip().isEmpty() ? 0f : chipWidth(ui, r.chip());
         float gap = ui.num(L + "name_gap");
+        // A long server label gives way to the event name first: it keeps at least 40 % of the row.
+        String right = r.right();
+        if (!right.isEmpty()) {
+            float nameNeed = ui.textWidth("event_name", r.name()) + (chipW > 0 ? chipW + ui.num(L + "chip_gap") : 0f) + gap;
+            right = ui.ellipsize("event_time", right, Math.max(w * 0.4f, w - nameNeed));
+        }
+        float rightW = right.isEmpty() ? 0f : ui.textWidth("event_time", right);
         float nameMax = w - rightW - (rightW > 0 ? gap : 0f) - (chipW > 0 ? chipW + ui.num(L + "chip_gap") : 0f);
         String name = ui.ellipsize("event_name", r.name(), Math.max(0f, nameMax));
         float after = ui.textCentered("event_name", name, x, y, lineH);
@@ -104,7 +110,7 @@ final class EventRows {
             chip(ui, r.rarity(), r.chip(), after + ui.num(L + "chip_gap"), y + (lineH - chipHeight(ui)) / 2f);
         }
         if (rightW > 0) {
-            ui.textCentered("event_time", r.right(), x + w - rightW, y, lineH, ui.color(r.rightColor()));
+            ui.textCentered("event_time", right, x + w - rightW, y, lineH, ui.color(r.rightColor()));
         }
         if (r.sub() != null) {
             String style = r.subMono() ? "event_coords" : "event_sub";

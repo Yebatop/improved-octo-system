@@ -36,8 +36,14 @@ final class EventsPanel extends HudBlock {
         return module.isEnabled() && module.hud.get();
     }
 
+    /** Steps aside during a fight: the fight panel uses the same corner by default. */
     @Override
     public boolean shown() {
+        return HolyWorld.isConnected() && dev.skirmish.combat.CombatTracker.get().activeFights().isEmpty();
+    }
+
+    @Override
+    public boolean hasContent() {
         return HolyWorld.isConnected();
     }
 

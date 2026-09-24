@@ -106,7 +106,17 @@ final class TargetCard extends HudBlock {
 
     @Override
     public float width(Ui ui, boolean preview) {
-        return ui.num(L + "target_width");
+        TierSummary tier = sample(preview) ? null : armourTier(slots(preview));
+        // The tier chip gets its own room so the name and HP keep the mockup's width.
+        return ui.num(L + "target_width") + (tier == null ? 0f : tierChipWidth(ui, tier) + ui.num(L + "holy_chip_gap"));
+    }
+
+    private static String tierChipText(TierSummary tier) {
+        return Ui.tr("skirmish.gearinspector.holy.chip", tier.tier().display(), tier.count());
+    }
+
+    private static float tierChipWidth(Ui ui, TierSummary tier) {
+        return ui.textWidth("holy_chip", tierChipText(tier)) + ui.num(L + "holy_chip_pad_x") * 2 + ui.num("stroke.width") * 2;
     }
 
     private float cardHeight(Ui ui) {
@@ -298,10 +308,10 @@ final class TargetCard extends HudBlock {
         float headerRight = px;
         TierSummary tier = sample ? null : armourTier(slots(preview));
         if (tier != null) {
-            String chip = Ui.tr("skirmish.gearinspector.holy.chip", tier.tier().display(), tier.count());
+            String chip = tierChipText(tier);
             float cpx = ui.num(L + "holy_chip_pad_x");
             float cpy = ui.num(L + "holy_chip_pad_y");
-            float chipW = ui.textWidth("holy_chip", chip) + cpx * 2 + stroke * 2;
+            float chipW = tierChipWidth(ui, tier);
             float chipH = ui.lineHeight("holy_chip") + cpy * 2 + stroke * 2;
             float chipX = px - ui.num(L + "holy_chip_gap") - chipW;
             float chipY = cy + (face - chipH) / 2f;
