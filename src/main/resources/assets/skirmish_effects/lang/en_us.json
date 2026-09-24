@@ -1,0 +1,22 @@
+{
+  "skirmish.module.effect_hud.name": "Effects",
+  "skirmish.module.effect_hud.description": "Your active effects: icon, level and time left.",
+  "skirmish.module.effect_hud.setting.hide_vanilla": "Hide vanilla icons",
+  "skirmish.module.effect_hud.setting.hide_vanilla.tooltip": "Remove the effect icons in the top-right corner (the inventory still shows them)",
+  "skirmish.module.effect_hud.setting.show_ambient": "Beacon effects",
+  "skirmish.module.effect_hud.setting.show_ambient.tooltip": "Show ambient effects from beacons and similar sources",
+  "skirmish.module.effect_hud.setting.warn_seconds": "Highlight ending",
+  "skirmish.module.effect_hud.setting.warn_seconds.tooltip": "The time is highlighted when less than this is left (0 turns it off)",
+  "skirmish.module.armor_hud.name": "Armor",
+  "skirmish.module.armor_hud.description": "Durability of your armor and held items. Your own items only.",
+  "skirmish.module.armor_hud.setting.mode": "Show",
+  "skirmish.module.armor_hud.setting.mode.tooltip": "Durability percent or uses left",
+  "skirmish.module.armor_hud.setting.mode.percent": "Percent",
+  "skirmish.module.armor_hud.setting.mode.remaining": "Uses left",
+  "skirmish.module.armor_hud.setting.show_hands": "Held items",
+  "skirmish.module.armor_hud.setting.show_hands.tooltip": "Show the main and off hand next to the armor",
+  "skirmish.module.armor_hud.setting.warn_percent": "Wear threshold",
+  "skirmish.module.armor_hud.setting.warn_percent.tooltip": "Below this the durability turns red, below twice this yellow",
+  "skirmish.hud.element.effects": "Effects",
+  "skirmish.hud.element.armor": "Armor"
+}

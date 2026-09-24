@@ -5,7 +5,8 @@
     "theme/pvp.json",
     "theme/events.json",
     "theme/holyprofile.json",
-    "theme/market.json"
+    "theme/market.json",
+    "theme/qol.json"
   ],
   "colors": {
     "page": "#0B0B12",

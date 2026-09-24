@@ -1,0 +1,17 @@
+{
+  "key.skirmish.zoom": "Зум (удерживать)",
+  "skirmish.module.zoom.name": "Зум",
+  "skirmish.module.zoom.description": "Удерживайте клавишу, чтобы приблизить обзор. Колесо мыши во время зума меняет приближение.",
+  "skirmish.module.zoom.setting.factor": "Приближение",
+  "skirmish.module.zoom.setting.factor.tooltip": "Во сколько раз уменьшается поле зрения при нажатии",
+  "skirmish.module.zoom.setting.scroll": "Колесо меняет зум",
+  "skirmish.module.zoom.setting.scroll.tooltip": "Пока клавиша зажата, колесо приближает и отдаляет вместо смены слота",
+  "skirmish.module.zoom.setting.smooth": "Плавный переход",
+  "skirmish.module.zoom.setting.smooth.tooltip": "Мягкое приближение вместо мгновенного",
+  "skirmish.module.zoom.setting.lower_sensitivity": "Ниже чувствительность",
+  "skirmish.module.zoom.setting.lower_sensitivity.tooltip": "Камера поворачивается медленнее во столько же раз, во сколько приближен обзор",
+  "skirmish.module.zoom.setting.hide_hand": "Скрывать руку",
+  "skirmish.module.zoom.setting.hide_hand.tooltip": "Не рисовать руку и предмет в руке во время зума",
+  "skirmish.module.zoom.setting.key": "Клавиша",
+  "skirmish.module.zoom.setting.key.tooltip": "Удерживайте для зума (по умолчанию C)"
+}

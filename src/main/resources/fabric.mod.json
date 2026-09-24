@@ -26,7 +26,10 @@
     "skirmish-killcard.mixins.json",
     "skirmish-pvp.mixins.json",
     "skirmish-events.mixins.json",
-    "skirmish-market.mixins.json"
+    "skirmish-market.mixins.json",
+    "skirmish-fullbright.mixins.json",
+    "skirmish-zoom.mixins.json",
+    "skirmish-camera.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_min_version}",

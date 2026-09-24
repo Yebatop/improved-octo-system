@@ -1,0 +1,11 @@
+{
+  "key.skirmish.fullbright.toggle": "Фулбрайт: вкл/выкл",
+  "skirmish.module.fullbright.name": "Фулбрайт",
+  "skirmish.module.fullbright.description": "Светлее в пещерах и ночью: освещение считается с яркостью выше ванильного максимума. Настройки игры не меняются. Эффект «Тьма» работает как обычно, «Слепота» тоже.",
+  "skirmish.module.fullbright.setting.strength": "Сила",
+  "skirmish.module.fullbright.setting.strength.tooltip": "10 % — чуть ярче ванильного «Ярко», 100 % — полностью светло",
+  "skirmish.module.fullbright.setting.key": "Клавиша",
+  "skirmish.module.fullbright.setting.key.tooltip": "Включить или выключить фулбрайт (по умолчанию не назначена)",
+  "skirmish.fullbright.toggled_on": "Фулбрайт включён",
+  "skirmish.fullbright.toggled_off": "Фулбрайт выключен"
+}

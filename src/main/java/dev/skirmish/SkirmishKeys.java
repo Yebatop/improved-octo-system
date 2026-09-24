@@ -23,6 +23,9 @@ public final class SkirmishKeys {
     public static final KeyMapping GEARINSPECTOR_LOCK = key("key.skirmish.gearinspector.lock", InputConstants.UNKNOWN.getValue());
     public static final KeyMapping ANVILCALC_CALCULATE = key("key.skirmish.anvilcalc.calculate", InputConstants.UNKNOWN.getValue());
     public static final KeyMapping KILLCARD_OPEN_FOLDER = key("key.skirmish.killcard.open_folder", InputConstants.UNKNOWN.getValue());
+    /** Hold to zoom. C like most zoom mods; vanilla uses C only for the creative "Save Hotbar Activator". */
+    public static final KeyMapping ZOOM = key("key.skirmish.zoom", GLFW.GLFW_KEY_C);
+    public static final KeyMapping FULLBRIGHT_TOGGLE = key("key.skirmish.fullbright.toggle", InputConstants.UNKNOWN.getValue());
 
     private SkirmishKeys() {
     }
@@ -33,7 +36,7 @@ public final class SkirmishKeys {
 
     static void register() {
         for (KeyMapping mapping : new KeyMapping[]{OPEN_MENU, WAYPOINT_ADD, WAYPOINT_CYCLE, KILLCAM_REPLAY,
-                CLANSHARE_SHARE, GEARINSPECTOR_LOCK, ANVILCALC_CALCULATE, KILLCARD_OPEN_FOLDER}) {
+                CLANSHARE_SHARE, GEARINSPECTOR_LOCK, ANVILCALC_CALCULATE, KILLCARD_OPEN_FOLDER, ZOOM, FULLBRIGHT_TOGGLE}) {
             KeyBindingHelper.registerKeyBinding(mapping);
         }
     }
