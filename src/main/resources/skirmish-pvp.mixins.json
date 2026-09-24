@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.skirmish.module.pvp.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "BossHealthOverlayAccessor",
+    "CooldownInstanceAccessor",
+    "ItemCooldownsAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

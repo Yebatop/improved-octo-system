@@ -1,0 +1,21 @@
+{
+  "skirmish.module.pvp.name": "PvP",
+  "skirmish.module.pvp.description": "Таймер режима PvP (КТ) и ваши собственные перезарядки предметов.",
+  "skirmish.module.pvp.setting.combat_tag_hud": "Таймер КТ",
+  "skirmish.module.pvp.setting.combat_tag_hud.tooltip": "Кольцо с секундами до конца режима PvP и список противников",
+  "skirmish.module.pvp.setting.server_timer": "КТ с сервера",
+  "skirmish.module.pvp.setting.server_timer.tooltip": "На HolyWorld читать КТ из борда и боссбара. Выкл.: только локальный таймер по ударам.",
+  "skirmish.module.pvp.setting.tag_duration": "Длина локального КТ",
+  "skirmish.module.pvp.setting.tag_duration.tooltip": "Если сервер не показывает КТ, таймер этой длины перезапускается при каждом ударе по игроку или от игрока.",
+  "skirmish.module.pvp.setting.cooldown_hud": "Мои перезарядки",
+  "skirmish.module.pvp.setting.cooldown_hud.tooltip": "Жемчуг, яблоки, хорус, заряд ветра, трапки, стан: иконка, кольцо и секунды",
+  "skirmish.hud.element.combat_tag": "Таймер КТ",
+  "skirmish.hud.element.cooldowns": "Перезарядки",
+  "skirmish.pvp.tag.title": "Режим PvP",
+  "skirmish.pvp.tag.hint": "Не выходи из игры",
+  "skirmish.pvp.tag.short": "КТ",
+  "skirmish.pvp.tag.more": "+%s",
+  "skirmish.pvp.source.board": "борд",
+  "skirmish.pvp.source.boss_bar": "боссбар",
+  "skirmish.pvp.source.local": "по ударам"
+}

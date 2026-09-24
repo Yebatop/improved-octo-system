@@ -15,6 +15,7 @@ import dev.skirmish.module.clanshare.ClanShareModule;
 import dev.skirmish.module.gearinspector.GearInspectorModule;
 import dev.skirmish.module.killcam.KillCamModule;
 import dev.skirmish.module.killcard.KillCardModule;
+import dev.skirmish.module.pvp.PvpModule;
 import dev.skirmish.waypoint.WaypointsModule;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -47,6 +48,7 @@ public final class SkirmishClient implements ClientModInitializer {
         modules.register(new GearInspectorModule());
         modules.register(new AnvilCalcModule());
         modules.register(new KillCardModule());
+        modules.register(new PvpModule());
         InterfaceModule iface = modules.register(new InterfaceModule());
 
         config = new ConfigManager(dir.resolve("config.json"), modules::all);
