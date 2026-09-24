@@ -1,0 +1,8 @@
+{
+  "skirmish.module.toggle_sprint.name": "Спринт",
+  "skirmish.module.toggle_sprint.description": "Включает ванильный переключаемый спринт (Управление → «Бег: переключение»): нажмите клавишу бега один раз, и бег останется включённым. При выключении модуля ваша прежняя настройка возвращается. Мод сам ничего не нажимает.",
+  "skirmish.module.toggle_sprint.setting.indicator": "Индикатор «Спринт»",
+  "skirmish.module.toggle_sprint.setting.indicator.tooltip": "Небольшая плашка внизу слева, пока переключаемый бег включён",
+  "skirmish.hud.element.toggle_sprint": "Спринт",
+  "skirmish.toggle_sprint.indicator": "Спринт"
+}
