@@ -54,6 +54,9 @@ public final class SkirmishScreen extends UiScreen {
     private final Map<Category, CategoryRow> categoryRows = new EnumMap<>(Category.class);
     private final WindowFrame frame = new WindowFrame("menu", L);
     private final Map<Setting<?>, Widget> controls = new IdentityHashMap<>();
+    private final Map<Setting<?>, GroupChevron> chevrons = new IdentityHashMap<>();
+    /** Height of each open group's sub-rows as last drawn, for the open/close animation. */
+    private final Map<Setting<?>, Float> groupHeights = new IdentityHashMap<>();
     private final Toggle moduleToggle;
     private final Button reset;
     private final Button done;
@@ -92,6 +95,8 @@ public final class SkirmishScreen extends UiScreen {
             selected = module;
             lastSelected = module.id();
             controls.clear();
+            chevrons.clear();
+            groupHeights.clear();
             scroll = 0;
         }
     }
@@ -373,14 +378,17 @@ public final class SkirmishScreen extends UiScreen {
         }
     }
 
-    /** Draws the rows starting at {@code y}; returns their total height. */
+    /**
+     * Draws the rows starting at {@code y}; returns their total height. Settings grouped {@link Setting#under} a
+     * parent are listed in a collapsible group below it (closed by default, state kept with the window).
+     */
     private float drawRows(Ui ui, float x, float y, float w, double mx, double my) {
         float start = y;
         float rowsGap = ui.num(L + "rows_gap");
         float stroke = ui.num("stroke.width");
         List<Setting<?>> rows = new ArrayList<>();
         for (Setting<?> setting : selected.settings()) {
-            if (setting.isVisible() && controlFor(setting) != null) {
+            if (setting.parent() == null && setting.isVisible() && controlFor(setting) != null) {
                 rows.add(setting);
             }
         }
@@ -391,17 +399,130 @@ public final class SkirmishScreen extends UiScreen {
                 ui.hline(x, y, w, ui.color("divider"));
                 y += stroke + rowsGap;
             }
-            y += drawRow(ui, rows.get(i), x, y, w, mx, my);
+            Setting<?> row = rows.get(i);
+            List<Setting<?>> kids = children(row);
+            y += drawRow(ui, row, x, y, w, mx, my, kids.size());
+            if (!kids.isEmpty()) {
+                y += drawGroup(ui, row, kids, x, y, w, mx, my);
+            }
         }
         return y - start;
     }
 
-    private float drawRow(Ui ui, Setting<?> setting, float x, float y, float w, double mx, double my) {
+    private List<Setting<?>> children(Setting<?> parent) {
+        List<Setting<?>> kids = new ArrayList<>();
+        for (Setting<?> setting : selected.settings()) {
+            if (setting.parent() == parent && setting.isVisible() && controlFor(setting) != null) {
+                kids.add(setting);
+            }
+        }
+        return kids;
+    }
+
+    /** Sub-rows of an open group, indented behind a guide line; the height eases open and closed. */
+    private float drawGroup(Ui ui, Setting<?> parent, List<Setting<?>> kids, float x, float y, float w, double mx, double my) {
+        float open = chevron(parent).open.value();
+        if (open <= 0f) {
+            return 0f;
+        }
+        float indent = ui.num(L + "group_indent");
+        float rowsGap = ui.num(L + "rows_gap");
+        float full = groupHeights.getOrDefault(parent, 0f);
+        float shown = full <= 0f ? 0f : Math.round(full * open);
+        float[] clip = currentClip();
+        pushClip(ui, x - 1, Math.max(y, clip == null ? y : clip[1]), x + w + 1,
+                Math.min(y + (full <= 0f ? 10_000f : shown), clip == null ? Float.MAX_VALUE : clip[3]));
+        ui.pushAlpha(open);
+        float cy = y + rowsGap;
+        for (Setting<?> kid : kids) {
+            cy += drawRow(ui, kid, x + indent, cy, w - indent, mx, my, 0) + rowsGap;
+        }
+        ui.popAlpha();
+        popClip(ui);
+        groupHeights.put(parent, cy - y);
+        ui.rect(x + ui.num(L + "group_guide_x"), y + rowsGap, ui.num("stroke.width"),
+                Math.max(0f, (full <= 0f ? cy - y : shown) - rowsGap * 2), 0, ui.color("stroke_10"));
+        return full <= 0f ? 0f : shown;
+    }
+
+    private GroupChevron chevron(Setting<?> parent) {
+        return chevrons.computeIfAbsent(parent, GroupChevron::new);
+    }
+
+    /** «3 ▾» button next to a setting that has sub-settings; opens and closes the group. */
+    private final class GroupChevron extends Widget {
+        private final Setting<?> parent;
+        final Anim open = new Anim("expand_ms");
+        int count;
+
+        GroupChevron(Setting<?> parent) {
+            this.parent = parent;
+            open.snap(isOpen() ? 1f : 0f);
+        }
+
+        private String flag() {
+            return "open:" + selected.id() + "." + parent.id();
+        }
+
+        boolean isOpen() {
+            return frame.flag(flag());
+        }
+
+        @Override
+        protected void draw(Ui ui, double mx, double my) {
+            float o = open.target(isOpen() ? 1f : 0f).value();
+            ui.rect(x, y, w, h, h / 2f, Anim.lerpColor(ui.color("fill_04"), ui.color("fill_08"), hovered()));
+            int color = Anim.lerpColor(ui.color("text_3"), ui.color("text"), Math.max(hovered(), o));
+            String n = Integer.toString(count);
+            float pad = ui.num(L + "group_chip_pad_x");
+            ui.textCentered("menu_hint", n, x + pad, y, h, color);
+            float chev = ui.num(L + "category_chevron");
+            float cx = x + w - pad - chev / 2f;
+            float cy = y + h / 2f;
+            double a = Math.toRadians(90 * o);
+            float dx = chev / 2f;
+            float dy = chev / 4f;
+            float[][] pts = {{-dy, -dx}, {dy, 0}, {-dy, dx}};
+            float lw = ui.num("stroke.width") * 1.5f;
+            float[] prev = null;
+            for (float[] p : pts) {
+                float px = cx + (float) (p[0] * Math.cos(a) - p[1] * Math.sin(a));
+                float py = cy + (float) (p[0] * Math.sin(a) + p[1] * Math.cos(a));
+                if (prev != null) {
+                    ui.line(prev[0], prev[1], px, py, lw, color);
+                }
+                prev = new float[]{px, py};
+            }
+        }
+
+        @Override
+        public float preferredWidth(Ui ui) {
+            return ui.num(L + "group_chip_pad_x") * 2 + ui.textWidth("menu_hint", Integer.toString(count))
+                    + ui.num(L + "group_chip_gap") + ui.num(L + "category_chevron");
+        }
+
+        @Override
+        public boolean mouseClicked(double mx, double my, int button) {
+            if (button == 0) {
+                frame.setFlag(flag(), !isOpen());
+                return true;
+            }
+            return false;
+        }
+    }
+
+    private float drawRow(Ui ui, Setting<?> setting, float x, float y, float w, double mx, double my, int kids) {
         Widget control = controlFor(setting);
         float gap = ui.num(L + "row_gap");
         float controlW = controlWidth(ui, setting, control);
         float controlH = controlHeight(ui, setting, control);
-        float textW = w - controlW - gap;
+        GroupChevron chevron = kids > 0 ? chevron(setting) : null;
+        float chevronW = 0f;
+        if (chevron != null) {
+            chevron.count = kids;
+            chevronW = chevron.preferredWidth(ui) + gap;
+        }
+        float textW = w - controlW - gap - chevronW;
 
         boolean debug = setting == selected.debugLog;
         String title = debug ? Ui.tr("skirmish.menu.debug_log") : Texts.settingName(setting).getString();
@@ -435,6 +556,11 @@ public final class SkirmishScreen extends UiScreen {
         } else {
             control.bounds(cx, cy, controlW, controlH);
             widget(ui, control, mx, my);
+        }
+        if (chevron != null) {
+            float ch = ui.num(L + "group_chip_height");
+            chevron.bounds(cx - gap - chevron.preferredWidth(ui), y + (h - ch) / 2f, chevron.preferredWidth(ui), ch);
+            widget(ui, chevron, mx, my);
         }
         return h;
     }

@@ -50,11 +50,11 @@ public final class GearInspectorModule extends Module {
 
     public GearInspectorModule() {
         super(ID, true);
-        details.visibleWhen(showEnchantments::get);
-        detailsKey.visibleWhen(() -> showEnchantments.get() && details.get() == DetailMode.HOLD);
-        showMissingEnchantments.visibleWhen(showEnchantments::get);
-        showAbsolute.visibleWhen(showEnchantments::get);
-        holyHitsLeft.visibleWhen(() -> showEnchantments.get() && holyProfile.get() == HolyProfile.AUTO && !holyProfile.isBlocked());
+        details.under(showEnchantments).visibleWhen(showEnchantments::get);
+        detailsKey.under(showEnchantments).visibleWhen(() -> showEnchantments.get() && details.get() == DetailMode.HOLD);
+        showMissingEnchantments.under(showEnchantments).visibleWhen(showEnchantments::get);
+        showAbsolute.under(showEnchantments).visibleWhen(showEnchantments::get);
+        holyHitsLeft.under(showEnchantments).visibleWhen(() -> showEnchantments.get() && holyProfile.get() == HolyProfile.AUTO && !holyProfile.isBlocked());
     }
 
     @Override

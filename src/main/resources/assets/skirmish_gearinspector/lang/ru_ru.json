@@ -42,7 +42,7 @@
   "skirmish.gearinspector.msg.lock_lost": "GearInspector: %s пропал, цель откреплена",
   "skirmish.module.gearinspector.setting.show_enchantments.tooltip": "Список зачарований и прочности под карточкой цели",
   "skirmish.module.gearinspector.setting.details": "Подробности",
-  "skirmish.module.gearinspector.setting.details.tooltip": "Коротко: по строке на предмет — название, прочность и число зачарований. По клавише: коротко, а пока удерживаете клавишу «Подробности цели и ивентов» (по умолчанию левый Alt) — полный список. Всегда полностью: зачарования, донат-тиры и износ под каждым предметом.",
+  "skirmish.module.gearinspector.setting.details.tooltip": "Коротко: строка на предмет. По клавише: полный список, пока держите L-Alt.",
   "skirmish.module.gearinspector.setting.details.compact": "Коротко",
   "skirmish.module.gearinspector.setting.details.hold": "По клавише",
   "skirmish.module.gearinspector.setting.details.full": "Всегда полностью",

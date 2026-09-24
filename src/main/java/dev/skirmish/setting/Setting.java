@@ -21,6 +21,7 @@ public abstract class Setting<T> {
     private String translationKey;
     private Runnable saveHook = () -> {};
     private String featureId;
+    private Setting<?> parent;
 
     protected Setting(String id, T defaultValue) {
         this.id = Objects.requireNonNull(id);
@@ -82,6 +83,20 @@ public abstract class Setting<T> {
     public Setting<T> visibleWhen(BooleanSupplier condition) {
         this.visible = condition;
         return this;
+    }
+
+    /**
+     * Groups this setting under {@code parent} (e.g. the sub-options of a switch): the menu lists it in a collapsible
+     * group below the parent. Visibility still comes from {@link #visibleWhen}.
+     */
+    public Setting<T> under(Setting<?> parent) {
+        this.parent = parent;
+        return this;
+    }
+
+    /** The setting this one is grouped under, or null. */
+    public Setting<?> parent() {
+        return parent;
     }
 
     public boolean isVisible() {

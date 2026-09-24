@@ -58,9 +58,9 @@ public final class AlertsModule extends Module {
 
     public AlertsModule() {
         super(ID, true);
-        confirmDisconnect.visibleWhen(logoutWarning::get);
-        regionSound.visibleWhen(regionAlerts::get);
-        regionHistory.visibleWhen(regionAlerts::get);
+        confirmDisconnect.under(logoutWarning).visibleWhen(logoutWarning::get);
+        regionSound.under(regionAlerts).visibleWhen(regionAlerts::get);
+        regionHistory.under(regionAlerts).visibleWhen(regionAlerts::get);
     }
 
     @Override

@@ -42,7 +42,7 @@
   "skirmish.gearinspector.msg.lock_lost": "GearInspector: %s is gone, lock released",
   "skirmish.module.gearinspector.setting.show_enchantments.tooltip": "Enchantments and durability listed under the target card",
   "skirmish.module.gearinspector.setting.details": "Details",
-  "skirmish.module.gearinspector.setting.details.tooltip": "Short: one line per item with its name, durability and number of enchantments. On key: short, and the full list while the «Target and events details» key is held (left Alt by default). Always full: enchantments, donor tiers and wear under every item.",
+  "skirmish.module.gearinspector.setting.details.tooltip": "Compact: one line per item. On key: the full list while L-Alt is held.",
   "skirmish.module.gearinspector.setting.details.compact": "Short",
   "skirmish.module.gearinspector.setting.details.hold": "On key",
   "skirmish.module.gearinspector.setting.details.full": "Always full",

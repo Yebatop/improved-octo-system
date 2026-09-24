@@ -102,9 +102,9 @@ public final class EventsModule extends Module {
     public EventsModule() {
         super(ID, true);
         toasts.feature("event_hud");
-        everywhere.visibleWhen(waypoints::get);
-        details.visibleWhen(hud::get);
-        detailsKey.visibleWhen(() -> hud.get() && details.get() == DetailMode.HOLD);
+        everywhere.under(waypoints).visibleWhen(waypoints::get);
+        details.under(hud).visibleWhen(hud::get);
+        detailsKey.under(hud).visibleWhen(() -> hud.get() && details.get() == DetailMode.HOLD);
     }
 
     /** The events panel shows its full list now (mode FULL, or HOLD with the details key held). */
