@@ -24,7 +24,8 @@
     "skirmish-gearinspector.mixins.json",
     "skirmish-anvilcalc.mixins.json",
     "skirmish-killcard.mixins.json",
-    "skirmish-pvp.mixins.json"
+    "skirmish-pvp.mixins.json",
+    "skirmish-events.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_min_version}",

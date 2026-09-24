@@ -12,6 +12,7 @@ import dev.skirmish.gui.SkirmishScreen;
 import dev.skirmish.module.ModuleManager;
 import dev.skirmish.module.anvilcalc.AnvilCalcModule;
 import dev.skirmish.module.clanshare.ClanShareModule;
+import dev.skirmish.module.events.EventsModule;
 import dev.skirmish.module.gearinspector.GearInspectorModule;
 import dev.skirmish.module.killcam.KillCamModule;
 import dev.skirmish.module.killcard.KillCardModule;
@@ -49,6 +50,7 @@ public final class SkirmishClient implements ClientModInitializer {
         modules.register(new AnvilCalcModule());
         modules.register(new KillCardModule());
         modules.register(new PvpModule());
+        modules.register(new EventsModule());
         InterfaceModule iface = modules.register(new InterfaceModule());
 
         config = new ConfigManager(dir.resolve("config.json"), modules::all);

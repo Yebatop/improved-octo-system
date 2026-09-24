@@ -1,5 +1,104 @@
 {
-  "colors": {},
-  "text": {},
-  "layout": {}
+  "colors": {
+    "event_epic": "#C77DFF",
+    "event_epic_16": "#C77DFF29",
+    "event_warn_16": "#FFB54729",
+    "event_good_16": "#3DDC9729"
+  },
+  "text": {
+    "event_section": {
+      "size": 10,
+      "weight": 700,
+      "color": "text_3",
+      "tracking": 0.8
+    },
+    "event_name": {
+      "size": 12,
+      "weight": 600,
+      "color": "text"
+    },
+    "event_sub": {
+      "size": 10,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "event_coords": {
+      "size": 10,
+      "weight": 500,
+      "color": "text_2",
+      "mono": true
+    },
+    "event_time": {
+      "size": 11,
+      "weight": 600,
+      "color": "text",
+      "mono": true
+    },
+    "event_chip": {
+      "size": 9,
+      "weight": 800,
+      "color": "text",
+      "tracking": 0.4
+    },
+    "event_empty": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_3"
+    }
+  },
+  "layout": {
+    "events": {
+      "width": 248,
+      "schedule_width": 228,
+      "default_x": 18,
+      "default_y": 18,
+      "schedule_default_x": -18,
+      "schedule_default_y": 0,
+      "toast_default_y": 150,
+      "toast_width": 240,
+      "toast_ms": 5000,
+      "toast_queue": 3,
+      "row_gap": 7,
+      "section_gap": 10,
+      "section_label_gap": 5,
+      "sub_gap": 1,
+      "name_gap": 8,
+      "chip_gap": 6,
+      "chip_pad_x": 5,
+      "chip_pad_y": 2,
+      "icon_stroke": 2,
+      "coords_max_age_ms": 2700000,
+      "detect_interval_ticks": 20
+    }
+  },
+  "events": {
+    "rarity": {
+      "unknown": {
+        "fg": "text_4",
+        "bg": "fill_06"
+      },
+      "common": {
+        "fg": "text_3",
+        "bg": "fill_06"
+      },
+      "rare": {
+        "fg": "accent",
+        "bg": "accent_16"
+      },
+      "epic": {
+        "fg": "event_epic",
+        "bg": "event_epic_16"
+      },
+      "legendary": {
+        "fg": "warn",
+        "bg": "event_warn_16"
+      }
+    },
+    "state": {
+      "running": "good",
+      "pending": "warn",
+      "soon": "warn",
+      "countdown": "text"
+    }
+  }
 }
