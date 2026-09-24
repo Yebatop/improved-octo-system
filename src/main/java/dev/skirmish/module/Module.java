@@ -75,6 +75,11 @@ public abstract class Module {
         return defaultEnabled;
     }
 
+    /** Sidebar group in the menu. */
+    public Category category() {
+        return Category.UTILITY;
+    }
+
     /** Position in the menu's module list (lower first; equal values keep registration order). */
     public int menuOrder() {
         return 0;

@@ -1,5 +1,6 @@
 package dev.skirmish.module.killcam;
 
+import dev.skirmish.module.Category;
 import dev.skirmish.SkirmishKeys;
 import dev.skirmish.combat.Combatant;
 import dev.skirmish.combat.CombatListener;
@@ -45,6 +46,11 @@ public final class KillCamModule extends Module {
     private final BoolSetting sounds = add(new BoolSetting("sounds", true));
 
     private final Recorder recorder = new Recorder(this);
+
+    @Override
+    public Category category() {
+        return Category.COMBAT;
+    }
 
     public KillCamModule() {
         super(ID, true);

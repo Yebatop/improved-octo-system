@@ -1,5 +1,6 @@
 package dev.skirmish.combat;
 
+import dev.skirmish.module.Category;
 import dev.skirmish.module.Module;
 import dev.skirmish.setting.BoolSetting;
 import dev.skirmish.setting.NumberSetting;
@@ -18,6 +19,11 @@ public final class CombatTrackerModule extends Module implements CombatLogic.Con
     final BoolSetting sessionPanel = (BoolSetting) add(new BoolSetting("session_panel", true)).feature("session_hud");
     private final CombatTracker tracker;
     private final SessionStats session = new SessionStats();
+
+    @Override
+    public Category category() {
+        return Category.COMBAT;
+    }
 
     public CombatTrackerModule() {
         super(ID, true);

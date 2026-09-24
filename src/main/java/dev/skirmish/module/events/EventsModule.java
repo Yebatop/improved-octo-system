@@ -1,5 +1,6 @@
 package dev.skirmish.module.events;
 
+import dev.skirmish.module.Category;
 import com.google.gson.JsonElement;
 import dev.skirmish.holyworld.HolyApi;
 import dev.skirmish.holyworld.HolyWorld;
@@ -87,6 +88,11 @@ public final class EventsModule extends Module {
     private @Nullable Instant voteAnchor;
     private @Nullable String anchoredVoting;
     private int detectCountdown;
+
+    @Override
+    public Category category() {
+        return Category.WORLD;
+    }
 
     public EventsModule() {
         super(ID, true);

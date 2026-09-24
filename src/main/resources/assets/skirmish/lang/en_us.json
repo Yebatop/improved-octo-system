@@ -111,7 +111,7 @@
   "skirmish.module.interface.setting.reset_hud": "Reset layout",
   "skirmish.module.interface.setting.reset_hud.tooltip": "Move every HUD element back to its default place",
   "skirmish.module.interface.setting.reset_hud.button": "Reset",
-  "skirmish.waypoints.subtitle": "Waypoints of this server. The switch picks the one shown in the pill at the top.",
+  "skirmish.waypoints.subtitle": "This server's waypoints, saved in config/skirmish/waypoints.json. Type X Y Z, or leave them empty to mark where you stand. The switch picks the one shown in the top pill.",
   "skirmish.waypoints.default_name": "Waypoint",
   "skirmish.waypoints.from": "from %s",
   "skirmish.waypoints.toggle_hint": "One waypoint can be selected",
@@ -119,5 +119,16 @@
   "skirmish.module.interface.setting.holyworld_safe.tooltip": "On HolyWorld hide the replay free camera and through-walls targeting (rule 2.4)",
   "skirmish.module.interface.setting.holyworld_api": "HolyWorld data",
   "skirmish.module.interface.setting.holyworld_api.tooltip": "Fetch events and rates from api.holyworld.me (HolyWorld only)",
-  "skirmish.features.header": "Skirmish features for Feature Control (HolyWorld: %s), red = blocked:"
+  "skirmish.features.header": "Skirmish features for Feature Control (HolyWorld: %s), red = blocked:",
+  "skirmish.category.combat": "Combat",
+  "skirmish.category.visual": "Visual",
+  "skirmish.category.world": "World",
+  "skirmish.category.utility": "Utility",
+  "skirmish.category.interface": "Interface",
+  "skirmish.waypoints.fill_here": "My position",
+  "skirmish.waypoints.add": "Add",
+  "skirmish.waypoints.bad_coords": "Coordinates must be numbers, e.g. 120 64 -350",
+  "skirmish.waypoints.dimension.overworld": "Overworld",
+  "skirmish.waypoints.dimension.the_nether": "Nether",
+  "skirmish.waypoints.dimension.the_end": "End"
 }

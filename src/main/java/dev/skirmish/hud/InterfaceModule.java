@@ -1,5 +1,6 @@
 package dev.skirmish.hud;
 
+import dev.skirmish.module.Category;
 import dev.skirmish.module.Module;
 import dev.skirmish.setting.ActionSetting;
 import dev.skirmish.setting.BoolSetting;
@@ -26,6 +27,11 @@ public final class InterfaceModule extends Module {
     final ActionSetting resetHud = add(new ActionSetting("reset_hud", () -> Hud.get().resetAll()));
     final BoolSetting holyworldSafe = add(new BoolSetting("holyworld_safe", true));
     final BoolSetting holyworldApi = add(new BoolSetting("holyworld_api", true));
+
+    @Override
+    public Category category() {
+        return Category.INTERFACE;
+    }
 
     public InterfaceModule() {
         super(ID, true);

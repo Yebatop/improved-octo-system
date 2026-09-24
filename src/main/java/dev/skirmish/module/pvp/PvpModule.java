@@ -1,5 +1,6 @@
 package dev.skirmish.module.pvp;
 
+import dev.skirmish.module.Category;
 import dev.skirmish.combat.CombatListener;
 import dev.skirmish.combat.CombatTracker;
 import dev.skirmish.combat.Combatant;
@@ -57,6 +58,11 @@ public final class PvpModule extends Module {
 
     enum Source {
         BOARD, BOSS_BAR, LOCAL
+    }
+
+    @Override
+    public Category category() {
+        return Category.COMBAT;
     }
 
     public PvpModule() {

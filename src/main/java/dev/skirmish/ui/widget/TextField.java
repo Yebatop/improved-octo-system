@@ -11,6 +11,8 @@ import net.minecraft.util.StringUtil;
 import net.minecraft.util.Util;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.function.Supplier;
+
 /** Single-line input bound to a {@link StringSetting}; password settings are masked with an eye toggle. */
 public final class TextField extends Widget {
     private final StringSetting setting;
@@ -18,10 +20,17 @@ public final class TextField extends Widget {
     private boolean revealed;
     private int cursor = -1;
     private long focusTime;
+    private Supplier<String> placeholder = () -> Ui.tr("skirmish.ui.input_empty");
 
     public TextField(StringSetting setting, Runnable changed) {
         this.setting = setting;
         this.changed = changed;
+    }
+
+    /** Grey text shown while the field is empty and not focused. */
+    public TextField placeholder(Supplier<String> text) {
+        this.placeholder = text;
+        return this;
     }
 
     private String display(Ui ui) {
@@ -47,7 +56,7 @@ public final class TextField extends Widget {
         var graphics = ui.graphics();
         graphics.enableScissor((int) Math.floor(x + pad), (int) Math.floor(y), (int) Math.ceil(textRight), (int) Math.ceil(y + h));
         if (text.isEmpty() && !isFocused()) {
-            ui.textCentered("input_hint", Ui.tr("skirmish.ui.input_empty"), x + pad, y, h);
+            ui.textCentered("input_hint", placeholder.get(), x + pad, y, h);
         } else {
             ui.textCentered("input", text, x + pad - offset, y, h);
         }

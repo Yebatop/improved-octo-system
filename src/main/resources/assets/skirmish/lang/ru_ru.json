@@ -113,7 +113,7 @@
   "skirmish.module.interface.setting.reset_hud": "Сбросить расположение",
   "skirmish.module.interface.setting.reset_hud.tooltip": "Вернуть все элементы HUD на места по умолчанию",
   "skirmish.module.interface.setting.reset_hud.button": "Сбросить",
-  "skirmish.waypoints.subtitle": "Метки этого сервера. Переключатель выбирает метку для плашки сверху экрана.",
+  "skirmish.waypoints.subtitle": "Метки этого сервера сохраняются в config/skirmish/waypoints.json. Введи X Y Z или оставь пустыми — метка встанет на твоё место. Переключатель выбирает метку для плашки сверху.",
   "skirmish.waypoints.default_name": "Метка",
   "skirmish.waypoints.from": "от %s",
   "skirmish.waypoints.toggle_hint": "Можно выбрать одну метку",
@@ -121,5 +121,16 @@
   "skirmish.module.interface.setting.holyworld_safe.tooltip": "На HolyWorld скрывать свободную камеру повтора и «сквозь стены» (правило 2.4)",
   "skirmish.module.interface.setting.holyworld_api": "Данные HolyWorld",
   "skirmish.module.interface.setting.holyworld_api.tooltip": "Запрашивать ивенты и курс с api.holyworld.me (только на HolyWorld)",
-  "skirmish.features.header": "Функции Skirmish для Feature Control (HolyWorld: %s), красные — заблокированы:"
+  "skirmish.features.header": "Функции Skirmish для Feature Control (HolyWorld: %s), красные — заблокированы:",
+  "skirmish.category.combat": "Бой",
+  "skirmish.category.visual": "Визуал",
+  "skirmish.category.world": "Мир",
+  "skirmish.category.utility": "Утилиты",
+  "skirmish.category.interface": "Интерфейс",
+  "skirmish.waypoints.fill_here": "Мои координаты",
+  "skirmish.waypoints.add": "Добавить",
+  "skirmish.waypoints.bad_coords": "Координаты — числа, например 120 64 -350",
+  "skirmish.waypoints.dimension.overworld": "Мир",
+  "skirmish.waypoints.dimension.the_nether": "Ад",
+  "skirmish.waypoints.dimension.the_end": "Энд"
 }

@@ -1,5 +1,6 @@
 package dev.skirmish.module.gearinspector;
 
+import dev.skirmish.module.Category;
 import dev.skirmish.SkirmishKeys;
 import dev.skirmish.holyworld.HolyWorld;
 import dev.skirmish.module.Module;
@@ -36,6 +37,11 @@ public final class GearInspectorModule extends Module {
     final BoolSetting holyHitsLeft = add(new BoolSetting("holy_hits_left", true));
 
     private final TargetTracker tracker = new TargetTracker(this);
+
+    @Override
+    public Category category() {
+        return Category.COMBAT;
+    }
 
     public GearInspectorModule() {
         super(ID, true);

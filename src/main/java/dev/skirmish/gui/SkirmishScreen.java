@@ -1,6 +1,7 @@
 package dev.skirmish.gui;
 
 import dev.skirmish.SkirmishKeys;
+import dev.skirmish.module.Category;
 import dev.skirmish.module.Module;
 import dev.skirmish.module.ModuleManager;
 import dev.skirmish.setting.ActionSetting;
@@ -23,6 +24,7 @@ import dev.skirmish.ui.widget.TextField;
 import dev.skirmish.ui.widget.Toggle;
 import dev.skirmish.ui.widget.UiScreen;
 import dev.skirmish.ui.widget.Widget;
+import dev.skirmish.ui.widget.WindowFrame;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -32,14 +34,16 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Main menu (mockup «Меню мода»): 860×520 window, module list with status dots on the left, the selected module's
- * settings on the right, built from its {@link Setting}s: Bool → toggle, Number → slider, Enum → segmented,
- * String → text field, Action → button, Key → keybind button.
+ * Main menu (mockup «Меню мода»): a movable, resizable window ({@link WindowFrame}, 860×520 by default), modules
+ * grouped by {@link Category} in collapsible sections of a scrollable sidebar, the selected module's settings on
+ * the right, built from its {@link Setting}s: Bool → toggle, Number → slider, Enum → segmented, String → text
+ * field, Action → button, Key → keybind button.
  */
 public final class SkirmishScreen extends UiScreen {
     private static final String L = "layout.menu.";
@@ -47,6 +51,8 @@ public final class SkirmishScreen extends UiScreen {
 
     private final List<Module> modules;
     private final Map<Module, ModuleRow> moduleRows = new IdentityHashMap<>();
+    private final Map<Category, CategoryRow> categoryRows = new EnumMap<>(Category.class);
+    private final WindowFrame frame = new WindowFrame("menu", L);
     private final Map<Setting<?>, Widget> controls = new IdentityHashMap<>();
     private final Toggle moduleToggle;
     private final Button reset;
@@ -54,6 +60,10 @@ public final class SkirmishScreen extends UiScreen {
     private Module selected;
     private float scroll;
     private float maxScroll;
+    private float sideScroll;
+    private float sideMaxScroll;
+    /** Sidebar list area in design px (x0, y0, x1, y1), for wheel routing. */
+    private float[] sideArea = new float[4];
 
     public SkirmishScreen(@Nullable Screen parent) {
         super(Component.translatable("skirmish.menu.title"), parent);
@@ -63,6 +73,9 @@ public final class SkirmishScreen extends UiScreen {
         this.selected = modules.stream().filter(m -> m.id().equals(lastSelected)).findFirst().orElse(modules.getFirst());
         for (Module module : modules) {
             moduleRows.put(module, new ModuleRow(module));
+        }
+        for (Category category : Category.values()) {
+            categoryRows.put(category, new CategoryRow(category));
         }
         this.moduleToggle = new Toggle(() -> selected.isEnabled(), value -> selected.setEnabled(value));
         this.reset = new Button(() -> Ui.tr("skirmish.menu.reset"), false, this::resetModule);
@@ -122,10 +135,13 @@ public final class SkirmishScreen extends UiScreen {
         ui.rect(0, 0, ui.width(), ui.height(), 0, ui.color("backdrop"));
 
         float stroke = ui.num("stroke.width");
-        float cw = ui.num(L + "width");
-        float ch = ui.num(L + "height");
-        float ox = Math.round((ui.width() - cw - stroke * 2) / 2f);
-        float oy = Math.round((ui.height() - ch - stroke * 2) / 2f) + Math.round((1f - t) * ui.num("layout.appear_offset"));
+        frame.layout(ui);
+        // Empty spots of the window drag it; every control drawn later sits above this.
+        widget(ui, frame.mover, mx, my);
+        float cw = frame.w() - stroke * 2;
+        float ch = frame.h() - stroke * 2;
+        float ox = frame.x();
+        float oy = frame.y() + Math.round((1f - t) * ui.num("layout.appear_offset"));
         ui.box(ox, oy, cw + stroke * 2, ch + stroke * 2, ui.theme().radius("window"), ui.color("window"), ui.color("stroke_07"));
         float x = ox + stroke;
         float y = oy + stroke;
@@ -133,6 +149,7 @@ public final class SkirmishScreen extends UiScreen {
         float sidebar = ui.num(L + "sidebar_width");
         drawSidebar(ui, x, y, ch, mx, my);
         drawContent(ui, x + sidebar, y, cw - sidebar, ch, mx, my);
+        widget(ui, frame.grip, mx, my);
     }
 
     // ---- sidebar ----
@@ -170,9 +187,6 @@ public final class SkirmishScreen extends UiScreen {
         ui.text("menu_brand_sub", Ui.tr("skirmish.menu.brand_sub", SharedConstants.getCurrentVersion().name()), tx, ty + ui.lineHeight("menu_brand"));
         cy = by + rowH + ui.num(L + "brand_pad_bottom") + gap;
 
-        ui.text("menu_section", Ui.tr("skirmish.menu.modules"), cx + ui.num(L + "section_pad_x"), cy);
-        cy += ui.lineHeight("menu_section") + ui.num(L + "section_pad_bottom") + gap;
-
         // Footer hint (bottom aligned): key chip + "open menu".
         float hintPad = ui.num(L + "hint_pad");
         float chipPadX = ui.num(L + "hint_key_pad_x");
@@ -190,14 +204,88 @@ public final class SkirmishScreen extends UiScreen {
 
         float listBottom = hy - hintPad - gap;
         float moduleH = ui.num(L + "module_height");
-        pushClip(ui, cx, cy, cx + cwid, listBottom);
-        for (Module module : visibleModules()) {
-            ModuleRow row = moduleRows.get(module);
-            row.bounds(cx, cy, cwid, moduleH);
-            widget(ui, row, mx, my);
-            cy += moduleH + gap;
+        float categoryH = ui.num(L + "category_height");
+        float top = cy;
+        sideArea = new float[]{x, top, x + sw, listBottom};
+        pushClip(ui, cx, top, cx + cwid, listBottom);
+        float ly2 = top - sideScroll;
+        List<Module> visible = visibleModules();
+        for (Category category : Category.values()) {
+            List<Module> members = visible.stream().filter(m -> m.category() == category).toList();
+            if (members.isEmpty()) {
+                continue;
+            }
+            CategoryRow header = categoryRows.get(category);
+            header.count = members.size();
+            header.bounds(cx, ly2, cwid, categoryH);
+            widget(ui, header, mx, my);
+            ly2 += categoryH + gap;
+            if (header.collapsed()) {
+                continue;
+            }
+            for (Module module : members) {
+                ModuleRow row = moduleRows.get(module);
+                row.bounds(cx, ly2, cwid, moduleH);
+                widget(ui, row, mx, my);
+                ly2 += moduleH + gap;
+            }
         }
         popClip(ui);
+        sideMaxScroll = Math.max(0f, ly2 + sideScroll - top - (listBottom - top));
+        sideScroll = Math.max(0f, Math.min(sideScroll, sideMaxScroll));
+    }
+
+    /** Collapsible group header: «БОЙ · 5» with a chevron; the state is kept with the window. */
+    private final class CategoryRow extends Widget {
+        private final Category category;
+        private final Anim open = new Anim("hover_ms");
+        int count;
+
+        CategoryRow(Category category) {
+            this.category = category;
+            open.snap(collapsed() ? 0f : 1f);
+        }
+
+        boolean collapsed() {
+            return frame.flag("collapsed:" + category.name());
+        }
+
+        @Override
+        protected void draw(Ui ui, double mx, double my) {
+            float padX = ui.num(L + "section_pad_x");
+            float o = open.target(collapsed() ? 0f : 1f).value();
+            int color = Anim.lerpColor(ui.color("text_3"), ui.color("text_2"), hovered());
+            float chev = ui.num(L + "category_chevron");
+            float cx = x + padX + chev / 2f;
+            float cy = y + h / 2f;
+            float lw = ui.num("stroke.width") * 1.5f;
+            // Chevron: right-pointing when collapsed, turning down when open.
+            double a = Math.toRadians(90 * o);
+            float dx = chev / 2f;
+            float dy = chev / 4f;
+            float[][] pts = {{-dy, -dx}, {dy, 0}, {-dy, dx}};
+            float[][] r = new float[3][2];
+            for (int i = 0; i < 3; i++) {
+                r[i][0] = cx + (float) (pts[i][0] * Math.cos(a) - pts[i][1] * Math.sin(a));
+                r[i][1] = cy + (float) (pts[i][0] * Math.sin(a) + pts[i][1] * Math.cos(a));
+            }
+            ui.line(r[0][0], r[0][1], r[1][0], r[1][1], lw, color);
+            ui.line(r[1][0], r[1][1], r[2][0], r[2][1], lw, color);
+            String label = Ui.tr(category.translationKey());
+            float tx = x + padX + chev + ui.num(L + "category_gap");
+            ui.textCentered("menu_section", label, tx, y, h, color);
+            String n = Integer.toString(count);
+            ui.textCentered("menu_section", n, x + w - padX - ui.textWidth("menu_section", n), y, h, ui.color("text_4"));
+        }
+
+        @Override
+        public boolean mouseClicked(double mx, double my, int button) {
+            if (button == 0) {
+                frame.setFlag("collapsed:" + category.name(), !collapsed());
+                return true;
+            }
+            return false;
+        }
     }
 
     private final class ModuleRow extends Widget {
@@ -418,6 +506,15 @@ public final class SkirmishScreen extends UiScreen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        double mx = Ui.toDesign(mouseX);
+        double my = Ui.toDesign(mouseY);
+        if (mx >= sideArea[0] && mx < sideArea[2] && my >= sideArea[1] && my < sideArea[3]) {
+            if (sideMaxScroll > 0f) {
+                sideScroll = Math.max(0f, Math.min(sideMaxScroll, sideScroll - (float) scrollY * Theme.get().num(L + "scroll_step")));
+                return true;
+            }
+            return false;
+        }
         if (maxScroll > 0f) {
             scroll = Math.max(0f, Math.min(maxScroll, scroll - (float) scrollY * Theme.get().num(L + "scroll_step")));
             return true;

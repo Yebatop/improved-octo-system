@@ -525,6 +525,8 @@
   "layout": {
     "design_scale": 0.5,
     "screen_edge": 18,
+    "window_grip": 14,
+    "window_grip_inset": 4,
     "panel_pad_y": 12,
     "panel_pad_x": 14,
     "panel_gap": 10,
@@ -537,6 +539,11 @@
       "width": 860,
       "height": 520,
       "sidebar_width": 224,
+      "min_width": 720,
+      "min_height": 380,
+      "category_height": 26,
+      "category_chevron": 8,
+      "category_gap": 8,
       "sidebar_pad_y": 18,
       "sidebar_pad_x": 12,
       "sidebar_gap": 4,
@@ -750,6 +757,10 @@
     "waypoints": {
       "width": 640,
       "height": 520,
+      "min_width": 480,
+      "min_height": 340,
+      "coord_min_width": 64,
+      "error_gap": 2,
       "delete_size": 30,
       "delete_icon": 14
     }

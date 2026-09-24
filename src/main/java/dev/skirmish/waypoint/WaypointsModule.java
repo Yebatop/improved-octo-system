@@ -1,5 +1,6 @@
 package dev.skirmish.waypoint;
 
+import dev.skirmish.module.Category;
 import dev.skirmish.SkirmishKeys;
 import dev.skirmish.module.Module;
 import dev.skirmish.setting.ActionSetting;
@@ -33,6 +34,11 @@ public final class WaypointsModule extends Module {
     @Override
     public int menuOrder() {
         return 10;
+    }
+
+    @Override
+    public Category category() {
+        return Category.WORLD;
     }
 
     public WaypointsModule() {
