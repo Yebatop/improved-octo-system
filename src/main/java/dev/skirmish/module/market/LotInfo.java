@@ -53,7 +53,8 @@ record LotInfo(String itemKey, String name, LotParser.Lot lot, int count, double
         if (custom == null) {
             return id;
         }
-        String name = HwText.normalize(custom.getString());
+        // A trailing "(5345)" is a per-stack amount («Бутылек с 50 ур. опыта (5345)»), not part of the item's identity.
+        String name = HwText.normalize(custom.getString()).replaceAll("\\s*\\(\\d+\\)\\s*$", "");
         return name.isEmpty() ? id : id + "|" + name;
     }
 

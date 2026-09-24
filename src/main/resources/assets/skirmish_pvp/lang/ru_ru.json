@@ -17,5 +17,7 @@
   "skirmish.pvp.tag.more": "+%s",
   "skirmish.pvp.source.board": "борд",
   "skirmish.pvp.source.boss_bar": "боссбар",
-  "skirmish.pvp.source.local": "по ударам"
+  "skirmish.pvp.source.local": "по ударам",
+  "skirmish.pvp.tag.seconds": "%sс",
+  "skirmish.pvp.tag.health": "%s/%s HP"
 }

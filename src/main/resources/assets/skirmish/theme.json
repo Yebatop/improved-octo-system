@@ -637,6 +637,7 @@
       "world_label_pad_x": 9,
       "world_label_gap": 6,
       "world_label_stem": 6,
+      "stack_gap": 10,
       "toast_width": 240,
       "toast_pad": 10,
       "toast_gap": 8,

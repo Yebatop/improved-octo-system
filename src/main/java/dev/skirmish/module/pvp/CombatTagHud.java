@@ -16,8 +16,8 @@ import java.util.Locale;
  */
 final class CombatTagHud extends HudBlock {
     private static final String L = "layout.pvp.";
-    private static final PvpModule.TagView SAMPLE =
-            new PvpModule.TagView(14, 0.7f, List.of("GFk31AK", "Notch_"), PvpModule.Source.BOARD);
+    private static final PvpModule.TagView SAMPLE = new PvpModule.TagView(27, 0.9f, List.of("GFk31AK", "Notch_"),
+            PvpModule.Source.BOARD, List.of(new TagParser.Opponent("GFk31AK", 27, 16, 20), new TagParser.Opponent("Notch_", 12, 7, 20)));
 
     private final PvpModule module;
     private PvpModule.@Nullable TagView current;
@@ -51,7 +51,7 @@ final class CombatTagHud extends HudBlock {
             last = current;
         } else if (last != null && last.seconds() != 0) {
             // Ended: fade out on an empty ring and 0.
-            last = new PvpModule.TagView(0, 0f, last.opponents(), last.source());
+            last = new PvpModule.TagView(0, 0f, last.opponents(), last.source(), last.details());
         }
     }
 
@@ -60,6 +60,14 @@ final class CombatTagHud extends HudBlock {
             return SAMPLE;
         }
         return last;
+    }
+
+    private static String detail(TagParser.Opponent o) {
+        String seconds = Ui.tr("skirmish.pvp.tag.seconds", o.seconds());
+        if (Float.isNaN(o.health())) {
+            return seconds;
+        }
+        return Ui.tr("skirmish.pvp.tag.health", Ui.decimal(o.health(), 0), Ui.decimal(o.maxHealth(), 0)) + "  " + seconds;
     }
 
     /** Name rows: all names when they fit, else {@code tag_max_names} names and a "+N" row. */
@@ -133,7 +141,13 @@ final class CombatTagHud extends HudBlock {
             if (i == max && names.size() > max + 1) {
                 ui.text("pvp_tag_more", Ui.tr("skirmish.pvp.tag.more", names.size() - max), tx, ty);
             } else {
-                ui.text("pvp_tag_name", ui.ellipsize("pvp_tag_name", names.get(i), tw), tx, ty);
+                // Right side: the opponent's health and own timer when the server lists them («16/20 HP  27с»).
+                String right = i < view.details().size() ? detail(view.details().get(i)) : "";
+                float rw = right.isEmpty() ? 0f : ui.textWidth("pvp_tag_detail", right);
+                ui.text("pvp_tag_name", ui.ellipsize("pvp_tag_name", names.get(i), tw - (rw > 0 ? rw + gap * 2 : 0f)), tx, ty);
+                if (rw > 0) {
+                    ui.text("pvp_tag_detail", right, tx + tw - rw, ty);
+                }
             }
             ty += ui.lineHeight("pvp_tag_name") + gap;
         }

@@ -51,7 +51,8 @@ final class GearReader {
                 stack.getPrototype().has(DataComponents.MAX_DAMAGE),
                 stack.get(DataComponents.MAX_DAMAGE),
                 damage,
-                damage != null && stack.hasNonDefault(DataComponents.DAMAGE));
+                damage != null && stack.hasNonDefault(DataComponents.DAMAGE),
+                stack.getCount() > stack.getMaxStackSize());
     }
 
     /** Enchantments of the stack, or the stored enchantments of a book when the stack itself has none. */

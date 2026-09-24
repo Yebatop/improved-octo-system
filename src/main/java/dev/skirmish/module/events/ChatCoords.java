@@ -2,6 +2,7 @@ package dev.skirmish.module.events;
 
 import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -155,6 +156,31 @@ public final class ChatCoords {
         if (t.contains("в энде") || t.contains("эндер мир") || t.contains("захват энда")
                 || t.contains("the end") || t.contains("the_end")) {
             return "minecraft:the_end";
+        }
+        return null;
+    }
+
+    private static final Pattern VOTE_IN = Pattern.compile(
+            "через\\s+(?:(\\d{1,2})\\s*ч\\p{L}*\\.?[,\\s]*)?(?:(\\d{1,3})\\s*мин\\p{L}*\\.?[,\\s]*)?(?:(\\d{1,2})\\s*сек)?");
+
+    /**
+     * HolyWorld's countdown to the next event vote: «▶ Ближайшее голосование за мероприятие будет проводиться через
+     * 39 мин., 21 сек.» (captured 2026-09). Null for any other line.
+     */
+    public static @Nullable Duration voteCountdown(String text) {
+        String t = fold(text);
+        if (!t.contains("голосовани")) {
+            return null;
+        }
+        Matcher m = VOTE_IN.matcher(t);
+        while (m.find()) {
+            if (m.group(1) == null && m.group(2) == null && m.group(3) == null) {
+                continue;
+            }
+            long seconds = (m.group(1) == null ? 0 : Long.parseLong(m.group(1)) * 3600)
+                    + (m.group(2) == null ? 0 : Long.parseLong(m.group(2)) * 60)
+                    + (m.group(3) == null ? 0 : Long.parseLong(m.group(3)));
+            return Duration.ofSeconds(seconds);
         }
         return null;
     }

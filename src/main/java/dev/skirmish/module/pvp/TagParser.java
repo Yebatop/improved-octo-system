@@ -22,6 +22,10 @@ import java.util.regex.Pattern;
  *     <li>a boss bar whose name has a keyword is the tag; its progress fills the ring when the name has no time.</li>
  * </ul>
  * Lines that look related but match nothing are returned as {@link Result#unrecognized()} for the debug log.
+ *
+ * <p>HolyWorld (captured 2026-09): each tagged opponent has its own line {@code "▍ Nick  (27 ⌚) 16/20 ❤"} whose
+ * seconds restart at 30 on every hit between the two players; the tag lasts while any of them runs. Those lines win
+ * over everything else: the board's «…из игры 30 секунд.» line under «Не выходите» is a static hint, not a timer.
  */
 final class TagParser {
     private static final String B = "(?<![\\p{L}\\p{N}])";
@@ -36,6 +40,9 @@ final class TagParser {
     /** Optional bullet, a Minecraft nick, then optionally a separator and a time. Matched on colour-stripped text. */
     private static final Pattern NICK_LINE = Pattern.compile(
             "^[^\\p{L}\\p{N}_]*([A-Za-z0-9_]{3,16})(?:\\s*[-–—:|•·»>(\\[]?\\s*(.*?)[)\\]]?)?\\s*$");
+    /** HolyWorld opponent line, matched on colour-stripped text: nick, own seconds, optional health / max ❤. */
+    private static final Pattern HW_OPPONENT = Pattern.compile("^[^\\p{L}\\p{N}_]*([A-Za-z0-9_]{3,16})\\s*\\(\\s*(\\d{1,3})\\s*⌚\\uFE0F?\\s*\\)"
+            + "(?:\\s*(\\d{1,4}(?:[.,]\\d+)?)\\s*/\\s*(\\d{1,4}(?:[.,]\\d+)?)\\s*❤)?");
     /** A line of only symbols (e.g. "-◆-", "———") or empty: ends a block. */
     private static final Pattern SEPARATOR = Pattern.compile("^[^\\p{L}\\p{N}]*$");
 
@@ -49,7 +56,16 @@ final class TagParser {
      * @param opponents tagged opponents as listed on the board, in board order
      * @param line      the text the timer was read from (for the debug log)
      */
-    record Reading(int seconds, float progress, List<String> opponents, Source source, String line) {
+    record Reading(int seconds, float progress, List<String> opponents, Source source, String line, List<Opponent> details) {
+        Reading(int seconds, float progress, List<String> opponents, Source source, String line) {
+            this(seconds, progress, opponents, source, line, List.of());
+        }
+    }
+
+    /**
+     * One opponent line with its own timer; health is NaN when the line has none.
+     */
+    record Opponent(String name, int seconds, float health, float maxHealth) {
     }
 
     record Result(@Nullable Reading reading, List<String> unrecognized) {
@@ -83,12 +99,16 @@ final class TagParser {
         if (board == null) {
             reading = bar;
         } else if (board.seconds() < 0 && bar != null) {
-            reading = new Reading(bar.seconds(), bar.progress(), board.opponents(), bar.source(), bar.line());
+            reading = new Reading(bar.seconds(), bar.progress(), board.opponents(), bar.source(), bar.line(), board.details());
         }
         return new Result(reading, unrecognized);
     }
 
     private static @Nullable Reading parseBoard(String title, List<String> lines, String selfName, List<String> unrecognized) {
+        Reading holy = parseHolyOpponents(lines, selfName);
+        if (holy != null) {
+            return holy;
+        }
         int timer = -1;
         String timerLine = null;
         boolean pvpTitle = isKeyword(PvpText.normalize(title));
@@ -153,6 +173,30 @@ final class TagParser {
             return null;
         }
         return new Reading(timer, Float.NaN, List.copyOf(opponents), Source.BOARD, timerLine == null ? "opponents only" : timerLine);
+    }
+
+    /** HolyWorld opponent lines anywhere on the board; the tag is the longest of their timers. */
+    private static @Nullable Reading parseHolyOpponents(List<String> lines, String selfName) {
+        List<Opponent> found = new ArrayList<>();
+        for (String raw : lines) {
+            Matcher m = HW_OPPONENT.matcher(PvpText.stripCodes(raw).strip());
+            if (!m.find() || m.group(1).equalsIgnoreCase(selfName)) {
+                continue;
+            }
+            float health = m.group(3) == null ? Float.NaN : Float.parseFloat(m.group(3).replace(',', '.'));
+            float max = m.group(4) == null ? Float.NaN : Float.parseFloat(m.group(4).replace(',', '.'));
+            found.add(new Opponent(m.group(1), Integer.parseInt(m.group(2)), health, max));
+        }
+        if (found.isEmpty()) {
+            return null;
+        }
+        int seconds = 0;
+        List<String> names = new ArrayList<>();
+        for (Opponent o : found) {
+            seconds = Math.max(seconds, o.seconds());
+            names.add(o.name());
+        }
+        return new Reading(seconds, Float.NaN, List.copyOf(names), Source.BOARD, "opponent timers", List.copyOf(found));
     }
 
     /** What may follow a nick on an opponent line: nothing or a time ("12с", "0:12", "12"). */

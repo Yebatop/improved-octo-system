@@ -31,6 +31,12 @@
       "weight": 600,
       "color": "text",
       "mono": true
+    },
+    "pvp_tag_detail": {
+      "size": 11,
+      "weight": 600,
+      "color": "text_2",
+      "mono": true
     }
   },
   "layout": {

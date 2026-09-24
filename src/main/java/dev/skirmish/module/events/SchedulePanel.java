@@ -31,9 +31,20 @@ final class SchedulePanel extends HudBlock {
         return module.isEnabled() && module.schedule.get();
     }
 
+    /** Hidden in a fight like the events list; left at its default place it sits under that list. */
     @Override
     public boolean shown() {
+        return HolyWorld.isConnected() && dev.skirmish.combat.CombatTracker.get().activeFights().isEmpty();
+    }
+
+    @Override
+    public boolean hasContent() {
         return HolyWorld.isConnected();
+    }
+
+    @Override
+    public String stackUnder() {
+        return "events";
     }
 
     @Override

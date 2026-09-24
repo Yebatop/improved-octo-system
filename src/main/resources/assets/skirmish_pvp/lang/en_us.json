@@ -17,5 +17,7 @@
   "skirmish.pvp.tag.more": "+%s",
   "skirmish.pvp.source.board": "board",
   "skirmish.pvp.source.boss_bar": "boss bar",
-  "skirmish.pvp.source.local": "from hits"
+  "skirmish.pvp.source.local": "from hits",
+  "skirmish.pvp.tag.seconds": "%ss",
+  "skirmish.pvp.tag.health": "%s/%s HP"
 }

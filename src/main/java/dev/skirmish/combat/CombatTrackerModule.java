@@ -4,6 +4,7 @@ import dev.skirmish.module.Module;
 import dev.skirmish.setting.BoolSetting;
 import dev.skirmish.setting.NumberSetting;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientWorldEvents;
+import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 
 /** Core module: owns the {@link CombatTracker} settings. Always on (KillCam and KillCard depend on it). */
@@ -47,6 +48,11 @@ public final class CombatTrackerModule extends Module implements CombatLogic.Con
         ClientWorldEvents.AFTER_CLIENT_WORLD_CHANGE.register((client, level) ->
                 tracker.reset("world changed to " + level.dimension().identifier()));
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> tracker.reset("disconnected"));
+        ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
+            if (!overlay) {
+                tracker.onSystemChat(message.getString());
+            }
+        });
     }
 
     @Override

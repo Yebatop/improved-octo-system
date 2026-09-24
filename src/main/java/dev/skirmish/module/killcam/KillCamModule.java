@@ -152,7 +152,7 @@ public final class KillCamModule extends Module {
                 float w = ui.num(l + "width");
                 float h = ui.num(l + "height");
                 // Below vanilla's two buttons (height / 4 + 72 and + 96, 20 GUI px each).
-                float y = (float) dev.skirmish.ui.Ui.toDesign(screen.height / 4 + 96 + 20) + ui.num(l + "gap");
+                float y = (float) dev.skirmish.ui.Ui.toDesignOnVanilla(screen.height / 4 + 96 + 20) + ui.num(l + "gap");
                 watch.enabled = available;
                 watch.bounds((ui.width() - w) / 2f, y, w, h);
                 widgets.widget(ui, watch, mx, my);

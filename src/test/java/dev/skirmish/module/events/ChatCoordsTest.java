@@ -86,4 +86,21 @@ class ChatCoordsTest {
         assertTrue(ChatCoords.isVoteStart("Началось голосование за следующий ивент! /vote"));
         assertFalse(ChatCoords.isVoteStart("Вася: кто за голосование?"));
     }
+
+    /** Real HolyWorld lines (game log, 2026-09-24). */
+    @Test
+    void voteCountdownFromHolyWorldChat() {
+        assertEquals(java.time.Duration.ofSeconds(39 * 60 + 21),
+                ChatCoords.voteCountdown("▶ Ближайшее голосование за мероприятие будет проводиться через 39 мин., 21 сек."));
+        assertEquals(java.time.Duration.ofSeconds(45),
+                ChatCoords.voteCountdown("Ближайшее голосование за мероприятие будет проводиться через 45 сек."));
+        assertNull(ChatCoords.voteCountdown("▶ Золотая лихорадка уже на координатах  0 63 0."));
+    }
+
+    @Test
+    void holyWorldEventAndDeathCoordinates() {
+        assertEquals("0 63 0", ChatCoords.find("▶ Золотая лихорадка уже на координатах  0 63 0.").getFirst().text());
+        assertEquals("-541 53 -193",
+                ChatCoords.find("▶ Вы были убиты игроком Enemy_3 на координатах -541 53 -193.").getFirst().text());
+    }
 }

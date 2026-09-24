@@ -228,7 +228,11 @@ public final class EventsModule extends Module {
     /** A system chat line (called by {@link ChatWaypoints} before it adds links). */
     void onChatLine(String plain, List<ChatCoords.Coords> found, @Nullable String eventName, String dimension) {
         detector.onChat(plain, servers);
-        if (ChatCoords.isVoteStart(plain)) {
+        Duration untilVote = ChatCoords.voteCountdown(plain);
+        if (untilVote != null) {
+            voteAnchor = Instant.now().plus(untilVote);
+            log("next vote from chat: in %d s", untilVote.toSeconds());
+        } else if (ChatCoords.isVoteStart(plain)) {
             Instant now = Instant.now();
             if (voteAnchor == null || Duration.between(voteAnchor, now).compareTo(VOTE_REANCHOR) > 0) {
                 voteAnchor = now;
@@ -247,7 +251,7 @@ public final class EventsModule extends Module {
         }
         if (name != null) {
             coords.put(name, found.getFirst(), dimension, System.currentTimeMillis());
-            log("coordinates of '%s' from chat: %s", name, found.getFirst().text());
+            log("coordinates of '%s' from chat: %s (line: %s)", name, found.getFirst().text(), plain);
         }
     }
 

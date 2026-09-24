@@ -134,4 +134,32 @@ class TagParserTest {
         assertNull(result.reading());
         assertEquals(List.of("§fДо рестарта: 1:30", "§cPvP 10 из 20"), result.unrecognized());
     }
+
+    /** Real HolyWorld board lines captured on Lite anarchy (2026-09-24, debug.log). */
+    @Test
+    void holyWorldOpponentLinesWinOverTheStaticHint() {
+        TagParser.Reading r = board("§6HolyWorld.ru",
+                "§6▍ §fНе выходите",
+                "◤ из игры 30 секунд.§",
+                "▍ Enemy_One  (27 ⌚) 16/20 ❤§¡",
+                "▍ Enemy_Two  (29 ⌚) 20/20 ❤§¢");
+        assertNotNull(r);
+        assertEquals(29, r.seconds());
+        assertEquals(List.of("Enemy_One", "Enemy_Two"), r.opponents());
+        assertEquals(new TagParser.Opponent("Enemy_One", 27, 16f, 20f), r.details().get(0));
+        assertEquals(TagParser.Source.BOARD, r.source());
+    }
+
+    @Test
+    void holyWorldOpponentLineWithoutHealth() {
+        TagParser.Reading r = board("HolyWorld", "▍ Enemy_3 (5 ⌚)");
+        assertNotNull(r);
+        assertEquals(5, r.seconds());
+        assertTrue(Float.isNaN(r.details().get(0).health()));
+    }
+
+    @Test
+    void holyWorldOwnLineIsSkipped() {
+        assertNull(board("HolyWorld", "▍ Me_Player  (12 ⌚) 20/20 ❤"));
+    }
 }

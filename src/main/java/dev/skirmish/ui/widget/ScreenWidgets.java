@@ -43,8 +43,8 @@ public final class ScreenWidgets {
     public static ScreenWidgets attach(Screen screen, Layout layout) {
         ScreenWidgets widgets = new ScreenWidgets();
         ATTACHED.computeIfAbsent(screen, s -> new ArrayList<>()).add(graphics -> widgets.render(graphics, layout));
-        ScreenMouseEvents.allowMouseClick(screen).register((s, event) -> !widgets.click(Ui.toDesign(event.x()), Ui.toDesign(event.y()), event.button()));
-        ScreenMouseEvents.allowMouseRelease(screen).register((s, event) -> !widgets.release(Ui.toDesign(event.x()), Ui.toDesign(event.y()), event.button()));
+        ScreenMouseEvents.allowMouseClick(screen).register((s, event) -> !widgets.click(Ui.toDesignOnVanilla(event.x()), Ui.toDesignOnVanilla(event.y()), event.button()));
+        ScreenMouseEvents.allowMouseRelease(screen).register((s, event) -> !widgets.release(Ui.toDesignOnVanilla(event.x()), Ui.toDesignOnVanilla(event.y()), event.button()));
         return widgets;
     }
 
@@ -67,10 +67,10 @@ public final class ScreenWidgets {
 
     private void render(GuiGraphics graphics, Layout layout) {
         Minecraft mc = Minecraft.getInstance();
-        double mx = Ui.toDesign(mc.mouseHandler.getScaledXPos(mc.getWindow()));
-        double my = Ui.toDesign(mc.mouseHandler.getScaledYPos(mc.getWindow()));
+        double mx = Ui.toDesignOnVanilla(mc.mouseHandler.getScaledXPos(mc.getWindow()));
+        double my = Ui.toDesignOnVanilla(mc.mouseHandler.getScaledYPos(mc.getWindow()));
         frame.clear();
-        Ui ui = Ui.begin(graphics);
+        Ui ui = Ui.beginOnVanilla(graphics);
         try {
             layout.draw(ui, this, mx, my);
         } finally {

@@ -9,6 +9,8 @@ import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
@@ -40,6 +42,8 @@ final class AuctionOverlay {
     private Map<Slot, LotInfo> page = Map.of();
     private Map<ItemStack, LotInfo> byStack = new IdentityHashMap<>();
     private boolean loggedPage;
+    /** Lots on this screen whose lore did not parse, logged (debug) so the next capture shows why. */
+    private int unparsedLogged;
 
     AuctionOverlay(MarketModule module, AbstractContainerScreen<?> screen) {
         this.module = module;
@@ -93,6 +97,13 @@ final class AuctionOverlay {
             }
             LotParser.Lot lot = p.lot();
             if (lot == null) {
+                if (fresh && module.isDebug() && unparsedLogged < 5) {
+                    unparsedLogged++;
+                    var lore = stack.get(DataComponents.LORE);
+                    module.log("lot not parsed on \"%s\": %s x%d, lore %s", screen.getTitle().getString(),
+                            stack.getHoverName().getString(), stack.getCount(),
+                            lore == null ? "[]" : lore.lines().stream().map(Component::getString).toList());
+                }
                 continue;
             }
             int count = Math.max(1, stack.getCount());
@@ -145,9 +156,9 @@ final class AuctionOverlay {
             return;
         }
         ContainerScreenAccessor pos = (ContainerScreenAccessor) screen;
-        float left = (float) Ui.toDesign(pos.skirmish$leftPos());
-        float top = (float) Ui.toDesign(pos.skirmish$topPos());
-        float size = (float) Ui.toDesign(SLOT_SIZE);
+        float left = (float) Ui.toDesignOnVanilla(pos.skirmish$leftPos());
+        float top = (float) Ui.toDesignOnVanilla(pos.skirmish$topPos());
+        float size = (float) Ui.toDesignOnVanilla(SLOT_SIZE);
         String l = "layout.market.";
         char decimal = Ui.decimal(0.5, 1).contains(",") ? ',' : '.';
         String k = Ui.tr("skirmish.market.suffix.k");
@@ -156,8 +167,8 @@ final class AuctionOverlay {
         for (Map.Entry<Slot, LotInfo> e : page.entrySet()) {
             Slot slot = e.getKey();
             LotInfo info = e.getValue();
-            float sx = left + (float) Ui.toDesign(slot.x);
-            float sy = top + (float) Ui.toDesign(slot.y);
+            float sx = left + (float) Ui.toDesignOnVanilla(slot.x);
+            float sy = top + (float) Ui.toDesignOnVanilla(slot.y);
             if (info.cheapest() && module.highlightOn()) {
                 float pad = ui.num(l + "best_pad");
                 ui.rect(sx - pad, sy - pad, size + pad * 2, size + pad * 2, ui.theme().radius("slot"), ui.color("market_best_fill"));

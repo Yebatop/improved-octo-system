@@ -60,7 +60,7 @@ final class ChatWaypoints {
             if (found.isEmpty() || !module.waypoints.get() || !(holy || module.everywhere.get())) {
                 return message;
             }
-            module.log("chat coordinates %s, event %s, dimension %s", found.getFirst().text(), event, dimension);
+            module.log("chat coordinates %s, event %s, dimension %s (line: %s)", found.getFirst().text(), event, dimension, text);
             return withLinks(segments, found, event, dimension);
         } catch (RuntimeException e) {
             module.error("chat line not processed", e);
