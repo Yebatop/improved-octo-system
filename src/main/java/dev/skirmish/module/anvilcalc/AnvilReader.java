@@ -1,16 +1,22 @@
 package dev.skirmish.module.anvilcalc;
 
 import dev.skirmish.module.anvilcalc.calc.AnvilInput;
+import dev.skirmish.module.anvilcalc.calc.DubiousBook;
+import dev.skirmish.module.anvilcalc.calc.RulesProfile;
 import dev.skirmish.module.anvilcalc.calc.EnchantInfo;
 import dev.skirmish.module.anvilcalc.calc.Piece;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
@@ -38,22 +44,27 @@ final class AnvilReader {
     record BookRef(int inventorySlot, ItemStack stack) {
     }
 
+    /**
+     * @param autoRules   the rules profile came from the AUTO setting
+     * @param baseDubious the left item already carries a «сомнительное» enchantment (HolyWorld Prime rules only)
+     */
     record Snapshot(@Nullable Problem problem, ItemStack base, @Nullable AnvilInput input, List<BookRef> books,
-                    Map<String, Holder<Enchantment>> holders, String signature) {
+                    Map<String, Holder<Enchantment>> holders, String signature, boolean autoRules, boolean baseDubious) {
     }
 
     private AnvilReader() {
     }
 
-    static Snapshot read(AnvilMenu menu, Player player, int tooExpensiveAt, int exactLimit) {
+    static Snapshot read(AnvilMenu menu, Player player, int tooExpensiveAt, int exactLimit, RulesProfile profile,
+                         boolean autoRules) {
         String signature = signature(menu, player);
         ItemStack base = menu.getSlot(AnvilMenu.INPUT_SLOT).getItem().copy();
         if (base.isEmpty()) {
-            return new Snapshot(Problem.EMPTY, base, null, List.of(), Map.of(), signature);
+            return new Snapshot(Problem.EMPTY, base, null, List.of(), Map.of(), signature, autoRules, false);
         }
         // AnvilMenu.createResult line 125: the left item must carry an enchantment component.
         if (!EnchantmentHelper.canStoreEnchantments(base)) {
-            return new Snapshot(Problem.NOT_ENCHANTABLE, base, null, List.of(), Map.of(), signature);
+            return new Snapshot(Problem.NOT_ENCHANTABLE, base, null, List.of(), Map.of(), signature, autoRules, false);
         }
         Map<String, Holder<Enchantment>> holders = new LinkedHashMap<>();
         Piece basePiece = new Piece(base.is(Items.ENCHANTED_BOOK), base.getCount(), repairCost(base), enchants(base, holders));
@@ -71,7 +82,11 @@ final class AnvilReader {
                 books.add(new BookRef(slot, stack.copy()));
             }
         }
+        Set<Integer> dubious = new HashSet<>();
         for (BookRef book : books) {
+            if (profile.dubiousBooks() && isDubious(book.stack())) {
+                dubious.add(pieces.size());
+            }
             pieces.add(new Piece(true, book.stack().getCount(), repairCost(book.stack()), enchants(book.stack(), holders)));
         }
         Map<String, EnchantInfo> catalog = new HashMap<>();
@@ -87,8 +102,31 @@ final class AnvilReader {
             catalog.put(entry.getKey(), new EnchantInfo(entry.getKey(), enchantment.getAnvilCost(), enchantment.getMaxLevel(),
                     enchantment.canEnchant(base), incompatible));
         }
-        AnvilInput input = new AnvilInput(basePiece, pieces, catalog, player.hasInfiniteMaterials(), tooExpensiveAt, exactLimit);
-        return new Snapshot(null, base, input, List.copyOf(books), holders, signature);
+        AnvilInput input = new AnvilInput(basePiece, pieces, catalog, player.hasInfiniteMaterials(), tooExpensiveAt, exactLimit,
+                profile, isArmor(base), dubious);
+        return new Snapshot(null, base, input, List.copyOf(books), holders, signature, autoRules,
+                profile.dubiousBooks() && isDubious(base));
+    }
+
+    /** Worn in an armour slot (helmets, chestplates, leggings, boots, elytra), by its {@code equippable} component. */
+    static boolean isArmor(ItemStack stack) {
+        Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
+        return equippable != null && equippable.slot().getType() == EquipmentSlot.Type.HUMANOID_ARMOR;
+    }
+
+    /** «Сомнительная» book or item, by its custom name, server-set item name or lore. */
+    static boolean isDubious(ItemStack stack) {
+        List<String> lore = new ArrayList<>();
+        ItemLore itemLore = stack.get(DataComponents.LORE);
+        if (itemLore != null) {
+            for (Component line : itemLore.lines()) {
+                lore.add(line.getString());
+            }
+        }
+        Component custom = stack.get(DataComponents.CUSTOM_NAME);
+        Component itemName = stack.hasNonDefault(DataComponents.ITEM_NAME) ? stack.get(DataComponents.ITEM_NAME) : null;
+        String name = custom != null ? custom.getString() : itemName != null ? itemName.getString() : "";
+        return DubiousBook.matches(name, lore);
     }
 
     /** Changes whenever anything the calculation reads changes. */

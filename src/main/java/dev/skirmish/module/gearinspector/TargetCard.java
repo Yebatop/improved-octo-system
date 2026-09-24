@@ -4,6 +4,13 @@ import dev.skirmish.combat.EquipmentSnapshot;
 import dev.skirmish.hud.HudBlock;
 import dev.skirmish.hud.HudStyle;
 import dev.skirmish.hud.Placement;
+import dev.skirmish.module.gearinspector.holy.CustomEnchant;
+import dev.skirmish.module.gearinspector.holy.DonorTier;
+import dev.skirmish.module.gearinspector.holy.HolyGear;
+import dev.skirmish.module.gearinspector.holy.HolyText;
+import dev.skirmish.module.gearinspector.holy.LiteArmorWear;
+import dev.skirmish.module.gearinspector.holy.Talisman;
+import dev.skirmish.module.gearinspector.holy.TierSummary;
 import dev.skirmish.ui.Anim;
 import dev.skirmish.ui.Ui;
 import net.minecraft.client.Minecraft;
@@ -18,10 +25,15 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Target card under the crosshair (mockup): face, name, HP with a smoothed bar, ping, and a row of the six
  * equipment slots with durability bars. With «Зачарования» on, a third block lists the enchantments.
+ * <p>
+ * With the HolyWorld profile active: a donor tier chip beside the ping, and in the list the tier line, lore
+ * enchantments next to vanilla ones, over-cap vanilla levels marked, off-hand sphere/talisman stats and Lite's
+ * estimated hits left for armour. With nothing HolyWorld-specific on the target the card looks exactly as before.
  */
 final class TargetCard extends HudBlock {
     private static final String L = "layout.hud.";
@@ -87,7 +99,7 @@ final class TargetCard extends HudBlock {
             if (stack.isEmpty() && !module.showEmptySlots.get()) {
                 continue;
             }
-            views.add(GearReader.read(slot, stack, module.assumeUndamaged.get(), mc.level));
+            views.add(GearReader.read(slot, stack, module.assumeUndamaged.get(), mc.level, target != null && module.holyActive()));
         }
         return views;
     }
@@ -117,6 +129,12 @@ final class TargetCard extends HudBlock {
             return lines;
         }
         float textW = width(ui, false) - HudStyle.insetX(ui) * 2;
+        String tiers = tierLine(slots);
+        if (!tiers.isEmpty()) {
+            for (String line : ui.wrap("holy_line", tiers, textW)) {
+                lines.add(new String[]{"holy_line", line, ""});
+            }
+        }
         for (GearReader.SlotView view : slots) {
             if (view.stack().isEmpty()) {
                 continue;
@@ -127,17 +145,97 @@ final class TargetCard extends HudBlock {
             }
             lines.add(new String[]{"row_value", ui.ellipsize("row_value", view.stack().getHoverName().getString(),
                     textW - ui.textWidth("row", value) - 8), value});
+            HolyGear holy = view.holy();
+            List<String> custom = holy.custom().stream().map(CustomEnchant.Found::text).toList();
             String enchants = switch (view.enchantStatus()) {
-                case LISTED -> String.join(", ", view.enchantments().stream().map(Component::getString).toList());
-                case NO_DATA -> module.showMissingEnchantments.get() ? Ui.tr("skirmish.gearinspector.enchantments_no_data") : "";
-                case GLINT_ONLY -> module.showMissingEnchantments.get() ? Ui.tr("skirmish.gearinspector.enchantments_glint_only") : "";
-                case NOT_APPLICABLE -> "";
+                case LISTED -> String.join(", ", concat(view.enchantments().stream().map(Component::getString)
+                        .map(name -> holy.overCap().contains(name) ? Ui.tr("skirmish.gearinspector.holy.over_cap", name) : name)
+                        .toList(), custom));
+                case NO_DATA -> !custom.isEmpty() ? String.join(", ", custom)
+                        : module.showMissingEnchantments.get() ? Ui.tr("skirmish.gearinspector.enchantments_no_data") : "";
+                case GLINT_ONLY -> !custom.isEmpty() ? String.join(", ", custom)
+                        : module.showMissingEnchantments.get() ? Ui.tr("skirmish.gearinspector.enchantments_glint_only") : "";
+                case NOT_APPLICABLE -> String.join(", ", custom);
             };
             for (String line : enchants.isEmpty() ? List.<String>of() : ui.wrap("row", enchants, textW)) {
                 lines.add(new String[]{"row", line, ""});
             }
+            String talisman = talismanLine(holy.talisman());
+            for (String line : talisman.isEmpty() ? List.<String>of() : ui.wrap("holy_line", talisman, textW)) {
+                lines.add(new String[]{"holy_line", line, ""});
+            }
+            String hits = hitsLine(view);
+            for (String line : hits.isEmpty() ? List.<String>of() : ui.wrap("holy_note", hits, textW)) {
+                lines.add(new String[]{"holy_note", line, ""});
+            }
         }
         return lines;
+    }
+
+    private static List<String> concat(List<String> a, List<String> b) {
+        if (b.isEmpty()) {
+            return a;
+        }
+        List<String> out = new ArrayList<>(a);
+        out.addAll(b);
+        return out;
+    }
+
+    /** Dominant donor tier of the armour, from the slots read with the HolyWorld profile on; null otherwise. */
+    private static @Nullable TierSummary armourTier(List<GearReader.SlotView> slots) {
+        List<DonorTier> tiers = new ArrayList<>();
+        for (GearReader.SlotView view : slots) {
+            if (view.slot().getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
+                tiers.add(view.holy().tier());
+            }
+        }
+        return TierSummary.of(tiers);
+    }
+
+    /** «Донат-броня: Infinity, 4/4 · в руке: Eternity», or "" when nothing HolyWorld-specific is worn. */
+    private static String tierLine(List<GearReader.SlotView> slots) {
+        List<String> parts = new ArrayList<>();
+        TierSummary armour = armourTier(slots);
+        if (armour != null) {
+            parts.add(Ui.tr("skirmish.gearinspector.holy.tier_line", armour.tier().display(), armour.count()));
+        }
+        for (GearReader.SlotView view : slots) {
+            if (view.slot() == EquipmentSlot.MAINHAND && view.holy().tier() != null) {
+                parts.add(Ui.tr("skirmish.gearinspector.holy.hand_tier", view.holy().tier().display()));
+            }
+        }
+        return String.join(" · ", parts);
+    }
+
+    /** «Урон II · Броня II · Скорость I · руна «Бессмертие»» for an off-hand sphere or talisman. */
+    private static String talismanLine(@Nullable Talisman talisman) {
+        if (talisman == null) {
+            return "";
+        }
+        List<String> parts = new ArrayList<>();
+        for (Talisman.Stat stat : talisman.stats()) {
+            parts.add(Ui.tr("skirmish.gearinspector.holy.stat." + stat.type().name().toLowerCase(Locale.ROOT))
+                    + " " + HolyText.roman(stat.level()));
+        }
+        if (talisman.rune() != null) {
+            parts.add(Ui.tr("skirmish.gearinspector.holy.rune." + talisman.rune().name().toLowerCase(Locale.ROOT)));
+        }
+        return String.join(" · ", parts);
+    }
+
+    /** «≈ 1210 ударов до поломки (97% ударов без износа)» for armour, Lite's Unbreaking formula. */
+    private String hitsLine(GearReader.SlotView view) {
+        int unbreaking = view.holy().unbreaking();
+        Durability durability = view.durability();
+        if (unbreaking < 0 || !module.holyHitsLeft.get() || !durability.hasValue()) {
+            return "";
+        }
+        long hits = LiteArmorWear.hitsLeft(durability.remaining(), unbreaking);
+        if (hits < 0) {
+            return "";
+        }
+        return Ui.tr("skirmish.gearinspector.holy.hits_left", hits, Ui.plural("skirmish.gearinspector.holy.hits", hits),
+                LiteArmorWear.savePercent(unbreaking));
     }
 
     private float detailsHeight(Ui ui, List<String[]> lines) {
@@ -196,9 +294,26 @@ final class TargetCard extends HudBlock {
         ui.border(px, cy + (face - ph) / 2f, pw, ph, ph / 2f, stroke, ui.color("stroke_08"));
         ui.text("target_ping", ping, px + stroke + ppx, cy + (face - ph) / 2f + stroke + ppy);
 
+        // HolyWorld donor tier chip left of the ping pill; absent (and the layout unchanged) without a known tier.
+        float headerRight = px;
+        TierSummary tier = sample ? null : armourTier(slots(preview));
+        if (tier != null) {
+            String chip = Ui.tr("skirmish.gearinspector.holy.chip", tier.tier().display(), tier.count());
+            float cpx = ui.num(L + "holy_chip_pad_x");
+            float cpy = ui.num(L + "holy_chip_pad_y");
+            float chipW = ui.textWidth("holy_chip", chip) + cpx * 2 + stroke * 2;
+            float chipH = ui.lineHeight("holy_chip") + cpy * 2 + stroke * 2;
+            float chipX = px - ui.num(L + "holy_chip_gap") - chipW;
+            float chipY = cy + (face - chipH) / 2f;
+            int tierColor = ui.color(tier.tier().group().colorToken());
+            ui.box(chipX, chipY, chipW, chipH, chipH / 2f, ui.color("holy_chip_bg"), tierColor);
+            ui.text("holy_chip", chip, chipX + stroke + cpx, chipY + stroke + cpy, tierColor);
+            headerRight = chipX;
+        }
+
         // Name and HP.
         float tx = cx + face + ui.num(L + "target_header_gap");
-        float textW = px - ui.num(L + "target_header_gap") - tx;
+        float textW = headerRight - ui.num(L + "target_header_gap") - tx;
         String name = sample ? "GFk31AK" : target.getName().getString();
         float textH = ui.lineHeight("target_name") + ui.num(L + "hp_text_gap") + ui.lineHeight("target_hp");
         float ty = cy + (face - textH) / 2f;

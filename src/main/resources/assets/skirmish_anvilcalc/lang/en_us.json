@@ -40,5 +40,18 @@
   "skirmish.anvilcalc.reason.conflict": "incompatible with %s",
   "skirmish.anvilcalc.reason.nothing_new": "adds nothing",
   "skirmish.anvilcalc.reason.over_limit": "over the limit",
-  "skirmish.anvilcalc.reason.not_needed": "costs more than it adds"
+  "skirmish.anvilcalc.reason.not_needed": "costs more than it adds",
+  "skirmish.module.anvilcalc.setting.rules": "Anvil rules",
+  "skirmish.module.anvilcalc.setting.rules.tooltip": "Auto: HolyWorld Lite Anarchy rules on HolyWorld, vanilla rules elsewhere. The client cannot reliably tell Lite from Prime, so pick «HolyWorld Prime» by hand there.",
+  "skirmish.module.anvilcalc.setting.rules.auto": "Auto",
+  "skirmish.module.anvilcalc.setting.rules.vanilla": "Vanilla",
+  "skirmish.module.anvilcalc.setting.rules.holyworld_lite": "HolyWorld Lite",
+  "skirmish.module.anvilcalc.setting.rules.holyworld_prime": "HolyWorld Prime",
+  "skirmish.anvilcalc.rules.holyworld_lite": "HolyWorld Lite rules",
+  "skirmish.anvilcalc.rules.holyworld_prime": "HolyWorld Prime rules",
+  "skirmish.anvilcalc.rules.auto": " (auto)",
+  "skirmish.anvilcalc.warn.lite_armor": "Lite: armour cannot get Mending and cannot be repaired in the anvil. Stinger, Eternity and Infinity armour is repaired with netherite ingots: +25 durability per ingot.",
+  "skirmish.anvilcalc.warn.dubious_books": "Dubious books %s: applied only on their own to an unenchanted item, never merged with ordinary books. Once applied their level cannot be raised, so level up the book first.",
+  "skirmish.anvilcalc.warn.dubious_item": "The item carries a dubious enchantment: its level can no longer be raised.",
+  "skirmish.anvilcalc.reason.dubious": "dubious book, apply on its own"
 }

@@ -1,8 +1,11 @@
 package dev.skirmish.module.gearinspector;
 
 import dev.skirmish.SkirmishKeys;
+import dev.skirmish.holyworld.HolyWorld;
 import dev.skirmish.module.Module;
+import dev.skirmish.module.gearinspector.holy.HolyProfile;
 import dev.skirmish.setting.BoolSetting;
+import dev.skirmish.setting.EnumSetting;
 import dev.skirmish.setting.NumberSetting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -27,6 +30,10 @@ public final class GearInspectorModule extends Module {
     final BoolSetting showAbsolute = add(new BoolSetting("show_absolute", false));
     final BoolSetting assumeUndamaged = add(new BoolSetting("assume_undamaged", false));
     final BoolSetting lockMessages = add(new BoolSetting("lock_messages", true));
+    /** HolyWorld item knowledge: donor tiers, lore enchantments, off-hand talismans, Lite armour wear. */
+    final EnumSetting<HolyProfile> holyProfile = (EnumSetting<HolyProfile>) add(new EnumSetting<>("holy_profile", HolyProfile.AUTO))
+            .feature("holy_gear_profile");
+    final BoolSetting holyHitsLeft = add(new BoolSetting("holy_hits_left", true));
 
     private final TargetTracker tracker = new TargetTracker(this);
 
@@ -34,6 +41,7 @@ public final class GearInspectorModule extends Module {
         super(ID, true);
         showMissingEnchantments.visibleWhen(showEnchantments::get);
         showAbsolute.visibleWhen(showEnchantments::get);
+        holyHitsLeft.visibleWhen(() -> showEnchantments.get() && holyProfile.get() == HolyProfile.AUTO && !holyProfile.isBlocked());
     }
 
     @Override
@@ -61,6 +69,11 @@ public final class GearInspectorModule extends Module {
 
     TargetTracker tracker() {
         return tracker;
+    }
+
+    /** «Профиль HolyWorld» is AUTO, not blocked by Feature Control, and the client is on HolyWorld. */
+    boolean holyActive() {
+        return holyProfile.get() == HolyProfile.AUTO && !holyProfile.isBlocked() && HolyWorld.isConnected();
     }
 
     KeyMapping lockKey() {

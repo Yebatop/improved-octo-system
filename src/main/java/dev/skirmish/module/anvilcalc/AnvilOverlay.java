@@ -106,7 +106,8 @@ final class AnvilOverlay {
             return;
         }
         AnvilMenu menu = screen.getMenu();
-        Snapshot read = AnvilReader.read(menu, player, module.tooExpensiveAt.getInt(), module.exactLimit.getInt());
+        Snapshot read = AnvilReader.read(menu, player, module.tooExpensiveAt.getInt(), module.exactLimit.getInt(),
+                module.rulesProfile(), module.rules.get() == AnvilProfile.AUTO);
         snapshot = read;
         plan = null;
         pending = null;
