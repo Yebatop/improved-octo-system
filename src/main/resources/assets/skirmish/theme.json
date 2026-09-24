@@ -97,7 +97,8 @@
     "toggle_ms": 160,
     "expand_ms": 160,
     "hover_ms": 160,
-    "hover_lighten": 0.1
+    "hover_lighten": 0.1,
+    "page_ms": 220
   },
   "font": {
     "sans": "manrope",
@@ -214,6 +215,57 @@
     },
     "menu_row_desc": {
       "size": 11,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "menu_tab": {
+      "size": 13,
+      "weight": 600,
+      "color": "text_2"
+    },
+    "menu_tab_count": {
+      "size": 10,
+      "weight": 700,
+      "color": "text_3"
+    },
+    "menu_shortcut": {
+      "size": 12,
+      "weight": 600,
+      "color": "text_3"
+    },
+    "menu_card_title": {
+      "size": 13,
+      "weight": 700,
+      "color": "text"
+    },
+    "menu_card_desc": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_3",
+      "line_height": 1.4
+    },
+    "menu_card_meta": {
+      "size": 10,
+      "weight": 600,
+      "color": "text_3"
+    },
+    "menu_mono": {
+      "size": 14,
+      "weight": 800,
+      "color": "accent"
+    },
+    "menu_mono_big": {
+      "size": 18,
+      "weight": 800,
+      "color": "accent"
+    },
+    "menu_back": {
+      "size": 12,
+      "weight": 600,
+      "color": "text_2"
+    },
+    "menu_empty": {
+      "size": 13,
       "weight": 500,
       "color": "text_3"
     },
@@ -546,7 +598,7 @@
     "menu": {
       "width": 860,
       "height": 520,
-      "sidebar_width": 224,
+      "sidebar_width": 216,
       "min_width": 720,
       "min_height": 380,
       "category_height": 26,
@@ -614,7 +666,41 @@
       "input_icon_gap": 8,
       "small_button_height": 30,
       "small_ghost_pad_x": 12,
-      "small_primary_pad_x": 12
+      "small_primary_pad_x": 12,
+      "tab_height": 36,
+      "tab_gap": 4,
+      "tab_pad_x": 12,
+      "tab_icon": 16,
+      "tab_icon_gap": 10,
+      "tab_bar": 3,
+      "tab_count_pad_x": 7,
+      "tab_count_height": 18,
+      "rail_divider_gap": 12,
+      "shortcut_height": 34,
+      "header_tile": 40,
+      "header_icon": 20,
+      "header_tile_gap": 14,
+      "search_width": 220,
+      "search_icon": 14,
+      "card_min_width": 200,
+      "card_height": 132,
+      "card_gap": 12,
+      "card_pad": 14,
+      "card_mono": 30,
+      "card_mono_gap": 10,
+      "card_desc_gap": 10,
+      "card_meta_gap": 8,
+      "card_chevron": 14,
+      "card_key_pad_x": 5,
+      "card_key_pad_y": 1,
+      "page_slide": 28,
+      "back_height": 30,
+      "back_pad_x": 10,
+      "back_icon": 14,
+      "back_gap": 4,
+      "step_gap": 10,
+      "topbar_gap": 16,
+      "empty_pad": 48
     },
     "hud": {
       "pill_pad_top": 8,

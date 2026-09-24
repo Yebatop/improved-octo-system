@@ -127,6 +127,10 @@ public abstract class UiScreen extends Screen {
         return null;
     }
 
+    protected @Nullable Widget focusedWidget() {
+        return focused;
+    }
+
     protected void focus(@Nullable Widget widget) {
         if (focused != null && focused != widget) {
             focused.setFocused(false);
