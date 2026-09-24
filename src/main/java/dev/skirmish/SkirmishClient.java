@@ -10,11 +10,13 @@ import dev.skirmish.hud.Hud;
 import dev.skirmish.hud.InterfaceModule;
 import dev.skirmish.gui.SkirmishScreen;
 import dev.skirmish.module.ModuleManager;
+import dev.skirmish.module.alerts.AlertsModule;
 import dev.skirmish.module.anvilcalc.AnvilCalcModule;
 import dev.skirmish.module.clanshare.ClanShareModule;
 import dev.skirmish.module.gearinspector.GearInspectorModule;
 import dev.skirmish.module.killcam.KillCamModule;
 import dev.skirmish.module.killcard.KillCardModule;
+import dev.skirmish.module.market.MarketModule;
 import dev.skirmish.waypoint.WaypointsModule;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -47,6 +49,8 @@ public final class SkirmishClient implements ClientModInitializer {
         modules.register(new GearInspectorModule());
         modules.register(new AnvilCalcModule());
         modules.register(new KillCardModule());
+        modules.register(new MarketModule());
+        modules.register(new AlertsModule());
         InterfaceModule iface = modules.register(new InterfaceModule());
 
         config = new ConfigManager(dir.resolve("config.json"), modules::all);

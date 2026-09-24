@@ -23,7 +23,8 @@
     "skirmish-clanshare.mixins.json",
     "skirmish-gearinspector.mixins.json",
     "skirmish-anvilcalc.mixins.json",
-    "skirmish-killcard.mixins.json"
+    "skirmish-killcard.mixins.json",
+    "skirmish-market.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_min_version}",
