@@ -3,10 +3,12 @@ package dev.skirmish.module.events;
 import com.google.gson.JsonElement;
 import dev.skirmish.holyworld.HolyApi;
 import dev.skirmish.holyworld.HolyWorld;
+import dev.skirmish.hud.DetailMode;
 import dev.skirmish.hud.Hud;
 import dev.skirmish.module.Module;
 import dev.skirmish.setting.BoolSetting;
 import dev.skirmish.setting.EnumSetting;
+import dev.skirmish.setting.KeySetting;
 import dev.skirmish.setting.NumberSetting;
 import dev.skirmish.setting.StringSetting;
 import dev.skirmish.ui.Theme;
@@ -63,6 +65,9 @@ public final class EventsModule extends Module {
     final EnumSetting<Section> section = add(new EnumSetting<>("section", Section.AUTO));
     final StringSetting server = add(new StringSetting("server", "", 32, false));
     final NumberSetting maxRows = add(new NumberSetting("max_rows", 5, 2, 10, 1));
+    /** Panel collapsed to the first rows, expanded while {@link dev.skirmish.SkirmishKeys#DETAILS} is held, or always full. */
+    final EnumSetting<DetailMode> details = add(new EnumSetting<>("details", DetailMode.HOLD));
+    private final KeySetting detailsKey = add(new KeySetting("details_key", "key.skirmish.details"));
     final BoolSetting waypoints = (BoolSetting) add(new BoolSetting("waypoints", true)).feature("event_waypoints");
     final BoolSetting everywhere = (BoolSetting) add(new BoolSetting("everywhere", false)).feature("event_waypoints");
 
@@ -92,6 +97,13 @@ public final class EventsModule extends Module {
         super(ID, true);
         toasts.feature("event_hud");
         everywhere.visibleWhen(waypoints::get);
+        details.visibleWhen(hud::get);
+        detailsKey.visibleWhen(() -> hud.get() && details.get() == DetailMode.HOLD);
+    }
+
+    /** The events panel shows its full list now (mode FULL, or HOLD with the details key held). */
+    boolean detailsExpanded() {
+        return details.get().expanded(dev.skirmish.SkirmishKeys.DETAILS.isDown());
     }
 
     @Override

@@ -29,7 +29,10 @@ import java.util.Locale;
 
 /**
  * Target card under the crosshair (mockup): face, name, HP with a smoothed bar, ping, and a row of the six
- * equipment slots with durability bars. With «Зачарования» on, a third block lists the enchantments.
+ * equipment slots with durability bars. With «Зачарования» on, a third block lists the gear: compact (one line per
+ * item with durability and a «+N чар.» count) or full (enchantments, HolyWorld lines), per «Подробности»; in the
+ * «По клавише» mode the block grows to the full list while the details key is held (height eased over
+ * {@code motion.expand_ms}, the two lists cross-fade).
  * <p>
  * With the HolyWorld profile active: a donor tier chip beside the ping, and in the list the tier line, lore
  * enchantments next to vanilla ones, over-cap vanilla levels marked, off-hand sphere/talisman stats and Lite's
@@ -39,6 +42,7 @@ final class TargetCard extends HudBlock {
     private static final String L = "layout.hud.";
     private final GearInspectorModule module;
     private final Anim hp = new Anim("hp_smooth_ms");
+    private final Anim expand = new Anim("expand_ms");
     private @Nullable Player lastTarget;
 
     TargetCard(GearInspectorModule module) {
@@ -66,8 +70,16 @@ final class TargetCard extends HudBlock {
         return target() != null || lastTarget != null;
     }
 
+    /** One line of the details block: text in {@code style}, a right-aligned value and a muted badge after the text. */
+    private record Line(String style, String text, String right, String badge) {
+        static Line of(String style, String text) {
+            return new Line(style, text, "", "");
+        }
+    }
+
     @Override
     public void update(boolean preview) {
+        expand.target(module.detailsExpanded());
         Player target = target();
         if (target != null) {
             if (target != lastTarget) {
@@ -133,28 +145,63 @@ final class TargetCard extends HudBlock {
         return preview && target() == null || lastTarget == null;
     }
 
-    private List<String[]> details(Ui ui, List<GearReader.SlotView> slots, boolean preview) {
-        List<String[]> lines = new ArrayList<>();
-        if (!module.showEnchantments.get() || sample(preview)) {
+    private boolean hasDetails(boolean preview) {
+        return module.showEnchantments.get() && !sample(preview);
+    }
+
+    private String durabilityValue(GearReader.SlotView view) {
+        String value = view.durability().percentText();
+        if (module.showAbsolute.get() && view.durability().kind() == Durability.Kind.PERCENT) {
+            value += " " + view.durability().remaining() + "/" + view.durability().max();
+        }
+        return value;
+    }
+
+    /** Item name ellipsized to what is left of the line after the value and the badge. */
+    private static String itemName(Ui ui, GearReader.SlotView view, float textW, String value, String badge) {
+        float badgeW = badge.isEmpty() ? 0f : ui.textWidth("target_badge", badge) + ui.num(L + "target_badge_gap");
+        return ui.ellipsize("row_value", view.stack().getHoverName().getString(),
+                textW - ui.textWidth("row", value) - ui.num(L + "target_value_gap") - badgeW);
+    }
+
+    /** «Коротко»: one line per equipped item, name + «+N чар.» + durability; no enchantment or HolyWorld lines. */
+    private List<Line> compactDetails(Ui ui, List<GearReader.SlotView> slots, boolean preview) {
+        List<Line> lines = new ArrayList<>();
+        if (!hasDetails(preview)) {
+            return lines;
+        }
+        float textW = width(ui, false) - HudStyle.insetX(ui) * 2;
+        for (GearReader.SlotView view : slots) {
+            if (view.stack().isEmpty()) {
+                continue;
+            }
+            String value = durabilityValue(view);
+            int count = GearFormat.enchantCount(view.enchantStatus(), view.enchantments().size(), view.holy().custom().size());
+            String badge = count > 0 ? Ui.tr("skirmish.gearinspector.enchant_count", count) : "";
+            lines.add(new Line("row_value", itemName(ui, view, textW, value, badge), value, badge));
+        }
+        return lines;
+    }
+
+    /** «Всегда полностью»: tier line, then per item its name and durability, enchantments and HolyWorld lines. */
+    private List<Line> fullDetails(Ui ui, List<GearReader.SlotView> slots, boolean preview) {
+        List<Line> lines = new ArrayList<>();
+        if (!hasDetails(preview)) {
             return lines;
         }
         float textW = width(ui, false) - HudStyle.insetX(ui) * 2;
         String tiers = tierLine(slots);
         if (!tiers.isEmpty()) {
             for (String line : ui.wrap("holy_line", tiers, textW)) {
-                lines.add(new String[]{"holy_line", line, ""});
+                lines.add(Line.of("holy_line", line));
             }
         }
         for (GearReader.SlotView view : slots) {
             if (view.stack().isEmpty()) {
                 continue;
             }
-            String value = view.durability().percentText();
-            if (module.showAbsolute.get() && view.durability().kind() == Durability.Kind.PERCENT) {
-                value += " " + view.durability().remaining() + "/" + view.durability().max();
-            }
-            lines.add(new String[]{"row_value", ui.ellipsize("row_value", view.stack().getHoverName().getString(),
-                    textW - ui.textWidth("row", value) - 8), value});
+            String value = durabilityValue(view);
+            lines.add(new Line("row_value", itemName(ui, view, textW, value, ""), value, ""));
             HolyGear holy = view.holy();
             List<String> custom = holy.custom().stream().map(CustomEnchant.Found::text).toList();
             String enchants = switch (view.enchantStatus()) {
@@ -168,15 +215,15 @@ final class TargetCard extends HudBlock {
                 case NOT_APPLICABLE -> String.join(", ", custom);
             };
             for (String line : enchants.isEmpty() ? List.<String>of() : ui.wrap("row", enchants, textW)) {
-                lines.add(new String[]{"row", line, ""});
+                lines.add(Line.of("row", line));
             }
             String talisman = talismanLine(holy.talisman());
             for (String line : talisman.isEmpty() ? List.<String>of() : ui.wrap("holy_line", talisman, textW)) {
-                lines.add(new String[]{"holy_line", line, ""});
+                lines.add(Line.of("holy_line", line));
             }
             String hits = hitsLine(view);
             for (String line : hits.isEmpty() ? List.<String>of() : ui.wrap("holy_note", hits, textW)) {
-                lines.add(new String[]{"holy_note", line, ""});
+                lines.add(Line.of("holy_note", line));
             }
         }
         return lines;
@@ -248,15 +295,32 @@ final class TargetCard extends HudBlock {
                 LiteArmorWear.savePercent(unbreaking));
     }
 
-    private float detailsHeight(Ui ui, List<String[]> lines) {
+    /** Panel height of a details list (0 when empty), without the gap above it. */
+    private static float panelHeight(Ui ui, List<Line> lines) {
         if (lines.isEmpty()) {
             return 0f;
         }
         float h = HudStyle.insetY(ui) * 2;
-        for (String[] line : lines) {
-            h += ui.lineHeight(line[0]);
+        for (Line line : lines) {
+            h += ui.lineHeight(line.style());
         }
-        return h + ui.num(L + "target_stack_gap");
+        return h;
+    }
+
+    /** Both lists and the current (eased) panel height between them; {@code t} 0 = compact, 1 = full. */
+    private record Details(List<Line> compact, List<Line> full, float t, float height) {
+        boolean isEmpty() {
+            return height <= 0f;
+        }
+    }
+
+    private Details details(Ui ui, List<GearReader.SlotView> slots, boolean preview) {
+        List<Line> compact = compactDetails(ui, slots, preview);
+        List<Line> full = fullDetails(ui, slots, preview);
+        float t = expand.value();
+        float compactH = panelHeight(ui, compact);
+        float fullH = panelHeight(ui, full);
+        return new Details(compact, full, t, Math.round(compactH + (fullH - compactH) * t));
     }
 
     @Override
@@ -266,7 +330,8 @@ final class TargetCard extends HudBlock {
         if (!slots.isEmpty()) {
             h += ui.num(L + "target_stack_gap") + gearHeight(ui);
         }
-        return h + detailsHeight(ui, details(ui, slots, preview));
+        Details details = details(ui, slots, preview);
+        return h + (details.isEmpty() ? 0f : ui.num(L + "target_stack_gap") + details.height());
     }
 
     @Override
@@ -380,19 +445,43 @@ final class TargetCard extends HudBlock {
             gy += gh;
         }
 
-        List<String[]> lines = details(ui, slots, preview);
-        if (!lines.isEmpty()) {
+        Details details = details(ui, slots, preview);
+        if (!details.isEmpty()) {
             gy += ui.num(L + "target_stack_gap");
-            HudStyle.panel(ui, x, gy, w, detailsHeight(ui, lines) - ui.num(L + "target_stack_gap"));
-            float lx = x + HudStyle.insetX(ui);
-            float ly = gy + HudStyle.insetY(ui);
-            for (String[] line : lines) {
-                ui.text(line[0], line[1], lx, ly);
-                if (!line[2].isEmpty()) {
-                    ui.text("row", line[2], x + w - HudStyle.insetX(ui) - ui.textWidth("row", line[2]), ly);
-                }
-                ly += ui.lineHeight(line[0]);
+            float dh = details.height();
+            HudStyle.panel(ui, x, gy, w, dh);
+            if (details.t() <= 0f) {
+                drawLines(ui, details.compact(), x, gy, w);
+            } else if (details.t() >= 1f) {
+                drawLines(ui, details.full(), x, gy, w);
+            } else {
+                // Mid-animation: the two lists cross-fade inside the growing/shrinking panel, clipped to it.
+                ui.graphics().enableScissor((int) Math.floor(x), (int) Math.floor(gy), (int) Math.ceil(x + w), (int) Math.ceil(gy + dh));
+                ui.pushAlpha(1f - details.t());
+                drawLines(ui, details.compact(), x, gy, w);
+                ui.popAlpha();
+                ui.pushAlpha(details.t());
+                drawLines(ui, details.full(), x, gy, w);
+                ui.popAlpha();
+                ui.graphics().disableScissor();
             }
+        }
+    }
+
+    private static void drawLines(Ui ui, List<Line> lines, float x, float y, float w) {
+        float lx = x + HudStyle.insetX(ui);
+        float right = x + w - HudStyle.insetX(ui);
+        float ly = y + HudStyle.insetY(ui);
+        for (Line line : lines) {
+            float after = ui.text(line.style(), line.text(), lx, ly);
+            float lh = ui.lineHeight(line.style());
+            if (!line.badge().isEmpty()) {
+                ui.textCentered("target_badge", line.badge(), after + ui.num(L + "target_badge_gap"), ly, lh);
+            }
+            if (!line.right().isEmpty()) {
+                ui.text("row", line.right(), right - ui.textWidth("row", line.right()), ly);
+            }
+            ly += lh;
         }
     }
 

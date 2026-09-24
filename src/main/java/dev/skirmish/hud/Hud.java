@@ -26,7 +26,8 @@ import java.util.Map;
 
 /**
  * Registry and renderer of the mod's HUD elements. Positions (set in {@link HudEditScreen}) live in
- * config/skirmish/hud.json. Everything is drawn in one Fabric HUD layer below the chat.
+ * config/skirmish/hud.json together with each element's scale. Everything is drawn in one Fabric HUD layer below the
+ * chat; all position maths (clamping, stacking, sidebar avoidance) uses the scaled size.
  */
 public final class Hud {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -64,8 +65,18 @@ public final class Hud {
         return placements.getOrDefault(block.id(), block.defaultPlacement());
     }
 
+    /** The user has moved or scaled the element (it no longer follows its default place). */
+    public boolean hasPlacement(HudBlock block) {
+        return placements.containsKey(block.id());
+    }
+
     public void setPlacement(HudBlock block, Placement placement) {
         placements.put(block.id(), placement);
+    }
+
+    /** Element scale set in the HUD editor (1 without a saved placement). */
+    public float scale(HudBlock block) {
+        return placement(block).scale();
     }
 
     public void resetPlacement(HudBlock block) {
@@ -87,6 +98,24 @@ public final class Hud {
         float x = Math.max(0f, Math.min(screenW - w, p.x(screenW, w)));
         float y = Math.max(0f, Math.min(screenH - h, p.y(screenH, h)));
         return new float[]{Math.round(x), Math.round(y)};
+    }
+
+    /**
+     * Draws {@code block} with its top-left at {@code (x, y)} and scaled by {@code scale}: the block renders at local
+     * (0, 0) inside a translated and scaled pose, so its own layout stays in design px.
+     */
+    static void draw(Ui ui, HudBlock block, float x, float y, float scale, boolean preview) {
+        var pose = ui.graphics().pose();
+        pose.pushMatrix();
+        try {
+            pose.translate(x, y);
+            if (scale != 1f) {
+                pose.scale(scale, scale);
+            }
+            block.render(ui, 0f, 0f, preview);
+        } finally {
+            pose.popMatrix();
+        }
     }
 
     private void render(GuiGraphics graphics, DeltaTracker delta) {
@@ -111,15 +140,16 @@ public final class Hud {
                         continue;
                     }
                     block.update(false);
-                    float w = block.width(ui, false);
-                    float h = block.height(ui, false);
+                    float scale = scale(block);
+                    float w = block.width(ui, false) * scale;
+                    float h = block.height(ui, false) * scale;
                     float[] at = position(block, w, h, ui.width(), ui.height());
                     if (!placements.containsKey(block.id())) {
                         at = autoPlace(ui, block, at, w, h, drawn, sidebar);
                     }
                     drawn.put(block.id(), new float[]{at[0], at[1], w, h});
                     ui.pushAlpha(a);
-                    block.render(ui, at[0], at[1], false);
+                    draw(ui, block, at[0], at[1], scale, false);
                     ui.popAlpha();
                 } catch (Throwable t) {
                     DebugLog.error("hud", "render failed: " + block.id(), t);
@@ -154,6 +184,7 @@ public final class Hud {
                 }
             }
         }
+        // w/h are the scaled size, so a scaled element steps out of the sidebar by its real width.
         if (sidebar != null && x < sidebar[0] + sidebar[2] && x + w > sidebar[0] && y < sidebar[1] + sidebar[3] && y + h > sidebar[1]) {
             x = sidebar[0] - gap - w;
         }

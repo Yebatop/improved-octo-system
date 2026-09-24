@@ -2,10 +2,12 @@ package dev.skirmish.module.gearinspector;
 
 import dev.skirmish.SkirmishKeys;
 import dev.skirmish.holyworld.HolyWorld;
+import dev.skirmish.hud.DetailMode;
 import dev.skirmish.module.Module;
 import dev.skirmish.module.gearinspector.holy.HolyProfile;
 import dev.skirmish.setting.BoolSetting;
 import dev.skirmish.setting.EnumSetting;
+import dev.skirmish.setting.KeySetting;
 import dev.skirmish.setting.NumberSetting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -26,6 +28,9 @@ public final class GearInspectorModule extends Module {
     final BoolSetting showHands = add(new BoolSetting("show_hands", true));
     final BoolSetting showEmptySlots = add(new BoolSetting("show_empty_slots", true));
     final BoolSetting showEnchantments = add(new BoolSetting("show_enchantments", false));
+    /** Compact list (name, durability, «+N чар.»), full list while {@link SkirmishKeys#DETAILS} is held, or always full. */
+    final EnumSetting<DetailMode> details = add(new EnumSetting<>("details", DetailMode.HOLD));
+    private final KeySetting detailsKey = add(new KeySetting("details_key", "key.skirmish.details"));
     final BoolSetting showMissingEnchantments = add(new BoolSetting("show_missing_enchantments", true));
     final BoolSetting showAbsolute = add(new BoolSetting("show_absolute", false));
     final BoolSetting assumeUndamaged = add(new BoolSetting("assume_undamaged", false));
@@ -39,6 +44,8 @@ public final class GearInspectorModule extends Module {
 
     public GearInspectorModule() {
         super(ID, true);
+        details.visibleWhen(showEnchantments::get);
+        detailsKey.visibleWhen(() -> showEnchantments.get() && details.get() == DetailMode.HOLD);
         showMissingEnchantments.visibleWhen(showEnchantments::get);
         showAbsolute.visibleWhen(showEnchantments::get);
         holyHitsLeft.visibleWhen(() -> showEnchantments.get() && holyProfile.get() == HolyProfile.AUTO && !holyProfile.isBlocked());
@@ -74,6 +81,11 @@ public final class GearInspectorModule extends Module {
     /** «Профиль HolyWorld» is AUTO, not blocked by Feature Control, and the client is on HolyWorld. */
     boolean holyActive() {
         return holyProfile.get() == HolyProfile.AUTO && !holyProfile.isBlocked() && HolyWorld.isConnected();
+    }
+
+    /** The target card shows the full list now (mode FULL, or HOLD with the details key held). */
+    boolean detailsExpanded() {
+        return details.get().expanded(SkirmishKeys.DETAILS.isDown());
     }
 
     KeyMapping lockKey() {

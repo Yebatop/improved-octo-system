@@ -83,7 +83,8 @@
     "card_gear": 5,
     "marker": 2,
     "totem_marker": 3,
-    "pill": 999
+    "pill": 999,
+    "hud_handle": 3
   },
   "stroke": {
     "width": 1
@@ -93,6 +94,7 @@
     "easing": "ease-out",
     "hp_smooth_ms": 120,
     "toggle_ms": 160,
+    "expand_ms": 160,
     "hover_ms": 160,
     "hover_lighten": 0.1
   },
@@ -148,6 +150,11 @@
       "size": 11,
       "weight": 700,
       "color": "text"
+    },
+    "target_badge": {
+      "size": 10,
+      "weight": 600,
+      "color": "text_3"
     },
     "menu_brand": {
       "size": 15,
@@ -616,6 +623,8 @@
       "face": 34,
       "hp_bar": 5,
       "target_stack_gap": 6,
+      "target_value_gap": 8,
+      "target_badge_gap": 5,
       "hp_text_gap": 2,
       "ping_pad_x": 6,
       "ping_pad_y": 3,
@@ -647,6 +656,8 @@
       "edit_pad": 4,
       "edit_label_gap": 4,
       "edit_gap": 10,
+      "edit_handle": 9,
+      "edit_handle_hit": 18,
       "pill_name_max": 200,
       "world_label_max": 160,
       "world_label_dot": 6
