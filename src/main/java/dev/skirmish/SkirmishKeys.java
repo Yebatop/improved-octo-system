@@ -23,6 +23,8 @@ public final class SkirmishKeys {
     public static final KeyMapping GEARINSPECTOR_LOCK = key("key.skirmish.gearinspector.lock", InputConstants.UNKNOWN.getValue());
     public static final KeyMapping ANVILCALC_CALCULATE = key("key.skirmish.anvilcalc.calculate", InputConstants.UNKNOWN.getValue());
     public static final KeyMapping KILLCARD_OPEN_FOLDER = key("key.skirmish.killcard.open_folder", InputConstants.UNKNOWN.getValue());
+    /** Held, not pressed: panels in the «По клавише» detail mode (target card, events) show their full version. */
+    public static final KeyMapping DETAILS = key("key.skirmish.details", GLFW.GLFW_KEY_LEFT_ALT);
 
     private SkirmishKeys() {
     }
@@ -33,7 +35,7 @@ public final class SkirmishKeys {
 
     static void register() {
         for (KeyMapping mapping : new KeyMapping[]{OPEN_MENU, WAYPOINT_ADD, WAYPOINT_CYCLE, KILLCAM_REPLAY,
-                CLANSHARE_SHARE, GEARINSPECTOR_LOCK, ANVILCALC_CALCULATE, KILLCARD_OPEN_FOLDER}) {
+                CLANSHARE_SHARE, GEARINSPECTOR_LOCK, ANVILCALC_CALCULATE, KILLCARD_OPEN_FOLDER, DETAILS}) {
             KeyBindingHelper.registerKeyBinding(mapping);
         }
     }

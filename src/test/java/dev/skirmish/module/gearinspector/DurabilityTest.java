@@ -138,4 +138,13 @@ class DurabilityTest {
         assertEquals(Durability.Kind.NO_DATA, d.kind());
         assertEquals(Durability.Reason.PLACEHOLDER, d.reason());
     }
+
+    @Test
+    void compactEnchantCount() {
+        assertEquals(4, GearFormat.enchantCount(EnchantmentStatus.LISTED, 3, 1));
+        // Vanilla names only count when they were received; lore enchantments always do.
+        assertEquals(2, GearFormat.enchantCount(EnchantmentStatus.GLINT_ONLY, 5, 2));
+        assertEquals(0, GearFormat.enchantCount(EnchantmentStatus.NO_DATA, 0, 0));
+        assertEquals(0, GearFormat.enchantCount(EnchantmentStatus.NOT_APPLICABLE, 0, 0));
+    }
 }

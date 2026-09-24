@@ -40,6 +40,31 @@ final class EventRows {
     private EventRows() {
     }
 
+    /**
+     * The collapsed list: everything up to and including the {@code rows}-th event row or note (section labels in
+     * between stay), so it is always a prefix of {@code items}.
+     */
+    static List<Item> collapsed(List<Item> items, int rows) {
+        int seen = 0;
+        for (int i = 0; i < items.size(); i++) {
+            if (!(items.get(i) instanceof Section) && ++seen >= rows) {
+                return items.subList(0, i + 1);
+            }
+        }
+        return items;
+    }
+
+    /** Event rows of {@code items} that the collapsed list leaves out. */
+    static int hiddenRows(List<Item> items, List<Item> collapsed) {
+        int hidden = 0;
+        for (Item item : items.subList(collapsed.size(), items.size())) {
+            if (item instanceof Row) {
+                hidden++;
+            }
+        }
+        return hidden;
+    }
+
     static float height(Ui ui, List<Item> items) {
         float h = HudStyle.insetY(ui) * 2 + HudStyle.headerHeight(ui);
         for (int i = 0; i < items.size(); i++) {
@@ -64,7 +89,31 @@ final class EventRows {
 
     /** Panel with header ({@code icon} draws at the returned slot) and the items. */
     static void render(Ui ui, float x, float y, float w, String title, @Nullable String meta, List<Item> items, boolean clockIcon) {
-        HudStyle.panel(ui, x, y, w, height(ui, items));
+        render(ui, x, y, w, height(ui, items), title, meta, items, clockIcon);
+    }
+
+    /**
+     * As {@link #render(Ui, float, float, float, String, String, List, boolean)} in a panel of height {@code h}
+     * (animated expand/collapse): items below the panel's inner bottom edge are clipped.
+     */
+    static void render(Ui ui, float x, float y, float w, float h, String title, @Nullable String meta, List<Item> items,
+                       boolean clockIcon) {
+        HudStyle.panel(ui, x, y, w, h);
+        boolean clip = h < height(ui, items);
+        if (clip) {
+            ui.graphics().enableScissor((int) Math.floor(x), (int) Math.floor(y), (int) Math.ceil(x + w),
+                    (int) Math.ceil(y + h - HudStyle.insetY(ui)));
+        }
+        try {
+            content(ui, x, y, w, title, meta, items, clockIcon);
+        } finally {
+            if (clip) {
+                ui.graphics().disableScissor();
+            }
+        }
+    }
+
+    private static void content(Ui ui, float x, float y, float w, String title, @Nullable String meta, List<Item> items, boolean clockIcon) {
         float cx = x + HudStyle.insetX(ui);
         float cw = w - HudStyle.insetX(ui) * 2;
         float cy = y + HudStyle.insetY(ui);

@@ -2,8 +2,12 @@ package dev.skirmish.module.events;
 
 import dev.skirmish.holyworld.HolyApi;
 import dev.skirmish.holyworld.HolyWorld;
+import dev.skirmish.SkirmishKeys;
+import dev.skirmish.hud.DetailMode;
 import dev.skirmish.hud.HudBlock;
 import dev.skirmish.hud.Placement;
+import dev.skirmish.ui.Anim;
+import dev.skirmish.ui.KeyNames;
 import dev.skirmish.ui.Theme;
 import dev.skirmish.ui.Ui;
 import org.jspecify.annotations.Nullable;
@@ -18,11 +22,16 @@ import java.util.TreeSet;
 /**
  * «Ивенты» panel: live Lite events of the player's sub-server (name, rarity, coordinates seen in chat), or the
  * rarest events of all servers when the sub-server is unknown; Prime events running now and countdowns to the
- * next ones.
+ * next ones. Per «Подробности» the list is collapsed to the header and the first rows, expanded while the details
+ * key is held (height eased over {@code motion.expand_ms}), or always full.
  */
 final class EventsPanel extends HudBlock {
+    /** Event rows (or notes) the collapsed panel keeps. */
+    static final int COLLAPSED_ROWS = 2;
     private final EventsModule module;
+    private final Anim expand = new Anim("expand_ms");
     private List<EventRows.Item> items = List.of();
+    private List<EventRows.Item> collapsed = List.of();
     private @Nullable String meta;
 
     EventsPanel(EventsModule module) {
@@ -49,6 +58,21 @@ final class EventsPanel extends HudBlock {
 
     @Override
     public void update(boolean preview) {
+        expand.target(module.detailsExpanded());
+        fill(preview);
+        List<EventRows.Item> head = EventRows.collapsed(items, COLLAPSED_ROWS);
+        int hidden = EventRows.hiddenRows(items, head);
+        if (hidden > 0) {
+            List<EventRows.Item> withNote = new ArrayList<>(head);
+            withNote.add(new EventRows.Note(module.details.get() == DetailMode.HOLD && !SkirmishKeys.DETAILS.isUnbound()
+                    ? Ui.tr("skirmish.events.more_hold", hidden, KeyNames.shortName(SkirmishKeys.DETAILS))
+                    : Ui.tr("skirmish.events.more", hidden)));
+            head = withNote;
+        }
+        collapsed = head;
+    }
+
+    private void fill(boolean preview) {
         if (preview && !HolyWorld.isConnected()) {
             items = sample();
             meta = "ДуоЛайт #17";
@@ -180,11 +204,15 @@ final class EventsPanel extends HudBlock {
 
     @Override
     public float height(Ui ui, boolean preview) {
-        return EventRows.height(ui, items);
+        float t = expand.value();
+        float small = EventRows.height(ui, collapsed);
+        return Math.round(small + (EventRows.height(ui, items) - small) * t);
     }
 
+    /** Collapsed list at rest; while expanding/expanded the full list, clipped to the eased panel height. */
     @Override
     public void render(Ui ui, float x, float y, boolean preview) {
-        EventRows.render(ui, x, y, width(ui, preview), Ui.tr("skirmish.events.title"), meta, items, false);
+        List<EventRows.Item> shown = expand.value() <= 0f ? collapsed : items;
+        EventRows.render(ui, x, y, width(ui, preview), height(ui, preview), Ui.tr("skirmish.events.title"), meta, shown, false);
     }
 }
