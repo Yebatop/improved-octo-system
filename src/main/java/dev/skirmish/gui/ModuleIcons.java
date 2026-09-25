@@ -343,6 +343,12 @@ public final class ModuleIcons {
                 p(ui, x, y, s, c, 9f, 3.5f, 9f, 18f);
                 p(ui, x, y, s, c, 15f, 6f, 15f, 20.5f);
             }
+            case "custom_sky" -> { // quasar: core, tilted disk and jets
+                ui.circle(x + 12f * s, y + 12f * s, 5f * s, c);
+                p(ui, x, y, s, c, arc(12f, 12f, 9f, 200, 520));
+                p(ui, x, y, s, c, 9.5f, 2f, 10.5f, 7f);
+                p(ui, x, y, s, c, 13.5f, 17f, 14.5f, 22f);
+            }
             case "event_timers" -> { // alarm clock
                 ui.ring(x + 12f * s, y + 13f * s, 16f * s + STROKE * s, STROKE * s, c);
                 p(ui, x, y, s, c, 12f, 13f, 12f, 9f);

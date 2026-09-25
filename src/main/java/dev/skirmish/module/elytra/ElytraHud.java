@@ -129,8 +129,8 @@ final class ElytraHud extends HudBlock {
         ui.text("el_speed", speed, x + w - padX - sw, cy, ui.color("accent"));
         cy += ui.lineHeight("el_speed") + ui.num(L + "title_gap");
         for (Row row : rows) {
-            ui.text("el_label", ui.ellipsize("el_label", row.label(), w * 0.45f), x + padX, cy);
             float vw = ui.textWidth("el_row", row.value());
+            ui.text("el_label", ui.ellipsize("el_label", row.label(), w - padX * 2 - vw - ui.num(L + "title_gap")), x + padX, cy);
             ui.text("el_row", row.value(), x + w - padX - vw, cy, ui.color(row.tone()));
             cy += ui.lineHeight("el_row") + ui.num(L + "row_gap");
         }
