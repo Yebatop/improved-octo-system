@@ -31,6 +31,8 @@ public final class SkirmishKeys {
     /** Hold to zoom. C like most zoom mods; vanilla uses C only for the creative "Save Hotbar Activator". */
     public static final KeyMapping ZOOM = key("key.skirmish.zoom", GLFW.GLFW_KEY_C);
     public static final KeyMapping FULLBRIGHT_TOGGLE = key("key.skirmish.fullbright.toggle", InputConstants.UNKNOWN.getValue());
+    /** «Auto Sprint» on/off. Unbound by default. */
+    public static final KeyMapping AUTO_SPRINT_TOGGLE = key("key.skirmish.auto_sprint.toggle", InputConstants.UNKNOWN.getValue());
     /** «Друзья»: add or remove the player under the crosshair. Unbound by default. */
     public static final KeyMapping FRIEND_TOGGLE = key("key.skirmish.friends.toggle", InputConstants.UNKNOWN.getValue());
     /** «Разбор боя»: review of the last fight (N is free in vanilla). */
@@ -47,7 +49,7 @@ public final class SkirmishKeys {
 
     static void register() {
         for (KeyMapping mapping : new KeyMapping[]{OPEN_MENU, WAYPOINT_ADD, WAYPOINT_CYCLE, KILLCAM_REPLAY, KILLCAM_CLIP, KILLCAM_LIBRARY,
-                CLANSHARE_SHARE, GEARINSPECTOR_LOCK, ANVILCALC_CALCULATE, KILLCARD_OPEN_FOLDER, DETAILS, ZOOM, FULLBRIGHT_TOGGLE,
+                CLANSHARE_SHARE, GEARINSPECTOR_LOCK, ANVILCALC_CALCULATE, KILLCARD_OPEN_FOLDER, DETAILS, ZOOM, FULLBRIGHT_TOGGLE, AUTO_SPRINT_TOGGLE,
                 FRIEND_TOGGLE, FIGHT_REVIEW, PLAYER_MENU}) {
             KeyBindingHelper.registerKeyBinding(mapping);
         }

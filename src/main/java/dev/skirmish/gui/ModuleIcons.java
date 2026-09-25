@@ -267,6 +267,12 @@ public final class ModuleIcons {
                 p(ui, x, y, s, c, 12f, 14f, 12f, 18f);
                 p(ui, x, y, s, c, 8f, 21f, 16f, 21f, 15f, 18f, 9f, 18f, 8f, 21f);
             }
+            case "auto_sprint" -> { // forward chevrons with speed lines
+                p(ui, x, y, s, c, 9f, 6f, 15f, 12f, 9f, 18f);
+                p(ui, x, y, s, c, 15f, 6f, 21f, 12f, 15f, 18f);
+                p(ui, x, y, s, c, 2f, 9f, 6f, 9f);
+                p(ui, x, y, s, c, 2f, 15f, 6f, 15f);
+            }
             case "waypoints" -> CategoryIcons.pin(ui, x, y, size, c);
             default -> {
                 return false;

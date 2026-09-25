@@ -28,6 +28,7 @@
     "skirmish-events.mixins.json",
     "skirmish-market.mixins.json",
     "skirmish-fullbright.mixins.json",
+    "skirmish-autosprint.mixins.json",
     "skirmish-zoom.mixins.json",
     "skirmish-camera.mixins.json",
     "skirmish-hwtimers.mixins.json",
