@@ -22,6 +22,8 @@ public final class BlockBursts {
     /** Appear events older than this are dropped whatever the table says. */
     static final long KEEP_MS = 5_000;
     private static final int MAX_EVENTS = 4096;
+    /** A block update may arrive shortly before the explosion packet of the same blast. */
+    static final long EARLY_BREAK_MS = 300;
 
     record Appear(long pos, String blockId, double distance, long timeMs) {
     }
@@ -44,37 +46,72 @@ public final class BlockBursts {
         }
     }
 
-    public void explosion(double x, double y, double z, float radius, long now) {
-        explosions.addLast(new Explosion(x, y, z, radius, now));
+    /** A watched block that became air with no explosion known yet; the explosion packet may follow. */
+    private record PendingBreak(TimerDef def, long pos, double x, double y, double z, long timeMs) {
+    }
+
+    /** A watched block an explosion broke. */
+    public record Break(TimerDef def, long pos) {
+    }
+
+    private final Deque<PendingBreak> pendingBreaks = new ArrayDeque<>();
+
+    /**
+     * Records an explosion; returns the watched blocks that became air just before its packet arrived and that it
+     * could have broken.
+     */
+    public List<Break> explosion(double x, double y, double z, float radius, long now) {
+        Explosion e = new Explosion(x, y, z, radius, now);
+        explosions.addLast(e);
         while (explosions.size() > 64) {
             explosions.removeFirst();
         }
+        List<Break> out = new ArrayList<>();
+        for (Iterator<PendingBreak> it = pendingBreaks.iterator(); it.hasNext(); ) {
+            PendingBreak p = it.next();
+            if (now - p.timeMs() <= EARLY_BREAK_MS && reaches(e, p.x(), p.y(), p.z())) {
+                out.add(new Break(p.def(), p.pos()));
+                it.remove();
+            }
+        }
+        return out;
     }
 
     /**
      * {@code blockId} at (x, y, z) became air, {@code distanceToMe} blocks from me: the first timer whose explosion
-     * signature it fits (a recent explosion close enough to have broken it), or null.
+     * signature it fits (a recent explosion close enough to have broken it), or null. A watched block with no such
+     * explosion yet is kept for {@link #EARLY_BREAK_MS} in case the explosion packet comes right after.
      */
-    public @Nullable TimerDef broken(double x, double y, double z, String blockId, double distanceToMe, long now, List<TimerDef> defs) {
+    public @Nullable TimerDef broken(long pos, double x, double y, double z, String blockId, double distanceToMe, long now,
+                                     List<TimerDef> defs) {
+        pendingBreaks.removeIf(p -> now - p.timeMs() > EARLY_BREAK_MS);
+        TimerDef watched = null;
         for (TimerDef def : defs) {
             BreakSig sig = def.breaks();
             if (sig == null || !sig.blocks().contains(blockId) || distanceToMe > sig.nearMe()) {
                 continue;
             }
+            if (watched == null) {
+                watched = def;
+            }
             for (Explosion e : explosions) {
-                if (now - e.timeMs() < 0 || now - e.timeMs() > sig.windowMs()) {
-                    continue;
-                }
-                double reach = Math.max(e.radius() * 2.0, 6.0);
-                double dx = x - e.x();
-                double dy = y - e.y();
-                double dz = z - e.z();
-                if (dx * dx + dy * dy + dz * dz <= reach * reach) {
+                if (now - e.timeMs() >= 0 && now - e.timeMs() <= sig.windowMs() && reaches(e, x, y, z)) {
                     return def;
                 }
             }
         }
+        if (watched != null && pendingBreaks.size() < 256) {
+            pendingBreaks.addLast(new PendingBreak(watched, pos, x, y, z, now));
+        }
         return null;
+    }
+
+    private static boolean reaches(Explosion e, double x, double y, double z) {
+        double reach = Math.max(e.radius() * 2.0, 6.0);
+        double dx = x - e.x();
+        double dy = y - e.y();
+        double dz = z - e.z();
+        return dx * dx + dy * dy + dz * dz <= reach * reach;
     }
 
     /**
@@ -107,6 +144,7 @@ public final class BlockBursts {
     public void clear() {
         appears.clear();
         explosions.clear();
+        pendingBreaks.clear();
     }
 
     int pending() {

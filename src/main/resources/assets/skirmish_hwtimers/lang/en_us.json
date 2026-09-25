@@ -22,7 +22,7 @@
   "skirmish.hwtimers.timer.trap_box": "Trap",
   "skirmish.hwtimers.timer.trap_box.note": "Temporary box around you",
   "skirmish.hwtimers.timer.raid_block": "Raid block",
-  "skirmish.hwtimers.timer.raid_block.note": "No obsidian, ender chests or anchors",
+  "skirmish.hwtimers.timer.raid_block.note": "No obsidian blocks or anchors",
   "skirmish.hwtimers.timer.immortality": "Immortality rune",
   "skirmish.hwtimers.timer.immortality.note": "Immune to damage",
   "skirmish.hwtimers.timer.jake_lamp": "Jake's Lamp",

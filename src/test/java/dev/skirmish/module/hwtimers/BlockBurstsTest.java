@@ -72,13 +72,27 @@ class BlockBurstsTest {
     void obsidianBrokenRightAfterANearbyExplosionIsARaidBlock() {
         BlockBursts bursts = new BlockBursts();
         List<TimerDef> defs = TABLE.timers();
-        assertNull(bursts.broken(10, 64, 10, "minecraft:obsidian", 5, 1_000, defs), "mined by hand");
-        bursts.explosion(12, 64, 12, 4f, 1_000);
-        assertEquals("raid_block", bursts.broken(10.5, 64.5, 10.5, "minecraft:obsidian", 5, 1_200, defs).id());
-        assertEquals("raid_block", bursts.broken(10.5, 64.5, 10.5, "minecraft:crying_obsidian", 5, 1_200, defs).id());
-        assertNull(bursts.broken(10.5, 64.5, 10.5, "minecraft:stone", 5, 1_200, defs));
-        assertNull(bursts.broken(10.5, 64.5, 10.5, "minecraft:obsidian", 60, 1_200, defs), "too far from me");
-        assertNull(bursts.broken(40, 64, 40, "minecraft:obsidian", 5, 1_200, defs), "too far from the blast");
-        assertNull(bursts.broken(10.5, 64.5, 10.5, "minecraft:obsidian", 5, 4_000, defs), "long after the blast");
+        assertNull(bursts.broken(1, 10, 64, 10, "minecraft:obsidian", 5, 0, defs), "mined by hand");
+        assertTrue(bursts.explosion(12, 64, 12, 4f, 1_000).isEmpty(), "the hand-mined block is long gone");
+        assertEquals("raid_block", bursts.broken(2, 10.5, 64.5, 10.5, "minecraft:obsidian", 5, 1_200, defs).id());
+        assertEquals("raid_block", bursts.broken(3, 10.5, 64.5, 10.5, "minecraft:crying_obsidian", 5, 1_200, defs).id());
+        assertNull(bursts.broken(4, 10.5, 64.5, 10.5, "minecraft:stone", 5, 1_200, defs));
+        assertNull(bursts.broken(5, 10.5, 64.5, 10.5, "minecraft:obsidian", 60, 1_200, defs), "too far from me");
+        assertNull(bursts.broken(6, 40, 64, 40, "minecraft:obsidian", 5, 1_200, defs), "too far from the blast");
+        assertNull(bursts.broken(7, 10.5, 64.5, 10.5, "minecraft:obsidian", 5, 4_000, defs), "long after the blast");
+    }
+
+    @Test
+    void blockUpdateJustBeforeTheExplosionPacketStillCounts() {
+        BlockBursts bursts = new BlockBursts();
+        List<TimerDef> defs = TABLE.timers();
+        assertNull(bursts.broken(42, 10.5, 64.5, 10.5, "minecraft:obsidian", 5, 1_000, defs));
+        assertNull(bursts.broken(43, 90.5, 64.5, 90.5, "minecraft:obsidian", 5, 1_000, defs));
+        List<BlockBursts.Break> found = bursts.explosion(12, 64, 12, 4f, 1_100);
+        assertEquals(1, found.size(), "only the block within the blast's reach");
+        assertEquals(42L, found.getFirst().pos());
+        assertEquals("raid_block", found.getFirst().def().id());
+        assertNull(bursts.broken(44, 10.5, 64.5, 10.5, "minecraft:obsidian", 5, 5_000, defs));
+        assertTrue(bursts.explosion(12, 64, 12, 4f, 5_400).isEmpty(), "400 ms is too early to be the same blast");
     }
 }

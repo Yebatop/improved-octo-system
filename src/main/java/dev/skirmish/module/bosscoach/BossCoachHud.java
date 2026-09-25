@@ -13,8 +13,9 @@ import java.util.UUID;
 
 /**
  * The boss panel: name and HP percent, health in HP when the wiki gives it, the current phase with its wiki text, a
- * counter tip and my damage share / DPS. Default place: top centre under the vanilla boss bars (clear of three bars
- * at any GUI scale), below the waypoint pill and the logout banner.
+ * counter tip and my damage share / DPS. Default place: right edge, vertically centred; the HUD steps it out to the
+ * left of the scoreboard sidebar. The top centre under the boss bars is where the combat-tag panel sits during PvP,
+ * and the Lite boss arena is the PvP arena.
  */
 final class BossCoachHud extends HudBlock {
     static final String L = "layout.bosscoach.";
@@ -29,8 +30,8 @@ final class BossCoachHud extends HudBlock {
     private boolean content;
 
     BossCoachHud(BossCoachModule module) {
-        super(BossCoachModule.ID, "skirmish.hud.element.boss_coach", new Placement(0.5f, 0f, 0.5f, 0f, 0,
-                Theme.get().num(L + "default_y")));
+        super(BossCoachModule.ID, "skirmish.hud.element.boss_coach", new Placement(1f, 0.5f, 1f, 0.5f,
+                -Theme.get().num(L + "default_x"), 0));
         this.module = module;
     }
 
@@ -46,7 +47,8 @@ final class BossCoachHud extends HudBlock {
 
     @Override
     public boolean hasContent() {
-        return content;
+        // Hud checks this before the first update(): a bar on screen counts as content already.
+        return content || module.primary() != null;
     }
 
     @Override
@@ -143,13 +145,13 @@ final class BossCoachHud extends HudBlock {
         return Ui.tr("skirmish.bosscoach.meter", share, dps);
     }
 
-    /** "6 480": thousands separated by a narrow no-break space. */
+    /** "6 480": thousands separated by a space (the game font has no narrow space). */
     static String group(long value) {
         String digits = Long.toString(Math.abs(value));
         StringBuilder out = new StringBuilder();
         for (int i = 0; i < digits.length(); i++) {
             if (i > 0 && (digits.length() - i) % 3 == 0) {
-                out.append(' ');
+                out.append(' ');
             }
             out.append(digits.charAt(i));
         }

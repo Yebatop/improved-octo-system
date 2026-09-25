@@ -129,24 +129,25 @@ class HwTimerModulesTest {
                 "chip_accent", "chip_accent_gap", "chip_bar", "chip_bar_gap")) {
             assertTrue(theme.num("layout.hwtimers." + n) > 0, n);
         }
-        for (String n : List.of("default_y", "width", "row_gap", "section_gap", "max_lines")) {
+        for (String n : List.of("default_x", "width", "row_gap", "section_gap", "max_lines")) {
             assertTrue(theme.num("layout.bosscoach." + n) > 0, n);
         }
     }
 
     /**
      * Default places in design px. The chips sit left of the crosshair with their right edge further out than half
-     * of the widest centred neighbour (combat tag 256 px above, target card 200 px below). The boss panel starts under
-     * three vanilla boss bars: bar n ends 17 + 19n GUI px down, and a design px is at least half a GUI px.
+     * of the widest centred neighbour (combat tag 256 px above, target card 200 px below). The boss panel takes the
+     * right-middle anchor, which no other element uses by default (the event schedule stacks under the events list),
+     * and is narrower than the space between the target card and a 1280 px screen's sidebar.
      */
     @Test
     void defaultPlacesStayClearOfNeighbours() {
         Theme theme = Theme.get();
         float halfWidest = Math.max(theme.num("layout.pvp.tag_width"), theme.num("layout.hud.target_width")) / 2f;
         assertTrue(theme.num("layout.hwtimers.default_dx") > halfWidest);
-        float threeBarsGui = 17 + 19 * 2;
-        assertTrue(theme.num("layout.bosscoach.default_y") * 0.5f > threeBarsGui);
-        assertTrue(theme.num("layout.bosscoach.default_y") > 60 + 44, "below the logout banner's top and the waypoint pill");
+        float rightOfTarget = 1280 / 2f - theme.num("layout.hud.target_width") / 2f;
+        float sidebar = 260;
+        assertTrue(theme.num("layout.bosscoach.width") + theme.num("layout.hud.stack_gap") < rightOfTarget - sidebar);
     }
 
     @Test

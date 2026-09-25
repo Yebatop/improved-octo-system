@@ -101,7 +101,7 @@ public final class TntTimerModule extends Module {
             return null;
         }
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.level == null) {
+        if (mc.player == null || mc.level == null || tnt.isInvisibleTo(mc.player)) {
             return null;
         }
         Vec3 eye = mc.gameRenderer.getMainCamera().position();

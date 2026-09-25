@@ -62,11 +62,11 @@
       "chip_bar_gap": 5
     },
     "bosscoach": {
-      "default_y": 120,
-      "width": 264,
+      "default_x": 18,
+      "width": 252,
       "row_gap": 3,
       "section_gap": 8,
-      "max_lines": 4
+      "max_lines": 3
     }
   }
 }

@@ -411,16 +411,20 @@ public final class ItemTimersModule extends Module {
             return;
         }
         if (after.isAir() && !before.isAir()) {
-            TimerDef def = bursts.broken(center.x, center.y, center.z, blockId(before), distance, now, table.timers());
+            TimerDef def = bursts.broken(pos.asLong(), center.x, center.y, center.z, blockId(before), distance, now, table.timers());
             if (def != null) {
-                boolean fresh = board.get(def.id()) == null;
-                Chip chip = board.start(def, now, null, Source.EXPLOSION, !def.confirmed(), false);
-                board.track(chip, List.of(pos.asLong()));
-                raidNear = raidNear || distance <= raidRadius.get();
-                if (fresh) {
-                    log("%s broken by an explosion %.1f blocks away → %s", blockId(before), distance, def.id());
-                }
+                blownUp(def, pos, blockId(before), distance, now);
             }
+        }
+    }
+
+    private void blownUp(TimerDef def, BlockPos pos, String blockId, double distance, long now) {
+        boolean fresh = board.get(def.id()) == null;
+        Chip chip = board.start(def, now, null, Source.EXPLOSION, !def.confirmed(), false);
+        board.track(chip, List.of(pos.asLong()));
+        raidNear = raidNear || distance <= raidRadius.get();
+        if (fresh) {
+            log("%s broken by an explosion %.1f blocks away → %s", blockId, distance, def.id());
         }
     }
 
@@ -428,8 +432,14 @@ public final class ItemTimersModule extends Module {
         if (!triggersAllowed() || !blockTriggers.get()) {
             return;
         }
-        bursts.explosion(center.x, center.y, center.z, radius, now());
+        long now = now();
+        List<BlockBursts.Break> early = bursts.explosion(center.x, center.y, center.z, radius, now);
         LocalPlayer player = Minecraft.getInstance().player;
+        for (BlockBursts.Break b : early) {
+            BlockPos pos = BlockPos.of(b.pos());
+            double distance = player == null ? 0 : Math.sqrt(player.position().distanceToSqr(Vec3.atCenterOf(pos)));
+            blownUp(b.def(), pos, "watched block (update before the explosion packet)", distance, now);
+        }
         if (player != null && isDebug()) {
             double distance = Math.sqrt(player.position().distanceToSqr(center));
             if (distance <= 48) {
