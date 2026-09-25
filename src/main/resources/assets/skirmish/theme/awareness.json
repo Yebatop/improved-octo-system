@@ -1,0 +1,86 @@
+{
+  "colors": {
+    "friend_green": "#3DDC97",
+    "friend_aqua": "#4FD8E8",
+    "friend_blue": "#5B9BFF",
+    "friend_violet": "#9C7CFF",
+    "friend_pink": "#FF6FA8",
+    "friend_gold": "#FFC83D",
+    "nametag_absorption": "#FFC83D",
+    "nametag_bar_track": "#00000080",
+    "aw_alert_stroke_bad": "#FF6B78B3",
+    "aw_alert_stroke_warn": "#FFB54799",
+    "aw_alert_tint_bad": "#FF6B781F",
+    "aw_alert_tint_warn": "#FFB54714",
+    "aw_item_veil": "#0D0D14A6"
+  },
+  "motion": {
+    "aw_flash_ms": 900
+  },
+  "text": {
+    "aw_alert_title": {
+      "size": 16,
+      "weight": 800,
+      "color": "text"
+    },
+    "aw_alert_line": {
+      "size": 11,
+      "weight": 600,
+      "color": "text_2"
+    },
+    "aw_alert_icon": {
+      "size": 11,
+      "weight": 800,
+      "color": "page"
+    },
+    "aw_count": {
+      "size": 11,
+      "weight": 600,
+      "color": "text",
+      "mono": true
+    },
+    "aw_lag": {
+      "size": 11,
+      "weight": 600,
+      "color": "text",
+      "mono": true
+    },
+    "aw_lag_sep": {
+      "size": 11,
+      "weight": 600,
+      "color": "text_3"
+    }
+  },
+  "nametag": {
+    "friend_marker": "★"
+  },
+  "layout": {
+    "awareness": {
+      "alert_default_dy": -192,
+      "alert_min_width": 220,
+      "alert_icon": 18,
+      "alert_icon_gap": 10,
+      "alert_line_gap": 4,
+      "alert_stroke": 1.5,
+      "alert_flash_min": 0.35,
+      "items_default_x": 18,
+      "item_icon": 18,
+      "item_count_gap": 4,
+      "item_gap": 10,
+      "item_row_gap": 4,
+      "item_pad_x": 10,
+      "item_pad_y": 7,
+      "lag_default_x": -18,
+      "lag_default_y": -18,
+      "lag_height": 26,
+      "lag_pad_x": 12,
+      "lag_dot": 6,
+      "lag_gap": 6
+    },
+    "nametag": {
+      "bar_width": 30,
+      "bar_height": 2,
+      "bar_gap": 1
+    }
+  }
+}

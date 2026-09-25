@@ -172,6 +172,11 @@ public final class PvpModule extends Module {
         }
     }
 
+    /** Whether the combat tag (КТ) runs right now; read by other modules (survival alerts, nametag HP). */
+    public boolean isTagged() {
+        return isEnabled() && tag(System.currentTimeMillis()) != null;
+    }
+
     /** The tag to show now, or null when not tagged (or the tag reached 0). */
     @Nullable TagView tag(long nowMs) {
         TagParser.Reading r = reading;
