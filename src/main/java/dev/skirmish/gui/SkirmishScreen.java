@@ -72,6 +72,7 @@ public final class SkirmishScreen extends UiScreen {
     private final Map<Category, CategoryTab> tabs = new EnumMap<>(Category.class);
     private final Map<Module, ModuleCard> cards = new IdentityHashMap<>();
     private final List<Shortcut> shortcuts = new ArrayList<>();
+    private final LogSwitch logSwitch = new LogSwitch();
     private final Map<Setting<?>, Widget> controls = new IdentityHashMap<>();
     private final Map<Setting<?>, GroupChevron> chevrons = new IdentityHashMap<>();
     /** Height of each open group's sub-rows as last drawn, for the open/close animation. */
@@ -385,6 +386,9 @@ public final class SkirmishScreen extends UiScreen {
                 cy += shortcutH + tabGap;
             }
         }
+        logSwitch.bounds(cx, cy, cwid, shortcutH);
+        widget(ui, logSwitch, mx, my);
+        cy += shortcutH + tabGap;
 
         // Footer hint (bottom aligned, only when there is room): key chip + "open menu".
         float hintPad = ui.num(L + "hint_pad");
@@ -456,6 +460,64 @@ public final class SkirmishScreen extends UiScreen {
                 return true;
             }
             return false;
+        }
+    }
+
+    /**
+     * «Debug Log» for every module at once: on when all modules log; a click turns them all on, or all off when they
+     * all were on. Shows how many log while only some do.
+     */
+    private final class LogSwitch extends Widget {
+        private final Anim on = new Anim("toggle_ms");
+
+        private long logging() {
+            return modules.stream().filter(m -> m.debugLog.get()).count();
+        }
+
+        @Override
+        protected void draw(Ui ui, double mx, double my) {
+            float hov = hovered();
+            long count = logging();
+            boolean all = count == modules.size();
+            float o = on.target(all).value();
+            ui.rect(x, y, w, h, ui.theme().radius("button"), Anim.lerpColor(ui.color("fill_00"), ui.color("fill_04"), hov));
+            float padX = ui.num(L + "tab_pad_x");
+            float size = ui.num(L + "tab_icon");
+            int iconColor = Anim.lerpColor(Anim.lerpColor(ui.color("text_3"), ui.color("text_2"), hov), ui.color("accent"), o);
+            CategoryIcons.log(ui, x + padX, y + (h - size) / 2f, size, iconColor);
+            float tx = x + padX + size + ui.num(L + "tab_icon_gap");
+
+            // Mini switch on the right.
+            float sw = ui.num(L + "log_switch_width");
+            float sh = ui.num(L + "log_switch_height");
+            float sx = x + w - padX - sw;
+            float sy = y + (h - sh) / 2f;
+            ui.rect(sx, sy, sw, sh, sh / 2f, Anim.lerpColor(ui.color("toggle_off"), ui.color("accent"), o));
+            float knob = sh - ui.num(L + "log_switch_pad") * 2;
+            float kx = sx + ui.num(L + "log_switch_pad") + (sw - sh) * o;
+            ui.circle(kx + knob / 2f, sy + sh / 2f, knob, ui.color("white"));
+
+            String label = Ui.tr("skirmish.menu.debug_all");
+            String counter = count > 0 && !all ? count + "/" + modules.size() : "";
+            float counterW = counter.isEmpty() ? 0f : ui.textWidth("menu_tab_count", counter) + ui.num(L + "tab_icon_gap");
+            label = ui.ellipsize("menu_shortcut", label, sx - ui.num(L + "tab_icon_gap") - counterW - tx);
+            float after = ui.textCentered("menu_shortcut", label, tx, y, h, Anim.lerpColor(ui.color("text_3"), ui.color("text"), Math.max(hov, o)));
+            if (!counter.isEmpty()) {
+                ui.textCentered("menu_tab_count", counter, after + ui.num(L + "tab_icon_gap") / 2f, y, h, ui.color("accent"));
+            }
+        }
+
+        @Override
+        public boolean mouseClicked(double mx, double my, int button) {
+            if (button != 0) {
+                return false;
+            }
+            boolean turnOn = logging() < modules.size();
+            for (Module module : modules) {
+                module.debugLog.set(turnOn);
+            }
+            ModuleManager.get().markDirty();
+            return true;
         }
     }
 

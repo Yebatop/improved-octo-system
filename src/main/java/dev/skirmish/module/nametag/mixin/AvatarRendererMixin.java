@@ -13,14 +13,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * Render-only: right before vanilla submits a player's nametag, {@link NametagHooks} may recolor it (friends) and
- * submit the HP line through the same nametag path. Vanilla's own decision whether to show the nametag is untouched.
+ * submit the HP line through the same nametag path, or skip it while a Skirmish HP plate stands in for it. Vanilla's
+ * own decision whether to show the nametag is untouched otherwise.
  */
 @Mixin(AvatarRenderer.class)
 public abstract class AvatarRendererMixin {
     @Inject(method = "submitNameTag(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
-            at = @At("HEAD"))
+            at = @At("HEAD"), cancellable = true)
     private void skirmish$decorateNameTag(AvatarRenderState state, PoseStack poseStack, SubmitNodeCollector collector,
                                           CameraRenderState camera, CallbackInfo ci) {
-        NametagHooks.onSubmitNameTag(state, poseStack, collector, camera);
+        if (NametagHooks.onSubmitNameTag(state, poseStack, collector, camera)) {
+            ci.cancel();
+        }
     }
 }

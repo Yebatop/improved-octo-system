@@ -1,6 +1,6 @@
 {
   "skirmish.module.nametag_hp.name": "Nametag HP",
-  "skirmish.module.nametag_hp.description": "Здоровье и поглощение других игроков рядом с их ником, цветом по проценту. Видно только там, где игра сама показывает ник; невидимых игроков не показывает.",
+  "skirmish.module.nametag_hp.description": "Здоровье других игроков над головой. Стиль Skirmish — плашка как в клиенте: лицо, ник, HP, полоса со «следом» урона и поглощение; видна только при прямой видимости, не сквозь блоки. Стиль Vanilla — строка у ванильного ника.",
   "skirmish.module.nametag_hp.setting.show": "Когда показывать",
   "skirmish.module.nametag_hp.setting.show.tooltip": "Всегда, только пока вы в бою (КТ или активный бой) или только у тех, с кем вы сейчас деретесь",
   "skirmish.module.nametag_hp.setting.show.always": "Всегда",
@@ -18,5 +18,17 @@
   "skirmish.module.nametag_hp.setting.absorption": "Поглощение",
   "skirmish.module.nametag_hp.setting.absorption.tooltip": "Показывать золотые сердца поглощения как «+4»",
   "skirmish.module.nametag_hp.setting.bar": "Полоска",
-  "skirmish.module.nametag_hp.setting.bar.tooltip": "Маленькая полоска здоровья рядом с числом"
+  "skirmish.module.nametag_hp.setting.bar.tooltip": "Маленькая полоска здоровья рядом с числом",
+  "skirmish.module.nametag_hp.setting.style": "Стиль",
+  "skirmish.module.nametag_hp.setting.style.tooltip": "Плашка Skirmish вместо ника или ванильная строка рядом с ником",
+  "skirmish.module.nametag_hp.setting.style.skirmish": "Skirmish",
+  "skirmish.module.nametag_hp.setting.style.vanilla": "Vanilla",
+  "skirmish.module.nametag_hp.setting.distance": "Дальность",
+  "skirmish.module.nametag_hp.setting.distance.tooltip": "Дальше этого расстояния плашки не показываются",
+  "skirmish.module.nametag_hp.setting.scale": "Размер",
+  "skirmish.module.nametag_hp.setting.scale.tooltip": "Размер плашки вблизи; вдали она уменьшается сама",
+  "skirmish.module.nametag_hp.setting.face": "Лицо игрока",
+  "skirmish.module.nametag_hp.setting.face.tooltip": "Голова скина слева на плашке",
+  "skirmish.module.nametag_hp.setting.invisible": "Невидимые",
+  "skirmish.module.nametag_hp.setting.invisible.tooltip": "Показывать HP игроков под невидимостью (правила HolyWorld разрешают HP-индикаторы); плашка полупрозрачная и с перечёркнутым глазом"
 }

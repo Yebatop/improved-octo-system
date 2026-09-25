@@ -397,6 +397,12 @@
       "color": "text_2",
       "mono": true
     },
+    "world_label_coords": {
+      "size": 10,
+      "weight": 500,
+      "color": "text_3",
+      "mono": true
+    },
     "toast_title": {
       "size": 12,
       "weight": 700,
@@ -685,6 +691,9 @@
       "search_icon": 14,
       "card_min_width": 200,
       "tile_icon_ratio": 0.56,
+      "log_switch_width": 28,
+      "log_switch_height": 16,
+      "log_switch_pad": 2,
       "tile_icon_ratio": 0.56,
       "card_height": 132,
       "card_gap": 12,
@@ -767,7 +776,22 @@
       "edit_handle_hit": 18,
       "pill_name_max": 200,
       "world_label_max": 160,
-      "world_label_dot": 6
+      "world_label_dot": 6,
+      "wp_marker": 14,
+      "wp_marker_outline": 2,
+      "wp_stem": 10,
+      "wp_focus_radius": 120,
+      "wp_pill_pad_x": 8,
+      "wp_pill_pad_y": 5,
+      "wp_pill_strip": 3,
+      "wp_pill_radius": 8,
+      "wp_near": 16,
+      "wp_far": 256,
+      "wp_min_scale": 0.7,
+      "wp_pulse_ms": 1400,
+      "wp_arrow": 26,
+      "wp_arrow_icon": 14,
+      "wp_arrow_radius": 0.36
     },
     "replay": {
       "top_bar": 64,

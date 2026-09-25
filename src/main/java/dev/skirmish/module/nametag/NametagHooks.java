@@ -42,9 +42,13 @@ public final class NametagHooks {
     private NametagHooks() {
     }
 
-    public static void onSubmitNameTag(AvatarRenderState state, PoseStack poseStack, SubmitNodeCollector collector,
-                                       CameraRenderState camera) {
+    /** Returns true when vanilla should skip this nametag (a Skirmish HP plate shows the player instead). */
+    public static boolean onSubmitNameTag(AvatarRenderState state, PoseStack poseStack, SubmitNodeCollector collector,
+                                          CameraRenderState camera) {
         try {
+            if (NametagHpModule.replacesNameTag(state.id)) {
+                return true;
+            }
             submit(state, poseStack, collector, camera);
         } catch (Throwable t) {
             if (!failureLogged) {
@@ -52,6 +56,7 @@ public final class NametagHooks {
                 DebugLog.error(NametagHpModule.ID, "nametag decoration failed", t);
             }
         }
+        return false;
     }
 
     private static void submit(AvatarRenderState state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
@@ -78,7 +83,7 @@ public final class NametagHooks {
         MutableComponent line = null;
         float fraction = 0f;
         NametagHpModule.Position position = NametagHpModule.Position.ABOVE;
-        if (hp != null && hp.isEnabled()) {
+        if (hp != null && hp.isEnabled() && !hp.skirmishStyle()) {
             boolean opponent = hp.show.get() != NametagPolicy.Show.ALWAYS && PvpState.fightingWith(player.getUUID());
             if (NametagPolicy.showHp(true, invisible, hp.show.get(), hp.inPvp(), opponent)) {
                 fraction = HpText.fraction(player.getHealth(), player.getMaxHealth());

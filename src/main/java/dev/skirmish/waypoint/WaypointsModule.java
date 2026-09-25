@@ -27,6 +27,7 @@ public final class WaypointsModule extends Module {
     final BoolSetting showLabels = add(new BoolSetting("show_labels", true));
     final NumberSetting maxLabelDistance = add(new NumberSetting("max_label_distance", 0, 0, 10000, 50).unit(" m"));
     final NumberSetting labelScale = add(new NumberSetting("label_scale", 1.0, 0.5, 2.0, 0.1));
+    final BoolSetting edgeArrow = add(new BoolSetting("edge_arrow", true));
     final BoolSetting showPill = add(new BoolSetting("show_pill", true));
 
     private final WaypointManager manager;

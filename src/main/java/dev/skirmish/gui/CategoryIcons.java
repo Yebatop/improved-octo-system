@@ -95,6 +95,14 @@ final class CategoryIcons {
         ui.ring(x + 12f * s, y + 10f * s, (5f + STROKE) * s, STROKE * s, color);
     }
 
+    /** Terminal window with a prompt (debug log switch). */
+    static void log(Ui ui, float x, float y, float size, int color) {
+        float s = size / 24f;
+        ui.border(x + 2.5f * s, y + 4f * s, 19f * s, 16f * s, 2.5f * s, STROKE * s, color);
+        path(ui, x, y, size, color, 7f, 9.5f, 10f, 12f, 7f, 14.5f);
+        path(ui, x, y, size, color, 12.5f, 15f, 17f, 15f);
+    }
+
     /** Magnifier (search field). */
     static void search(Ui ui, float x, float y, float size, int color) {
         float s = size / 24f;

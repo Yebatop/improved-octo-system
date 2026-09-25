@@ -12,7 +12,8 @@
     "aw_alert_stroke_warn": "#FFB54799",
     "aw_alert_tint_bad": "#FF6B781F",
     "aw_alert_tint_warn": "#FFB54714",
-    "aw_item_veil": "#0D0D14A6"
+    "aw_item_veil": "#0D0D14A6",
+    "nametag_trail": "#FFFFFFB3"
   },
   "motion": {
     "aw_flash_ms": 900
@@ -49,6 +50,21 @@
       "size": 11,
       "weight": 600,
       "color": "text_3"
+    },
+    "hp_name": {
+      "size": 12,
+      "weight": 700,
+      "color": "text"
+    },
+    "hp_value": {
+      "size": 12,
+      "weight": 800,
+      "color": "text"
+    },
+    "hp_abs": {
+      "size": 10,
+      "weight": 700,
+      "color": "nametag_absorption"
     }
   },
   "nametag": {
@@ -80,7 +96,25 @@
     "nametag": {
       "bar_width": 30,
       "bar_height": 2,
-      "bar_gap": 1
+      "bar_gap": 1,
+      "plate_lift": 0.55,
+      "plate_pad_x": 7,
+      "plate_pad_y": 6,
+      "plate_face": 20,
+      "plate_face_radius": 5,
+      "plate_gap": 7,
+      "plate_name_max": 120,
+      "plate_min_text": 96,
+      "plate_value_gap": 3,
+      "plate_heart": 9,
+      "plate_bar": 4,
+      "plate_bar_gap": 5,
+      "plate_radius": 9,
+      "plate_pointer": 5,
+      "plate_near": 8,
+      "plate_far": 32,
+      "plate_min_scale": 0.55,
+      "plate_invisible_alpha": 0.75
     }
   }
 }

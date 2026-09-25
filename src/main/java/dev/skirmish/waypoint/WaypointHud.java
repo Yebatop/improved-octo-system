@@ -51,6 +51,15 @@ final class WaypointHud implements HudElement {
         }
     }
 
+    private record Marker(Waypoint waypoint, float x, float y, double distance, boolean selected) {
+    }
+
+    /**
+     * World markers: a diamond in the waypoint's colour on a short stem, with a pulsing ring on the selected one.
+     * Far from the crosshair only the distance chip shows; as the crosshair nears a marker its label opens up to the
+     * name and distance, then the coordinates. The selected waypoint, when off screen or behind, gets an arrow at the
+     * screen edge pointing to it.
+     */
     private void renderLabels(Minecraft mc, Ui ui, List<Waypoint> waypoints) {
         Camera camera = mc.gameRenderer.getMainCamera();
         if (!camera.isInitialized()) {
@@ -58,13 +67,13 @@ final class WaypointHud implements HudElement {
         }
         Vec3 cam = camera.position();
         Vector3fc forward = camera.forwardVector();
+        Vector3fc up = camera.upVector();
+        Vector3fc left = camera.leftVector();
         double maxDistance = module.maxLabelDistance.get();
-        float scale = module.labelScale.getFloat();
         float width = ui.width();
         float height = ui.height();
         Waypoint selected = manager.selected();
-        String l = "layout.hud.";
-        float stroke = ui.num("stroke.width");
+        List<Marker> markers = new java.util.ArrayList<>();
 
         for (Waypoint waypoint : waypoints) {
             Vec3 target = new Vec3(waypoint.x(), waypoint.y() + 1.0, waypoint.z());
@@ -73,43 +82,148 @@ final class WaypointHud implements HudElement {
             if (maxDistance > 0 && distance > maxDistance) {
                 continue;
             }
-            double depth = rel.x * forward.x() + rel.y * forward.y() + rel.z * forward.z();
-            if (depth < 0.1) {
-                continue;
-            }
-            Vec3 ndc = mc.gameRenderer.projectPointToScreen(target);
-            if (!Double.isFinite(ndc.x) || !Double.isFinite(ndc.y) || Math.abs(ndc.x) > 1.1 || Math.abs(ndc.y) > 1.1) {
-                continue;
-            }
-            float sx = (float) ((ndc.x + 1.0) * 0.5 * width);
-            float sy = (float) ((1.0 - ndc.y) * 0.5 * height);
-
-            String name = ui.ellipsize("world_label", waypoint.name(), ui.num(l + "world_label_max"));
-            String dist = formatDistance(distance);
-            float padX = ui.num(l + "world_label_pad_x");
-            float padY = ui.num(l + "world_label_pad_y");
-            float gap = ui.num(l + "world_label_gap");
-            float lh = Math.max(ui.lineHeight("world_label"), ui.lineHeight("world_label_dist"));
-            float w = stroke * 2 + padX * 2 + ui.textWidth("world_label", name) + gap + ui.textWidth("world_label_dist", dist);
-            float h = stroke * 2 + padY * 2 + lh;
-            float stem = ui.num(l + "world_label_stem");
             boolean isSelected = waypoint.equals(selected);
-            int color = 0xFF000000 | waypoint.color();
+            double depth = rel.x * forward.x() + rel.y * forward.y() + rel.z * forward.z();
+            Vec3 ndc = depth < 0.1 ? null : mc.gameRenderer.projectPointToScreen(target);
+            boolean onScreen = ndc != null && Double.isFinite(ndc.x) && Double.isFinite(ndc.y)
+                    && Math.abs(ndc.x) <= 1.0 && Math.abs(ndc.y) <= 1.0;
+            if (!onScreen) {
+                if (isSelected && module.edgeArrow.get()) {
+                    double right = -(rel.x * left.x() + rel.y * left.y() + rel.z * left.z());
+                    double upward = rel.x * up.x() + rel.y * up.y() + rel.z * up.z();
+                    edgeArrow(ui, waypoint, right, upward, distance);
+                }
+                continue;
+            }
+            markers.add(new Marker(waypoint, (float) ((ndc.x + 1.0) * 0.5 * width), (float) ((1.0 - ndc.y) * 0.5 * height),
+                    distance, isSelected));
+        }
+        markers.sort(java.util.Comparator.comparingDouble(Marker::distance).reversed());
+        for (Marker marker : markers) {
+            drawMarker(ui, marker);
+        }
+    }
 
-            var pose = ui.graphics().pose();
-            pose.pushMatrix();
-            pose.translate(Math.round(sx), Math.round(sy));
-            pose.scale(scale, scale);
-            float x = Math.round(-w / 2f);
-            float y = -stem - h;
-            ui.box(x, y, w, h, h / 2f, ui.color("panel"), isSelected ? ui.color("accent") : ui.color("stroke"));
-            float tx = x + stroke + padX;
-            ui.circle(tx - padX / 2f + 1f, y + h / 2f, ui.num(l + "world_label_dot"), color);
-            tx = ui.textCentered("world_label", name, tx + ui.num(l + "world_label_dot"), y, h) + gap;
-            ui.textCentered("world_label_dist", dist, tx, y, h);
-            ui.rect(-stroke, -stem, stroke * 2, stem, stroke, isSelected ? ui.color("accent") : ui.color("marker"));
+    /** Marker scale for a distance: 1 up close, down to {@code wp_min_scale} far away. */
+    static float distanceScale(double distance, float near, float far, float min) {
+        if (distance <= near) {
+            return 1f;
+        }
+        float t = (float) Math.min(1.0, (distance - near) / Math.max(0.001, far - near));
+        return 1f + (min - 1f) * t;
+    }
+
+    /** 0 away from the crosshair, 1 on it (smoothstep over {@code radius}). */
+    static float focus(float dx, float dy, float radius) {
+        float t = 1f - (float) Math.min(1.0, Math.hypot(dx, dy) / radius);
+        return t * t * (3f - 2f * t);
+    }
+
+    private void drawMarker(Ui ui, Marker m) {
+        String l = "layout.hud.";
+        Waypoint waypoint = m.waypoint();
+        int color = 0xFF000000 | waypoint.color();
+        float stroke = ui.num("stroke.width");
+        float scale = module.labelScale.getFloat()
+                * distanceScale(m.distance(), ui.num(l + "wp_near"), ui.num(l + "wp_far"), ui.num(l + "wp_min_scale"));
+        float focus = Math.max(m.selected() ? 0.55f : 0f, focus(m.x() - ui.width() / 2f, m.y() - ui.height() / 2f, ui.num(l + "wp_focus_radius")));
+        long now = net.minecraft.util.Util.getMillis();
+
+        var pose = ui.graphics().pose();
+        pose.pushMatrix();
+        pose.translate(Math.round(m.x()), Math.round(m.y()));
+        pose.scale(scale, scale);
+        try {
+            float size = ui.num(l + "wp_marker");
+            float half = size / 2f;
+            // Selected: a ring pulsing out of the marker.
+            if (m.selected()) {
+                float pulse = (now % (long) ui.num(l + "wp_pulse_ms")) / ui.num(l + "wp_pulse_ms");
+                ui.ring(0, 0, size + 6f + pulse * 14f, 1.5f, (Math.round((1f - pulse) * 170f) << 24) | (color & 0xFFFFFF));
+            }
+            diamond(ui, 0, 0, half + ui.num(l + "wp_marker_outline"), ui.color("panel"));
+            diamond(ui, 0, 0, half, color);
+            diamond(ui, 0, -half * 0.35f, half * 0.35f, 0x59FFFFFF);
+
+            // Stem from the marker up to the label, fading upwards.
+            float stem = ui.num(l + "wp_stem");
+            int segments = 5;
+            for (int i = 0; i < segments; i++) {
+                float a = 0.85f * (1f - i / (float) segments);
+                float y0 = -half - (i + 1) * stem / segments;
+                ui.rect(-stroke, y0, stroke * 2, stem / segments, 0, (Math.round(a * 255) << 24) | (color & 0xFFFFFF));
+            }
+
+            // Label: distance chip, opening to name · distance and then the coordinates near the crosshair.
+            String dist = formatDistance(m.distance());
+            boolean full = focus > 0.05f;
+            float padX = ui.num(l + "wp_pill_pad_x");
+            float padY = ui.num(l + "wp_pill_pad_y");
+            float strip = ui.num(l + "wp_pill_strip");
+            float gap = ui.num(l + "world_label_gap");
+            String name = ui.ellipsize("world_label", waypoint.name(), ui.num(l + "world_label_max"));
+            float rowH = Math.max(ui.lineHeight("world_label"), ui.lineHeight("world_label_dist"));
+            String coords = (long) Math.floor(waypoint.x()) + "  " + (long) Math.floor(waypoint.y()) + "  " + (long) Math.floor(waypoint.z());
+            float coordsA = Math.max(0f, Math.min(1f, (focus - 0.55f) / 0.3f));
+            float coordsH = coordsA > 0f ? ui.lineHeight("world_label_coords") : 0f;
+            float contentW = full
+                    ? ui.textWidth("world_label", name) + gap + ui.textWidth("world_label_dist", dist)
+                    : ui.textWidth("world_label_dist", dist);
+            if (coordsA > 0f) {
+                contentW = Math.max(contentW, ui.textWidth("world_label_coords", coords));
+            }
+            float w = Math.round(stroke * 2 + padX * 2 + strip + gap + contentW);
+            float h = Math.round(stroke * 2 + padY * 2 + rowH + coordsH);
+            float x = -Math.round(w / 2f);
+            float y = -half - stem - h;
+            ui.pushAlpha(full ? 1f : 0.85f);
+            ui.box(x, y, w, h, Math.min(h / 2f, ui.num(l + "wp_pill_radius")), ui.color("panel"),
+                    m.selected() ? ui.color("accent") : ui.color("stroke_10"));
+            ui.rect(x + stroke + padX, y + stroke + padY, strip, h - (stroke + padY) * 2, strip / 2f, color);
+            float tx = x + stroke + padX + strip + gap;
+            float ty = y + stroke + padY;
+            if (full) {
+                float after = ui.textCentered("world_label", name, tx, ty, rowH);
+                ui.textCentered("world_label_dist", dist, after + gap, ty, rowH);
+            } else {
+                ui.textCentered("world_label_dist", dist, tx, ty, rowH);
+            }
+            if (coordsA > 0f) {
+                ui.pushAlpha(coordsA);
+                ui.text("world_label_coords", coords, tx, ty + rowH);
+                ui.popAlpha();
+            }
+            ui.popAlpha();
+        } finally {
             pose.popMatrix();
         }
+    }
+
+    /** Diamond (a square turned 45°) centred on (cx, cy) with half-diagonal {@code r}. */
+    private static void diamond(Ui ui, float cx, float cy, float r, int color) {
+        ui.triangle(cx - r, cy, cx + r, cy, cx, cy - r, 0f, color);
+        ui.triangle(cx - r, cy, cx + r, cy, cx, cy + r, 0f, color);
+    }
+
+    /** Arrow at the screen edge pointing to an off-screen waypoint ({@code right}/{@code up} in camera space). */
+    private void edgeArrow(Ui ui, Waypoint waypoint, double right, double up, double distance) {
+        String l = "layout.hud.";
+        if (Math.abs(right) < 1e-4 && Math.abs(up) < 1e-4) {
+            up = -1;
+        }
+        double angle = Math.atan2(right, up);
+        float radius = Math.min(ui.width(), ui.height()) * ui.num(l + "wp_arrow_radius");
+        float cx = ui.width() / 2f + (float) Math.sin(angle) * radius;
+        float cy = ui.height() / 2f - (float) Math.cos(angle) * radius;
+        int color = 0xFF000000 | waypoint.color();
+        float d = ui.num(l + "wp_arrow");
+        float icon = ui.num(l + "wp_arrow_icon");
+        ui.circle(cx, cy, d, ui.color("panel"));
+        ui.ring(cx, cy, d, ui.num("stroke.width") * 1.5f, color);
+        Icons.navArrow(ui, cx - icon / 2f, cy - icon / 2f, icon, 2f, color, (float) Math.toDegrees(angle));
+        String dist = formatDistance(distance);
+        float tw = ui.textWidth("world_label_dist", dist);
+        ui.text("world_label_dist", dist, cx - tw / 2f, cy + d / 2f + ui.num("stroke.width") * 2);
     }
 
     static String formatDistance(double distance) {
