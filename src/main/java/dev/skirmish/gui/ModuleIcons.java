@@ -349,6 +349,13 @@ public final class ModuleIcons {
                 p(ui, x, y, s, c, 9.5f, 2f, 10.5f, 7f);
                 p(ui, x, y, s, c, 13.5f, 17f, 14.5f, 22f);
             }
+            case "weapon_stats" -> { // sword over a bar chart
+                p(ui, x, y, s, c, 4f, 20f, 4f, 15f);
+                p(ui, x, y, s, c, 9f, 20f, 9f, 11f);
+                p(ui, x, y, s, c, 14f, 20f, 14f, 13f);
+                p(ui, x, y, s, c, 20.5f, 3.5f, 13f, 11f);
+                p(ui, x, y, s, c, 17f, 5f, 19f, 7f);
+            }
             case "event_timers" -> { // alarm clock
                 ui.ring(x + 12f * s, y + 13f * s, 16f * s + STROKE * s, STROKE * s, c);
                 p(ui, x, y, s, c, 12f, 13f, 12f, 9f);
