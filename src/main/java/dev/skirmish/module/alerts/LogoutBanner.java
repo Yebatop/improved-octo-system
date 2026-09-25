@@ -16,8 +16,13 @@ final class LogoutBanner extends HudBlock {
     private final AlertsModule module;
 
     LogoutBanner(AlertsModule module) {
-        super("alerts_logout", "skirmish.hud.element.alerts_logout", new Placement(0.5f, 0, 0.5f, 0, 0, 60));
+        super("alerts_logout", "skirmish.hud.element.alerts_logout", new Placement(0.5f, 0f, 0.5f, 0f, 0, dev.skirmish.ui.Theme.get().num("layout.hud.top_column_dy")));
         this.module = module;
+    }
+
+    @Override
+    public @org.jspecify.annotations.Nullable String stackUnder() {
+        return "combat_tag";
     }
 
     @Override

@@ -21,8 +21,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Registry and renderer of the mod's HUD elements. Positions (set in {@link HudEditScreen}) live in
@@ -132,7 +134,7 @@ public final class Hud {
                 }
             }
             Map<String, float[]> drawn = new HashMap<>();
-            for (HudBlock block : blocks) {
+            for (HudBlock block : drawOrder()) {
                 try {
                     boolean shown = block.enabled() && block.shown();
                     float a = block.appear.target(shown).value();
@@ -168,21 +170,28 @@ public final class Hud {
         float gap = ui.num("layout.hud.stack_gap");
         float x = at[0];
         float y = at[1];
+        // Walk up the stack chain to the nearest block drawn this frame and sit under it, aligned by this block's own
+        // pivot (centred blocks centre under it); with none drawn, take the place of the chain's first block.
         String under = block.stackUnder();
-        if (under != null) {
+        Set<String> seen = new HashSet<>();
+        while (under != null && seen.add(under)) {
             float[] ref = drawn.get(under);
             if (ref != null) {
-                x = ref[0];
+                x = ref[0] + (ref[2] - w) * block.defaultPlacement().px();
                 y = ref[1] + ref[3] + gap;
-            } else {
-                for (HudBlock other : blocks) {
-                    if (other.id().equals(under)) {
-                        float[] p = position(other, w, h, ui.width(), ui.height());
-                        x = p[0];
-                        y = p[1];
-                    }
-                }
+                break;
             }
+            HudBlock other = byId(under);
+            if (other == null) {
+                break;
+            }
+            if (other.stackUnder() == null || placements.containsKey(other.id())) {
+                float[] p = position(other, w, h, ui.width(), ui.height());
+                x = p[0];
+                y = p[1];
+                break;
+            }
+            under = other.stackUnder();
         }
         // w/h are the scaled size, so a scaled element steps out of the sidebar by its real width.
         if (sidebar != null && x < sidebar[0] + sidebar[2] && x + w > sidebar[0] && y < sidebar[1] + sidebar[3] && y + h > sidebar[1]) {
@@ -191,6 +200,37 @@ public final class Hud {
         x = Math.max(0f, Math.min(ui.width() - w, x));
         y = Math.max(0f, Math.min(ui.height() - h, y));
         return new float[]{Math.round(x), Math.round(y)};
+    }
+
+    private @org.jspecify.annotations.Nullable HudBlock byId(String id) {
+        for (HudBlock block : blocks) {
+            if (block.id().equals(id)) {
+                return block;
+            }
+        }
+        return null;
+    }
+
+    /** Blocks in registration order, except that a block stacked under another is drawn after it. */
+    private List<HudBlock> drawOrder() {
+        List<HudBlock> ordered = new ArrayList<>(blocks);
+        ordered.sort(java.util.Comparator.comparingInt(this::stackDepth));
+        return ordered;
+    }
+
+    private int stackDepth(HudBlock block) {
+        int depth = 0;
+        Set<String> seen = new HashSet<>();
+        String under = block.stackUnder();
+        while (under != null && seen.add(under)) {
+            HudBlock other = byId(under);
+            if (other == null) {
+                break;
+            }
+            depth++;
+            under = other.stackUnder();
+        }
+        return depth;
     }
 
     private void load() {

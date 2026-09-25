@@ -21,9 +21,13 @@ final class RuneWindowHud extends HudBlock {
     private List<RuneTimers.Timer> rows = List.of();
 
     RuneWindowHud(RuneWindowModule module) {
-        super(RuneWindowModule.ID, "skirmish.hud.element.rune_window", new Placement(0.5f, 0.5f, 0f, 0.5f,
-                Theme.get().num(L + "default_dx"), 0));
+        super(RuneWindowModule.ID, "skirmish.hud.element.rune_window", new Placement(0.5f, 0.5f, 0f, 0f, dev.skirmish.ui.Theme.get().num("layout.hud.target_side_dx"), dev.skirmish.ui.Theme.get().num("layout.hud.target_side_dy")));
         this.module = module;
+    }
+
+    @Override
+    public @org.jspecify.annotations.Nullable String stackUnder() {
+        return "dossier";
     }
 
     @Override

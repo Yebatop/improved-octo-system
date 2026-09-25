@@ -19,9 +19,13 @@ final class KillBanner extends HudBlock {
     private KillFxModule.@Nullable Shown current;
 
     KillBanner(KillFxModule module) {
-        super(KillFxModule.ID, "skirmish.hud.element.kill_fx", new Placement(0.5f, 0.5f, 0.5f, 1f, 0,
-                Theme.get().num(L + "default_dy")));
+        super(KillFxModule.ID, "skirmish.hud.element.kill_fx", new Placement(0.5f, 0f, 0.5f, 0f, 0, dev.skirmish.ui.Theme.get().num("layout.hud.top_column_dy")));
         this.module = module;
+    }
+
+    @Override
+    public @org.jspecify.annotations.Nullable String stackUnder() {
+        return "lag_warning";
     }
 
     @Override

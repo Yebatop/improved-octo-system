@@ -32,7 +32,12 @@ public final class SurvivalBanner extends HudBlock {
 
     /** Horizontally centered, bottom edge {@code alert_default_dy} above the screen center. */
     public static Placement bannerPlacement() {
-        return new Placement(0.5f, 0.5f, 0.5f, 1f, 0, Theme.get().num(L + "alert_default_dy"));
+        return new Placement(0.5f, 0f, 0.5f, 0f, 0, Theme.get().num("layout.hud.top_column_dy"));
+    }
+
+    @Override
+    public @org.jspecify.annotations.Nullable String stackUnder() {
+        return "alerts_logout";
     }
 
     @Override

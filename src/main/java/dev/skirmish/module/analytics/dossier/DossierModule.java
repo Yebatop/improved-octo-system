@@ -58,7 +58,7 @@ public final class DossierModule extends Module {
     private static final long SAVE_INTERVAL_MS = 30_000;
     private static @Nullable DossierModule instance;
 
-    final BoolSetting hud = add(new BoolSetting("hud", true));
+    final BoolSetting hud = add(new BoolSetting("hud", false));
     final BoolSetting onLook = add(new BoolSetting("on_look", true));
     final BoolSetting showGear = add(new BoolSetting("gear", true));
 

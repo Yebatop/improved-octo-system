@@ -46,7 +46,7 @@ final class TargetCard extends HudBlock {
     private @Nullable Player lastTarget;
 
     TargetCard(GearInspectorModule module) {
-        super("target", "skirmish.hud.element.target", new Placement(0.5f, 0.5f, 0.5f, 0f, 0, 44));
+        super("target", "skirmish.hud.element.target", new Placement(0.5f, 0.5f, 0f, 0f, dev.skirmish.ui.Theme.get().num("layout.hud.target_side_dx"), dev.skirmish.ui.Theme.get().num("layout.hud.target_side_dy")));
         this.module = module;
     }
 

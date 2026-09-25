@@ -24,8 +24,13 @@ final class CombatTagHud extends HudBlock {
     private PvpModule.@Nullable TagView last;
 
     CombatTagHud(PvpModule module) {
-        super("combat_tag", "skirmish.hud.element.combat_tag", new Placement(0.5f, 0.5f, 0.5f, 1f, 0, -44));
+        super("combat_tag", "skirmish.hud.element.combat_tag", new Placement(0.5f, 0f, 0.5f, 0f, 0, dev.skirmish.ui.Theme.get().num("layout.hud.top_column_dy")));
         this.module = module;
+    }
+
+    @Override
+    public @org.jspecify.annotations.Nullable String stackUnder() {
+        return "waypoint";
     }
 
     @Override

@@ -36,7 +36,7 @@ public final class ComboHudModule extends Module {
     private long lastHitMs = -1;
 
     public ComboHudModule() {
-        super(ID, true);
+        super(ID, false);
         resetSeconds.under(combo).visibleWhen(combo::get);
     }
 

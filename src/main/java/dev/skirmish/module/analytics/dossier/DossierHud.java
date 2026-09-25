@@ -32,8 +32,7 @@ final class DossierHud extends HudBlock {
     private List<ItemStack> gear = List.of();
 
     DossierHud(DossierModule module) {
-        super("dossier", "skirmish.hud.element.dossier", new Placement(0.5f, 0.5f, 0.5f, 0f, 0,
-                Theme.get().num("layout.hud.target_default_dy")));
+        super("dossier", "skirmish.hud.element.dossier", new Placement(0.5f, 0.5f, 0f, 0f, dev.skirmish.ui.Theme.get().num("layout.hud.target_side_dx"), dev.skirmish.ui.Theme.get().num("layout.hud.target_side_dy")));
         this.module = module;
     }
 

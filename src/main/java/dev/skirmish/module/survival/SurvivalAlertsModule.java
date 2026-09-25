@@ -31,13 +31,13 @@ public final class SurvivalAlertsModule extends Module {
     final BoolSetting armor = add(new BoolSetting("armor", true));
     final NumberSetting armorPercent = (NumberSetting) add(new NumberSetting("armor_percent", 10, 1, 50, 1).unit("%"))
             .under(armor).visibleWhen(armor::get);
-    final BoolSetting food = add(new BoolSetting("food", true));
+    final BoolSetting food = add(new BoolSetting("food", false));
     final NumberSetting foodThreshold = (NumberSetting) add(new NumberSetting("food_threshold", 6, 1, 19, 1))
             .under(food).visibleWhen(food::get);
-    final BoolSetting pearls = add(new BoolSetting("pearls", true));
+    final BoolSetting pearls = add(new BoolSetting("pearls", false));
     final NumberSetting pearlThreshold = (NumberSetting) add(new NumberSetting("pearl_threshold", 2, 0, 16, 1))
             .under(pearls).visibleWhen(pearls::get);
-    final BoolSetting gapples = add(new BoolSetting("gapples", true));
+    final BoolSetting gapples = add(new BoolSetting("gapples", false));
     final NumberSetting gappleThreshold = (NumberSetting) add(new NumberSetting("gapple_threshold", 2, 0, 16, 1))
             .under(gapples).visibleWhen(gapples::get);
     final BoolSetting suppliesPvpOnly = add(new BoolSetting("supplies_pvp_only", true));

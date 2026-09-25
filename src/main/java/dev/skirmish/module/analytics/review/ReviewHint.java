@@ -23,8 +23,8 @@ final class ReviewHint extends HudBlock {
     private long shownAt;
 
     ReviewHint(FightReviewModule module) {
-        super("fight_review_hint", "skirmish.hud.element.fight_review_hint", new Placement(0.5f, 1f, 0.5f, 1f, 0,
-                -Theme.get().num(L + "default_bottom")));
+        super("fight_review_hint", "skirmish.hud.element.fight_review_hint", new Placement(1f, 1f, 1f, 1f, -Theme.get().num("layout.screen_edge"),
+                -Theme.get().num("layout.hud.review_hint_bottom")));
         this.module = module;
     }
 

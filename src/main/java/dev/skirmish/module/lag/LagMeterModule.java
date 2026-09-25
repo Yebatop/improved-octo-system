@@ -36,7 +36,7 @@ public final class LagMeterModule extends Module {
     }
 
     final BoolSetting hud = add(new BoolSetting("hud", true));
-    final EnumSetting<Show> show = (EnumSetting<Show>) add(new EnumSetting<>("show", Show.ALWAYS)).under(hud).visibleWhen(hud::get);
+    final EnumSetting<Show> show = (EnumSetting<Show>) add(new EnumSetting<>("show", Show.LAGGING)).under(hud).visibleWhen(hud::get);
     final BoolSetting warning = add(new BoolSetting("warning", true));
     final NumberSetting warnAfter = (NumberSetting) add(new NumberSetting("warn_after", 1.5, 0.5, 10, 0.5).unit(" s"))
             .under(warning).visibleWhen(warning::get);

@@ -31,7 +31,7 @@ public final class ItemCounterModule extends Module {
     final BoolSetting pearls = add(new BoolSetting("pearls", true));
     final BoolSetting xpBottles = add(new BoolSetting("xp_bottles", true));
     final StringSetting custom = add(new StringSetting("custom", "", 256, false));
-    final BoolSetting hideZero = add(new BoolSetting("hide_zero", false));
+    final BoolSetting hideZero = add(new BoolSetting("hide_zero", true));
     final EnumSetting<Layout> layout = add(new EnumSetting<>("layout", Layout.ROW));
 
     private String parsedFrom = null;

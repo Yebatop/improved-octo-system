@@ -100,6 +100,9 @@ public final class SkirmishClient implements ClientModInitializer {
         config = new ConfigManager(dir.resolve("config.json"), modules::all);
         modules.setConfig(config);
         config.load();
+        if (dev.skirmish.config.Migrations.run(dir, modules.all())) {
+            modules.markDirty();
+        }
 
         SkirmishKeys.register();
         Hud.install(dir.resolve("hud.json"));
