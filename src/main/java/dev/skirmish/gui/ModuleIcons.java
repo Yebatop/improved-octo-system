@@ -273,6 +273,11 @@ public final class ModuleIcons {
                 p(ui, x, y, s, c, 2f, 9f, 6f, 9f);
                 p(ui, x, y, s, c, 2f, 15f, 6f, 15f);
             }
+            case "invisible_highlight" -> { // block top in perspective with a crossed eye above
+                p(ui, x, y, s, c, 12f, 13f, 21f, 17f, 12f, 21f, 3f, 17f, 12f, 13f);
+                p(ui, x, y, s, c, 5f, 7f, 7.5f, 4.5f, 12f, 3f, 16.5f, 4.5f, 19f, 7f, 16.5f, 9.5f, 12f, 11f, 7.5f, 9.5f, 5f, 7f);
+                p(ui, x, y, s, c, 6f, 2f, 18f, 12f);
+            }
             case "waypoints" -> CategoryIcons.pin(ui, x, y, size, c);
             default -> {
                 return false;

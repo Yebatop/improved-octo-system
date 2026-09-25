@@ -15,7 +15,8 @@
     "theme/damage_numbers.json",
     "theme/kill_fx.json",
     "theme/player_menu.json",
-    "theme/hwutility.json"
+    "theme/hwutility.json",
+    "theme/invhighlight.json"
   ],
   "colors": {
     "page": "#0B0B12",

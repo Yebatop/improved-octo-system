@@ -72,6 +72,7 @@ public final class SkirmishClient implements ClientModInitializer {
         modules.register(new EffectHudModule());
         modules.register(new ArmorHudModule());
         modules.register(new FullbrightModule());
+        modules.register(new dev.skirmish.module.invhighlight.InvisibleHighlightModule());
         modules.register(new dev.skirmish.module.autosprint.AutoSprintModule());
         modules.register(new ZoomModule());
         modules.register(new CameraComfortModule());
