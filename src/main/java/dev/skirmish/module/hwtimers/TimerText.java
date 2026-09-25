@@ -25,6 +25,13 @@ public final class TimerText {
     /** "Nick: text", "[G] Nick » text", "Nick ⇨ text": the part before the first separator names the speaker. */
     private static final Pattern SPEAKER = Pattern.compile("^(.{1,60}?)\\s*(?::|»|⇨|➡|->|→|>)\\s");
     private static final int MAX_SECONDS = 24 * 3600;
+    /**
+     * Shop, auction and case lines that merely name an item ("Вы купили Трапка x1 у Nick за 180 000¤", "выставили
+     * на аукцион", "выиграл … из кейса"): they mention a timer item without it acting on you.
+     */
+    private static final Pattern TRADE = Pattern.compile(
+            "(?:(?<![\\p{L}])(?:вы\\s+)?(?:купил|продал|выставил|приобрел|снял[аи]?\\s+с\\s+аукцион|выиграл)"
+                    + "|аукцион|скупщик|магазин|из\\s+(?:донат-)?кейс|\\bx\\d+\\s+у\\s|\\bза\\s+[\\d\\s.,]+(?:¤|монет|руб|₽))");
 
     private TimerText() {
     }
@@ -62,6 +69,11 @@ public final class TimerText {
             return bounded(Integer.parseInt(m.group(1)) * 60);
         }
         return OptionalInt.empty();
+    }
+
+    /** Whether a normalized line is a purchase, sale, auction or case line (see {@link #TRADE}). */
+    public static boolean isTradeLine(String normalized) {
+        return TRADE.matcher(normalized).find();
     }
 
     /**

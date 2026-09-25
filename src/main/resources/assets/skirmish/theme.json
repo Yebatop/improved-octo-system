@@ -388,20 +388,20 @@
       "color": "text_3"
     },
     "world_label": {
-      "size": 12,
+      "size": 13,
       "weight": 700,
       "color": "text"
     },
     "world_label_dist": {
-      "size": 11,
+      "size": 12,
       "weight": 500,
       "color": "text_2",
       "mono": true
     },
     "world_label_coords": {
-      "size": 10,
+      "size": 11,
       "weight": 500,
-      "color": "text_3",
+      "color": "text_2",
       "mono": true
     },
     "toast_title": {
@@ -792,7 +792,8 @@
       "wp_pulse_ms": 1400,
       "wp_arrow": 26,
       "wp_arrow_icon": 14,
-      "wp_arrow_radius": 0.36
+      "wp_arrow_radius": 0.36,
+      "wp_coords_gap": 2
     },
     "replay": {
       "top_bar": 64,

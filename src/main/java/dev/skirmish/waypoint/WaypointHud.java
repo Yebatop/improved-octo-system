@@ -129,13 +129,17 @@ final class WaypointHud implements HudElement {
         float focus = Math.max(m.selected() ? 0.55f : 0f, focus(m.x() - ui.width() / 2f, m.y() - ui.height() / 2f, ui.num(l + "wp_focus_radius")));
         long now = net.minecraft.util.Util.getMillis();
 
+        float labelScale = module.labelScale.getFloat();
+        float size = ui.num(l + "wp_marker");
+        float half = size / 2f;
+        float stem = ui.num(l + "wp_stem");
         var pose = ui.graphics().pose();
+
+        // Marker and stem shrink with distance.
         pose.pushMatrix();
         pose.translate(Math.round(m.x()), Math.round(m.y()));
         pose.scale(scale, scale);
         try {
-            float size = ui.num(l + "wp_marker");
-            float half = size / 2f;
             // Selected: a ring pulsing out of the marker.
             if (m.selected()) {
                 float pulse = (now % (long) ui.num(l + "wp_pulse_ms")) / ui.num(l + "wp_pulse_ms");
@@ -144,17 +148,22 @@ final class WaypointHud implements HudElement {
             diamond(ui, 0, 0, half + ui.num(l + "wp_marker_outline"), ui.color("panel"));
             diamond(ui, 0, 0, half, color);
             diamond(ui, 0, -half * 0.35f, half * 0.35f, 0x59FFFFFF);
-
-            // Stem from the marker up to the label, fading upwards.
-            float stem = ui.num(l + "wp_stem");
             int segments = 5;
             for (int i = 0; i < segments; i++) {
                 float a = 0.85f * (1f - i / (float) segments);
                 float y0 = -half - (i + 1) * stem / segments;
                 ui.rect(-stroke, y0, stroke * 2, stem / segments, 0, (Math.round(a * 255) << 24) | (color & 0xFFFFFF));
             }
+        } finally {
+            pose.popMatrix();
+        }
 
-            // Label: distance chip, opening to name · distance and then the coordinates near the crosshair.
+        // The label keeps its size at any distance (only «Масштаб меток» scales it) so the text stays sharp.
+        float labelBottom = Math.round(m.y() - (half + stem) * scale);
+        pose.pushMatrix();
+        pose.translate(Math.round(m.x()), labelBottom);
+        pose.scale(labelScale, labelScale);
+        try {
             String dist = formatDistance(m.distance());
             boolean full = focus > 0.05f;
             float padX = ui.num(l + "wp_pill_pad_x");
@@ -165,7 +174,7 @@ final class WaypointHud implements HudElement {
             float rowH = Math.max(ui.lineHeight("world_label"), ui.lineHeight("world_label_dist"));
             String coords = (long) Math.floor(waypoint.x()) + "  " + (long) Math.floor(waypoint.y()) + "  " + (long) Math.floor(waypoint.z());
             float coordsA = Math.max(0f, Math.min(1f, (focus - 0.55f) / 0.3f));
-            float coordsH = coordsA > 0f ? ui.lineHeight("world_label_coords") : 0f;
+            float coordsH = coordsA > 0f ? ui.num(l + "wp_coords_gap") + ui.lineHeight("world_label_coords") : 0f;
             float contentW = full
                     ? ui.textWidth("world_label", name) + gap + ui.textWidth("world_label_dist", dist)
                     : ui.textWidth("world_label_dist", dist);
@@ -175,7 +184,7 @@ final class WaypointHud implements HudElement {
             float w = Math.round(stroke * 2 + padX * 2 + strip + gap + contentW);
             float h = Math.round(stroke * 2 + padY * 2 + rowH + coordsH);
             float x = -Math.round(w / 2f);
-            float y = -half - stem - h;
+            float y = -h;
             ui.pushAlpha(full ? 1f : 0.85f);
             ui.box(x, y, w, h, Math.min(h / 2f, ui.num(l + "wp_pill_radius")), ui.color("panel"),
                     m.selected() ? ui.color("accent") : ui.color("stroke_10"));
@@ -190,7 +199,7 @@ final class WaypointHud implements HudElement {
             }
             if (coordsA > 0f) {
                 ui.pushAlpha(coordsA);
-                ui.text("world_label_coords", coords, tx, ty + rowH);
+                ui.text("world_label_coords", coords, tx, ty + rowH + ui.num(l + "wp_coords_gap"));
                 ui.popAlpha();
             }
             ui.popAlpha();

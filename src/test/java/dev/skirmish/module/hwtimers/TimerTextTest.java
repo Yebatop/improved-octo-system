@@ -51,4 +51,15 @@ class TimerTextTest {
         // A nick that is only part of a longer word does not count.
         assertFalse(TimerText.looksLikePlayerChat("Alexandra: стан", online));
     }
+
+    @Test
+    void tradeLinesAreNotTimerTriggers() {
+        assertTrue(TimerText.isTradeLine(TimerText.normalize("▶ Вы купили Трапка x1 у shwaigen67 за 180 000¤")));
+        assertTrue(TimerText.isTradeLine(TimerText.normalize("Вы выставили Стан на аукцион за 5000¤")));
+        assertTrue(TimerText.isTradeLine(TimerText.normalize("   IGOR_TOP4IKI выиграл «Трапка» из Донат-кейса")));
+        assertTrue(TimerText.isTradeLine(TimerText.normalize("Вы продали Ледяная волна x2 скупщику")));
+        assertFalse(TimerText.isTradeLine(TimerText.normalize("Вы оглушены на 15 сек. Жемчуг и хорус недоступны")));
+        assertFalse(TimerText.isTradeLine(TimerText.normalize("Стан закончился")));
+        assertFalse(TimerText.isTradeLine(TimerText.normalize("Режим PVP, не выходите из игры 30 сек.")));
+    }
 }

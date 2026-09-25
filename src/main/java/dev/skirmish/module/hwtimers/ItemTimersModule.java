@@ -82,6 +82,14 @@ public final class ItemTimersModule extends Module {
     private boolean raidNear = true;
     private int ticks;
     private final Map<String, Long> rawLogged = new LinkedHashMap<>();
+    /**
+     * Block-display and falling-block entities near me that already counted as an appearing block: entity id → the
+     * block position they stand for. Servers may build temporary shapes (the trap box) from display entities
+     * instead of real blocks; those only show up here.
+     */
+    private final Map<Integer, Long> displayBlocks = new HashMap<>();
+    /** Appearing blocks of the last second (time, block id, from a display entity) for the debug-log summary. */
+    private final java.util.ArrayDeque<Object[]> recentAppears = new java.util.ArrayDeque<>();
 
     public ItemTimersModule() {
         super(ID, true);
@@ -181,6 +189,8 @@ public final class ItemTimersModule extends Module {
         pollEffects(player, now, allowed);
         heldRune = heldTotemRune(player);
         if (allowed && blockTriggers.get()) {
+            scanDisplayBlocks(mc.level, player, now);
+            logAppearSummary(now);
             for (BlockBursts.Burst burst : bursts.evaluate(table.timers(), id -> board.get(id) != null && board.get(id).endMs() > now, now)) {
                 boolean fresh = board.get(burst.def().id()) == null;
                 Chip chip = board.start(burst.def(), now, null, Source.BLOCKS, !burst.def().confirmed(), false);
@@ -279,7 +289,7 @@ public final class ItemTimersModule extends Module {
             int remaining = 0;
             for (long p : chip.positions()) {
                 BlockState state = level.getBlockState(BlockPos.of(p));
-                if (!state.isAir() && sig.accepts(blockId(state))) {
+                if (!state.isAir() && sig.accepts(blockId(state)) || displayBlocks.containsValue(p)) {
                     remaining++;
                 }
             }
@@ -289,6 +299,62 @@ public final class ItemTimersModule extends Module {
                 board.end(chip.id());
             }
         }
+    }
+
+    /**
+     * New block-display / falling-block entities near me count as appearing blocks (their synced block state may
+     * arrive a tick after the entity, so an entity still showing air is looked at again next tick). Gone entities
+     * are forgotten.
+     */
+    private void scanDisplayBlocks(ClientLevel level, LocalPlayer player, long now) {
+        displayBlocks.keySet().removeIf(id -> !(level.getEntity(id) instanceof net.minecraft.world.entity.Entity e) || e.isRemoved());
+        var box = player.getBoundingBox().inflate(APPEAR_RECORD_RADIUS);
+        for (net.minecraft.world.entity.Entity e : level.getEntities((net.minecraft.world.entity.Entity) null, box,
+                e -> e instanceof net.minecraft.world.entity.Display.BlockDisplay
+                        || e instanceof net.minecraft.world.entity.item.FallingBlockEntity)) {
+            if (displayBlocks.containsKey(e.getId())) {
+                continue;
+            }
+            BlockState state = e instanceof net.minecraft.world.entity.Display.BlockDisplay d ? d.getBlockState()
+                    : ((net.minecraft.world.entity.item.FallingBlockEntity) e).getBlockState();
+            if (state.isAir()) {
+                continue;
+            }
+            BlockPos pos = e.blockPosition();
+            displayBlocks.put(e.getId(), pos.asLong());
+            double distance = Math.sqrt(player.position().distanceToSqr(Vec3.atCenterOf(pos)));
+            bursts.appear(pos.asLong(), blockId(state), distance, now);
+            noteAppear(blockId(state), true, now);
+        }
+    }
+
+    private void noteAppear(String blockId, boolean display, long now) {
+        if (isDebug()) {
+            recentAppears.addLast(new Object[]{now, blockId, display});
+        }
+    }
+
+    /**
+     * Debug log only: when 5+ blocks appeared within {@code APPEAR_RECORD_RADIUS} of me in the last second, one line
+     * lists them (count per block id, how many were display entities) so item shapes can be tuned from a capture.
+     */
+    private void logAppearSummary(long now) {
+        while (!recentAppears.isEmpty() && now - (long) recentAppears.peekFirst()[0] > 1000) {
+            recentAppears.removeFirst();
+        }
+        if (recentAppears.size() < 5 || ticks % 10 != 0) {
+            return;
+        }
+        Map<String, Integer> counts = new java.util.TreeMap<>();
+        int displays = 0;
+        for (Object[] a : recentAppears) {
+            counts.merge((String) a[1], 1, Integer::sum);
+            if ((boolean) a[2]) {
+                displays++;
+            }
+        }
+        log("blocks appeared near me in 1 s: %d %s, %d from display entities", recentAppears.size(), counts, displays);
+        recentAppears.clear();
     }
 
     private boolean raidNear(LocalPlayer player) {
@@ -343,6 +409,10 @@ public final class ItemTimersModule extends Module {
         }
         if (TimerText.looksLikePlayerChat(raw, onlineNames())) {
             log(kind + " line looks like player chat, ignored: \"" + raw + "\"");
+            return;
+        }
+        if (TimerText.isTradeLine(norm)) {
+            log(kind + " line is a purchase/sale/auction line, ignored: \"" + raw + "\"");
             return;
         }
         long now = now();
@@ -408,6 +478,7 @@ public final class ItemTimersModule extends Module {
         long now = now();
         if (!after.isAir() && (before.isAir() || before.canBeReplaced()) && distance <= APPEAR_RECORD_RADIUS) {
             bursts.appear(pos.asLong(), blockId(after), distance, now);
+            noteAppear(blockId(after), false, now);
             return;
         }
         if (after.isAir() && !before.isAir()) {
