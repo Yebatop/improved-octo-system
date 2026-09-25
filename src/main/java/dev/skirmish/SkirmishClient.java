@@ -86,6 +86,9 @@ public final class SkirmishClient implements ClientModInitializer {
         modules.register(new dev.skirmish.module.analytics.combo.ComboHudModule());
         modules.register(new dev.skirmish.module.analytics.feed.KillFeedModule());
         modules.register(new dev.skirmish.module.analytics.dossier.DossierModule());
+        modules.register(new dev.skirmish.module.hwtimers.ItemTimersModule());
+        modules.register(new dev.skirmish.module.tnttimer.TntTimerModule());
+        modules.register(new dev.skirmish.module.bosscoach.BossCoachModule());
         modules.register(new dev.skirmish.module.runewindow.RuneWindowModule());
         modules.register(new dev.skirmish.module.damagenumbers.DamageNumbersModule());
         modules.register(new dev.skirmish.module.killfx.KillFxModule());

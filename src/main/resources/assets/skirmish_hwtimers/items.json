@@ -1,0 +1,128 @@
+{
+  "version": 1,
+  "about": "HolyWorld items and mechanics that put a timer on the local player. Durations come from wiki.holyworld.me (llms-full.txt); every 'chat' pattern is a guess until a debug-log capture confirms it ('confirmed': false). Patterns are Java regexes matched against the normalised text (colour codes and small caps removed, lower case, ё → е). A copy at config/skirmish/tables/hw_item_timers.json overrides this file.",
+  "timers": [
+    {
+      "id": "stan",
+      "tone": "bad",
+      "mode": "lite",
+      "seconds": 15,
+      "wiki": "lite/items/custom.md: «Стан — При активации создает куб 30х30х30 на 15 секунд. Игроки в нём не могут использовать эндер-жемчуг и хорусы. Накладывает эффект Замедления 1 уровня на всех, кроме активатора.»",
+      "chat": [
+        "(?<![\\p{L}])стан(?:а|ом|е|у)?(?![\\p{L}])",
+        "(?:жемчуг|хорус)[\\p{L}]*.{0,40}(?:нельзя|не можете|не может|запрещ|заблокир|недоступ)",
+        "(?:нельзя|не можете|не может|запрещ|заблокир|недоступ).{0,40}(?:жемчуг|хорус)"
+      ],
+      "effect": {
+        "id": "minecraft:slowness",
+        "min_amplifier": 0,
+        "max_amplifier": 0,
+        "min_ticks": 240,
+        "max_ticks": 320
+      },
+      "confirmed": false
+    },
+    {
+      "id": "ice_wave",
+      "tone": "bad",
+      "mode": "lite",
+      "seconds": 5,
+      "wiki": "lite/region/tnt.md: «Ледяная волна — Не взрывает территорию вокруг себя. При взрыве образует сферу из льда на 5 секунд радиусом 2 блока.»",
+      "chat": [
+        "ледян[\\p{L}]* волн"
+      ],
+      "blocks": {
+        "appear": ["minecraft:ice", "minecraft:packed_ice", "minecraft:blue_ice", "minecraft:frosted_ice"],
+        "min": 6,
+        "radius": 4,
+        "window_ms": 1500,
+        "ends_when_gone": true
+      },
+      "confirmed": false
+    },
+    {
+      "id": "trap_box",
+      "tone": "bad",
+      "mode": "lite",
+      "seconds": 0,
+      "max_seconds": 60,
+      "wiki": "lite/items/custom.md: «Трапка — При активации наносит урон в радиусе 3 блоков и создает временную коробку. Не работает на заприваченных территориях.»",
+      "chat": [
+        "(?<![\\p{L}])трапк"
+      ],
+      "blocks": {
+        "appear": ["*"],
+        "min": 10,
+        "radius": 3,
+        "window_ms": 1000,
+        "ends_when_gone": true
+      },
+      "confirmed": false
+    },
+    {
+      "id": "raid_block",
+      "tone": "warn",
+      "mode": "lite",
+      "seconds": 300,
+      "wiki": "lite/region/tnt.md: «Разрывная волна … Если обсидиан или плачущий обсидиан взрывается этим динамитом, то на сломанные блоки накладывается рейд блок на 5 минут»; «Рейд блок … запрещает устанавливать любые обсидиановые блоки в зоне своего действия … обсидиан, эндер-сундуки, плачущий обсидиан, древние обломки, столики зачарований и якоря возрождения.»",
+      "chat": [
+        "рейд[\\p{L}]*[ -]?блок"
+      ],
+      "explosion_breaks": {
+        "blocks": ["minecraft:obsidian", "minecraft:crying_obsidian"],
+        "window_ms": 1500,
+        "near_me": 24
+      },
+      "confirmed": false
+    },
+    {
+      "id": "immortality",
+      "tone": "good",
+      "mode": "lite",
+      "seconds": 3,
+      "wiki": "lite/items/custom.md: «Руна \"Бессмертие\" — После активации тотема с этим эффектом, вы получаете неуязвимость к урону продолжительностью 3 секунды.»",
+      "totem_rune": "immortality",
+      "confirmed": true
+    },
+    {
+      "id": "jake_lamp",
+      "tone": "warn",
+      "mode": "lite",
+      "seconds": 15,
+      "wiki": "lite/farming/expkeeper.md: «Светильник Джейка — При ПКМ всем игрокам в радиусе 15 блоков без шлема надевается тыква на 15 секунд и накладывается свечение»",
+      "effect": {
+        "id": "minecraft:glowing",
+        "min_ticks": 240,
+        "max_ticks": 320
+      },
+      "head": "minecraft:carved_pumpkin",
+      "confirmed": false
+    },
+    {
+      "id": "snow_lump",
+      "tone": "bad",
+      "mode": "lite",
+      "seconds": 10,
+      "wiki": "lite/farming/expkeeper.md: «Ком снега — При попадании накладывает медлительность 6 и слепоту на 10 секунд»",
+      "effect": {
+        "id": "minecraft:slowness",
+        "min_amplifier": 5,
+        "max_amplifier": 5,
+        "min_ticks": 140,
+        "max_ticks": 220
+      },
+      "confirmed": false
+    },
+    {
+      "id": "elements",
+      "tone": "warn",
+      "mode": "prime",
+      "seconds": 0,
+      "wiki": "prime/items/elements.md: «Когда у игрока есть хотя бы один Элемент, включается Элементный режим: Игрок подсвечивается. Появляется боссбар и предупреждение. Если выйти с сервера с Элементами, они выпадут.»",
+      "bossbar": [
+        "элемент"
+      ],
+      "confirmed": false
+    }
+  ]
+}

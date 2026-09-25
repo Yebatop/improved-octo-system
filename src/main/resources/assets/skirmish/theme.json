@@ -10,6 +10,7 @@
     "theme/qol.json",
     "theme/awareness.json",
     "theme/analytics.json",
+    "theme/hwtimers.json",
     "theme/rune_window.json",
     "theme/damage_numbers.json",
     "theme/kill_fx.json",
