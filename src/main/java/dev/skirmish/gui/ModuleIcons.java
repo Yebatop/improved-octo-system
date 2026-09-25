@@ -356,6 +356,11 @@ public final class ModuleIcons {
                 p(ui, x, y, s, c, 20.5f, 3.5f, 13f, 11f);
                 p(ui, x, y, s, c, 17f, 5f, 19f, 7f);
             }
+            case "navigator" -> { // compass with a needle
+                ui.ring(x + 12f * s, y + 12f * s, 18f * s + STROKE * s, STROKE * s, c);
+                ui.triangle(x + 12f * s, y + 5f * s, x + 14.5f * s, y + 12f * s, x + 9.5f * s, y + 12f * s, 1f, c);
+                p(ui, x, y, s, c, 9.5f, 12f, 12f, 19f, 14.5f, 12f);
+            }
             case "event_timers" -> { // alarm clock
                 ui.ring(x + 12f * s, y + 13f * s, 16f * s + STROKE * s, STROKE * s, c);
                 p(ui, x, y, s, c, 12f, 13f, 12f, 9f);

@@ -26,7 +26,8 @@
     "theme/enemycd.json",
     "theme/menus.json",
     "theme/invtheme.json",
-    "theme/worldmap.json"
+    "theme/worldmap.json",
+    "theme/navigator.json"
   ],
   "colors": {
     "page": "#0B0B12",

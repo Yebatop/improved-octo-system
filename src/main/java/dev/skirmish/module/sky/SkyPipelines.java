@@ -11,13 +11,13 @@ import net.minecraft.resources.Identifier;
  * The sky's render type: position + colour quads, additive (source alpha, one), depth-tested but not written, no
  * culling — so terrain in front hides it and it only lights up the sky behind.
  */
-final class SkyPipelines {
+public final class SkyPipelines {
     static final RenderPipeline ADD = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath("skirmish", "pipeline/sky_add"))
             .withBlend(BlendFunction.LIGHTNING)
             .withCull(false)
             .build());
-    static final RenderType SKY = RenderType.create("skirmish_sky", RenderSetup.builder(ADD).createRenderSetup());
+    public static final RenderType SKY = RenderType.create("skirmish_sky", RenderSetup.builder(ADD).createRenderSetup());
 
     private SkyPipelines() {
     }

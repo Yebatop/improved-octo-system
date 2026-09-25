@@ -30,7 +30,7 @@ final class CombatTagHud extends HudBlock {
 
     @Override
     public @org.jspecify.annotations.Nullable String stackUnder() {
-        return "waypoint";
+        return "route";
     }
 
     @Override

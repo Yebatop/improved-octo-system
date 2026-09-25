@@ -4,11 +4,32 @@
     "map_grid": "#FFFFFF10"
   },
   "text": {
-    "wm_title": {"size": 16, "weight": 800, "color": "text"},
-    "wm_sub": {"size": 11, "weight": 600, "color": "text_2"},
-    "wm_coords": {"size": 12, "weight": 600, "color": "accent", "mono": true},
-    "wm_hint": {"size": 11, "weight": 500, "color": "text_3"},
-    "wm_marker": {"size": 11, "weight": 700, "color": "text"}
+    "wm_title": {
+      "size": 16,
+      "weight": 800,
+      "color": "text"
+    },
+    "wm_sub": {
+      "size": 11,
+      "weight": 600,
+      "color": "text_2"
+    },
+    "wm_coords": {
+      "size": 12,
+      "weight": 600,
+      "color": "accent",
+      "mono": true
+    },
+    "wm_hint": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "wm_marker": {
+      "size": 11,
+      "weight": 700,
+      "color": "text"
+    }
   },
   "layout": {
     "worldmap": {
@@ -26,7 +47,8 @@
       "rescan_ticks": 40,
       "rescan_radius": 2,
       "save_ms": 60000,
-      "max_tiles": 48
+      "max_tiles": 48,
+      "crumb": 3
     }
   }
 }

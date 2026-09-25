@@ -253,6 +253,12 @@ final class WaypointHud implements HudElement {
             this.manager = manager;
         }
 
+        /** Under the Navigator's compass bar when it is shown (in its place otherwise). */
+        @Override
+        public @org.jspecify.annotations.Nullable String stackUnder() {
+            return "compass";
+        }
+
         private @Nullable Waypoint target() {
             Waypoint selected = manager.selected();
             return selected != null && manager.current().contains(selected) ? selected : null;

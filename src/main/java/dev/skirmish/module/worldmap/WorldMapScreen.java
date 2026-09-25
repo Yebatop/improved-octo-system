@@ -31,6 +31,17 @@ public final class WorldMapScreen extends UiScreen {
     private double hoverX = Double.NaN;
     private double hoverZ = Double.NaN;
 
+    /** Atlas layers (kept for the session). */
+    private static boolean showPath = true;
+    private static boolean showPortals = true;
+    private static boolean showRoute = true;
+
+    private final Button pathToggle = new Button(() -> Ui.tr("skirmish.worldmap.layer.path"), false,
+            () -> showPath = !showPath).layout(L).selected(() -> showPath);
+    private final Button portalToggle = new Button(() -> Ui.tr("skirmish.worldmap.layer.portals"), false,
+            () -> showPortals = !showPortals).layout(L).selected(() -> showPortals);
+    private final Button routeToggle = new Button(() -> Ui.tr("skirmish.worldmap.layer.route"), false,
+            () -> showRoute = !showRoute).layout(L).selected(() -> showRoute);
     private final Button center = new Button(() -> Ui.tr("skirmish.worldmap.center"), false, this::centerOnPlayer).layout(L);
     private final Button in = new Button(() -> "+", false, () -> zoomAt(1.5f, Double.NaN, Double.NaN)).layout(L);
     private final Button out = new Button(() -> "−", false, () -> zoomAt(1 / 1.5f, Double.NaN, Double.NaN)).layout(L);
@@ -83,6 +94,25 @@ public final class WorldMapScreen extends UiScreen {
         if (zoom >= ui.num(L + "grid_zoom")) {
             drawGrid(ui, w, h);
         }
+        var nav = dev.skirmish.module.navigator.NavigatorModule.instance();
+        if (nav != null && nav.isEnabled()) {
+            if (showPath && nav.breadcrumbsOn()) {
+                drawPath(ui, nav.crumbs(), w, h);
+            }
+            if (showPortals) {
+                for (double[] p : nav.portalsIn(ServerContext.dimension())) {
+                    float px = sx(p[0], w);
+                    float py = sy(p[1], h);
+                    // An obsidian-frame glyph: purple frame, dark inside, a lighter core.
+                    ui.rect(px - 6, py - 8, 12, 16, 2f, ui.color("nav_portal"));
+                    ui.rect(px - 3.5f, py - 5.5f, 7, 11, 1f, ui.color("map_bg"));
+                    ui.rect(px - 2, py - 4, 4, 8, 1f, (ui.color("nav_portal") & 0x00FFFFFF) | 0x90000000);
+                }
+            }
+            if (showRoute) {
+                drawRoute(ui, nav, w, h);
+            }
+        }
         drawWaypoints(ui, w, h);
         drawPlayer(ui, w, h);
 
@@ -116,6 +146,17 @@ public final class WorldMapScreen extends UiScreen {
         widget(ui, out, mx, my);
         widget(ui, in, mx, my);
         widget(ui, center, mx, my);
+        if (nav != null && nav.isEnabled()) {
+            float ly = m + bh + gap;
+            float lx = w - m;
+            for (Button b : new Button[]{routeToggle, portalToggle, pathToggle}) {
+                float bw = b.preferredWidth(ui);
+                lx -= bw;
+                b.bounds(lx, ly, bw, bh);
+                widget(ui, b, mx, my);
+                lx -= gap;
+            }
+        }
 
         String hint = Ui.tr("skirmish.worldmap.hint");
         ui.text("wm_hint", hint, (w - ui.textWidth("wm_hint", hint)) / 2f, h - m - ui.lineHeight("wm_hint"));
@@ -158,6 +199,28 @@ public final class WorldMapScreen extends UiScreen {
                         ui.fade(0xFFFFFFFF));
                 pose.popMatrix();
             }
+        }
+    }
+
+    private void drawPath(Ui ui, java.util.List<double[]> crumbs, float w, float h) {
+        int n = crumbs.size();
+        float dot = ui.num(L + "crumb");
+        for (int i = 0; i < n; i++) {
+            double[] c = crumbs.get(i);
+            float px = sx(c[0], w);
+            float py = sy(c[2], h);
+            if (px < -5 || py < -5 || px > w + 5 || py > h + 5) {
+                continue;
+            }
+            int a = 60 + Math.round(170f * i / Math.max(1, n - 1));
+            ui.circle(px, py, dot, (a << 24) | (ui.color("nav_path") & 0xFFFFFF));
+        }
+    }
+
+    private void drawRoute(Ui ui, dev.skirmish.module.navigator.NavigatorModule nav, float w, float h) {
+        java.util.List<double[]> pts = nav.routePoints(ServerContext.dimension());
+        for (int i = 0; i + 1 < pts.size(); i++) {
+            ui.line(sx(pts.get(i)[0], w), sy(pts.get(i)[1], h), sx(pts.get(i + 1)[0], w), sy(pts.get(i + 1)[1], h), 3f, ui.color("accent"));
         }
     }
 
@@ -218,6 +281,11 @@ public final class WorldMapScreen extends UiScreen {
     @Override
     protected boolean onBackgroundClick(double mx, double my, int button) {
         if (button == 0) {
+            Waypoint hit = waypointAt(mx, my);
+            if (hit != null) {
+                WaypointManager.get().select(hit.id());
+                return true;
+            }
             dragging = true;
             return true;
         }
@@ -232,6 +300,24 @@ public final class WorldMapScreen extends UiScreen {
             return true;
         }
         return false;
+    }
+
+    /** The waypoint marker under the cursor (within a few design px), or null. */
+    private @Nullable Waypoint waypointAt(double mx, double my) {
+        float w = width / Ui.designScale();
+        float h = height / Ui.designScale();
+        Waypoint best = null;
+        double bestD = 12 * 12;
+        for (Waypoint wp : WaypointManager.get().current()) {
+            double dx = sx(wp.x(), w) - mx;
+            double dy = sy(wp.z(), h) - my;
+            double d = dx * dx + dy * dy;
+            if (d < bestD) {
+                bestD = d;
+                best = wp;
+            }
+        }
+        return best;
     }
 
     @Override
