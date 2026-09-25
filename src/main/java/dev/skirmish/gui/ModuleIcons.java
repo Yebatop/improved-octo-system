@@ -295,6 +295,54 @@ public final class ModuleIcons {
                 p(ui, x, y, s, c, 16f, 11.5f, 16.5f, 11.5f);
                 p(ui, x, y, s, c, 16f, 15f, 16.5f, 15f);
             }
+            case "food_hud" -> { // drumstick
+                ui.ring(x + 9.5f * s, y + 9.5f * s, 13f * s + STROKE * s, STROKE * s, c);
+                p(ui, x, y, s, c, 14f, 14f, 18.5f, 18.5f);
+                ui.ring(x + 19.5f * s, y + 17.5f * s, 3f * s + STROKE * s, STROKE * s, c);
+                ui.ring(x + 17.5f * s, y + 19.5f * s, 3f * s + STROKE * s, STROKE * s, c);
+            }
+            case "tool_saver" -> { // pickaxe with a shield
+                p(ui, x, y, s, c, 3f, 7f, 8f, 3.5f, 13.5f, 3f);
+                p(ui, x, y, s, c, 7.5f, 5f, 3f, 20.5f);
+                ui.border(x + 12f * s, y + 11f * s, 9f * s, 10.5f * s, 3.5f * s, STROKE * s, c);
+                p(ui, x, y, s, c, 14.5f, 16f, 16f, 17.5f, 18.5f, 14.5f);
+            }
+            case "elytra_hud" -> { // wings
+                p(ui, x, y, s, c, 12f, 6f, 7f, 5f, 2.5f, 8f, 4f, 13f, 6f, 20f, 10f, 15f, 12f, 8f);
+                p(ui, x, y, s, c, 12f, 6f, 17f, 5f, 21.5f, 8f, 20f, 13f, 18f, 20f, 14f, 15f, 12f, 8f);
+            }
+            case "enemy_cooldowns" -> { // hourglass-ish refresh arrow around a dot
+                p(ui, x, y, s, c, arc(12f, 12f, 8.5f, 60, 330));
+                p(ui, x, y, s, c, 19.5f, 3.5f, 16.3f, 4.6f, 17.4f, 7.9f);
+                ui.circle(x + 12f * s, y + 12f * s, 4.5f * s, c);
+            }
+            case "main_menu" -> { // window with a star
+                ui.border(x + 2.5f * s, y + 4f * s, 19f * s, 16f * s, 3f * s, STROKE * s, c);
+                p(ui, x, y, s, c, 2.5f, 8.5f, 21.5f, 8.5f);
+                ui.circle(x + 12f * s, y + 14f * s, 4.5f * s, c);
+            }
+            case "pause_menu" -> { // pause bars in a circle
+                ui.ring(x + 12f * s, y + 12f * s, 18f * s + STROKE * s, STROKE * s, c);
+                p(ui, x, y, s, c, 9.5f, 8.5f, 9.5f, 15.5f);
+                p(ui, x, y, s, c, 14.5f, 8.5f, 14.5f, 15.5f);
+            }
+            case "transitions" -> { // loading bar under a spark
+                ui.border(x + 2.5f * s, y + 14f * s, 19f * s, 5f * s, 2.5f * s, STROKE * s, c);
+                p(ui, x, y, s, c, 5f, 16.5f, 13f, 16.5f);
+                p(ui, x, y, s, c, 12f, 3f, 12f, 10f);
+                p(ui, x, y, s, c, 8.5f, 6.5f, 15.5f, 6.5f);
+            }
+            case "inventory_theme" -> { // 2×2 slot grid
+                ui.border(x + 3f * s, y + 3f * s, 7.5f * s, 7.5f * s, 2f * s, STROKE * s, c);
+                ui.border(x + 13.5f * s, y + 3f * s, 7.5f * s, 7.5f * s, 2f * s, STROKE * s, c);
+                ui.border(x + 3f * s, y + 13.5f * s, 7.5f * s, 7.5f * s, 2f * s, STROKE * s, c);
+                ui.rect(x + 13.5f * s, y + 13.5f * s, 7.5f * s, 7.5f * s, 2f * s, c);
+            }
+            case "world_map" -> { // folded map
+                p(ui, x, y, s, c, 3f, 6f, 9f, 3.5f, 15f, 6f, 21f, 3.5f, 21f, 18f, 15f, 20.5f, 9f, 18f, 3f, 20.5f, 3f, 6f);
+                p(ui, x, y, s, c, 9f, 3.5f, 9f, 18f);
+                p(ui, x, y, s, c, 15f, 6f, 15f, 20.5f);
+            }
             case "event_timers" -> { // alarm clock
                 ui.ring(x + 12f * s, y + 13f * s, 16f * s + STROKE * s, STROKE * s, c);
                 p(ui, x, y, s, c, 12f, 13f, 12f, 9f);

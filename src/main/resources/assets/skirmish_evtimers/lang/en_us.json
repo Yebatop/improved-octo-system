@@ -1,6 +1,6 @@
 {
   "skirmish.module.event_timers.name": "Event Timers",
-  "skirmish.module.event_timers.description": "Timers for HolyWorld's standing events: the Sun Core (coin zone on the floor and time since the last drop), castle shulkers at 0 0 (how many of each and how many more breaks the aimed one needs), a 10 s countdown over Pandora Box chests and the time to the auto-mine refill.",
+  "skirmish.module.event_timers.description": "Timers for HolyWorld's standing events: the Sun Core (coin zone on the floor and time since the last drop), castle shulkers at 0 0 (how many of each and how many more breaks the aimed one needs) and a 10 s countdown over Pandora Box chests in plain view.",
   "skirmish.module.event_timers.setting.sun_core": "Sun Core",
   "skirmish.module.event_timers.setting.sun_core.tooltip": "At /warp pvp: time since the last drop (every 20–60 s) and whether you are in the zone",
   "skirmish.module.event_timers.setting.sun_ring": "Zone ring",
@@ -12,8 +12,6 @@
   "skirmish.module.event_timers.setting.pandora.auto": "Auto",
   "skirmish.module.event_timers.setting.pandora.always": "Always",
   "skirmish.module.event_timers.setting.pandora.off": "Off",
-  "skirmish.module.event_timers.setting.mine": "Auto-mine",
-  "skirmish.module.event_timers.setting.mine.tooltip": "Time to the mine refill: from the sidebar line at the mines or from refills seen (every 10 minutes by default)",
   "skirmish.hud.element.event_timers": "Event Timers",
   "skirmish.evtimers.seconds": "%s s",
   "skirmish.evtimers.sun.title": "Sun Core",
@@ -26,8 +24,5 @@
   "skirmish.evtimers.castle.rarity.rare": "Rare",
   "skirmish.evtimers.castle.rarity.epic": "Epic",
   "skirmish.evtimers.pandora.title": "Pandora Box",
-  "skirmish.evtimers.pandora.chests": "Chests now: %s",
-  "skirmish.evtimers.mine.title": "Auto-mine",
-  "skirmish.evtimers.mine.period": "Every %s (wiki)",
-  "skirmish.evtimers.mine.period_seen": "Every %s (measured)"
+  "skirmish.evtimers.pandora.chests": "Chests now: %s"
 }

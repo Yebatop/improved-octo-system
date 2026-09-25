@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.skirmish.holyworld.HolyWorld;
 import dev.skirmish.hud.Hud;
-import dev.skirmish.hud.SidebarBounds;
 import dev.skirmish.module.Category;
 import dev.skirmish.module.Module;
 import dev.skirmish.module.ModuleManager;
@@ -26,6 +25,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
@@ -56,12 +56,11 @@ import java.util.Set;
  *   the floor, and loot appearing on it is timed (drops come every 20–60 s).</li>
  *   <li>Castle (x 0, z 0): shulkers loaded around it counted by rarity, and for the one under the crosshair how many
  *   of your breaks it still needs (grey 5, light blue 7, purple 12).</li>
- *   <li>Pandora Box (Prime): each chest that appears during the event gets its 10 s countdown above it.</li>
- *   <li>Auto-mine: time to the refill, from the sidebar line at the mines or learned from refills seen as a burst of
- *   block updates (10 min by default).</li>
+ *   <li>Pandora Box (Prime): each chest that appears during the event and is in plain view gets its 10 s countdown
+ *   above it (never through the maze's walls: that would be X-ray, rule 2.4).</li>
  * </ul>
- * Read-only: block updates, entities, the sidebar and your own finished block breaks; nothing is sent. Feature
- * Control id {@code event_timers}.
+ * Read-only: block updates, entities and your own finished block breaks; nothing is sent. Feature Control id
+ * {@code event_timers}.
  */
 public final class EventTimersModule extends Module {
     public static final String ID = "event_timers";
@@ -76,7 +75,6 @@ public final class EventTimersModule extends Module {
     final BoolSetting sunRing = add(new BoolSetting("sun_ring", true));
     final BoolSetting castle = add(new BoolSetting("castle", true));
     final EnumSetting<PandoraMode> pandora = add(new EnumSetting<>("pandora", PandoraMode.AUTO));
-    final BoolSetting mine = add(new BoolSetting("mine", true));
 
     // Sun Core
     private @Nullable BlockPos core;
@@ -93,13 +91,8 @@ public final class EventTimersModule extends Module {
 
     // Pandora
     private final Map<BlockPos, Long> chests = new LinkedHashMap<>();
-
-    // Auto-mine
-    final MineClock mineClock = new MineClock();
-    private MineClock.Burst burst = newBurst();
-    private @Nullable BlockPos mineCentre;
-    private long lastRefill = -1;
-    private long mineLineAt = -1;
+    /** Chests of {@link #chests} in plain view from the camera this tick; only these are shown. */
+    private Map<BlockPos, Long> visibleChests = Map.of();
 
     private @Nullable ClientLevel lastLevel;
     private int ticks;
@@ -158,16 +151,7 @@ public final class EventTimersModule extends Module {
         aimedShulker = null;
         nearCastle = false;
         chests.clear();
-        mineClock.reset();
-        burst = newBurst();
-        mineCentre = null;
-        lastRefill = -1;
-        mineLineAt = -1;
-    }
-
-    private static MineClock.Burst newBurst() {
-        Theme t = Theme.get();
-        return new MineClock.Burst(t.integer(L + "mine_burst_min"), 0L, t.integer(L + "mine_burst_xz"), t.integer(L + "mine_burst_y"));
+        visibleChests = Map.of();
     }
 
     // ---- state for the HUD ----
@@ -192,20 +176,9 @@ public final class EventTimersModule extends Module {
         return hits.getOrDefault(pos, 0);
     }
 
+    /** Pandora chests in plain view (appearance time by position). */
     Map<BlockPos, Long> chests() {
-        return chests;
-    }
-
-    /** The mine countdown is worth showing: known, and the mine or its sidebar line was seen in the last minutes. */
-    boolean mineRelevant(long now) {
-        if (!mine.get() || !mineClock.known()) {
-            return false;
-        }
-        long keep = Math.round(Theme.get().num(L + "mine_keep_ms"));
-        Minecraft mc = Minecraft.getInstance();
-        boolean near = mineCentre != null && mc.player != null
-                && mc.player.blockPosition().distSqr(mineCentre) < Math.pow(Theme.get().num(L + "mine_near"), 2);
-        return near || now - mineLineAt < keep || now - lastRefill < keep;
+        return visibleChests;
     }
 
     // ---- events ----
@@ -216,9 +189,6 @@ public final class EventTimersModule extends Module {
             return;
         }
         long now = Util.getMillis();
-        if (mine.get()) {
-            burst.add(now, pos.getX(), pos.getY(), pos.getZ());
-        }
         if (next.getBlock() instanceof ChestBlock && !(old.getBlock() instanceof ChestBlock) && pandoraActive()) {
             chests.put(pos.immutable(), now);
             log("pandora chest appeared at %d %d %d", pos.getX(), pos.getY(), pos.getZ());
@@ -246,13 +216,10 @@ public final class EventTimersModule extends Module {
             seenItems.clear();
             shulkers.clear();
             chests.clear();
-            burst = newBurst();
+            visibleChests = Map.of();
         }
         long now = Util.getMillis();
         ticks++;
-        if (mine.get()) {
-            tickMine(mc, now);
-        }
         if (sunCore.get()) {
             tickCore(mc, now);
         } else {
@@ -265,34 +232,6 @@ public final class EventTimersModule extends Module {
             aimedShulker = null;
         }
         tickPandora(mc, now);
-    }
-
-    private void tickMine(Minecraft mc, long now) {
-        int[] refill = burst.poll(now);
-        if (refill != null && (lastRefill < 0 || now - lastRefill > 30_000L)) {
-            mineClock.onRefill(now);
-            lastRefill = now;
-            mineCentre = new BlockPos(refill[0], refill[1], refill[2]);
-            log("auto-mine refill seen at %d %d %d, period %ds%s", refill[0], refill[1], refill[2],
-                    mineClock.periodMs() / 1000, mineClock.learnedPeriod() ? " (learned)" : " (default)");
-        }
-        if (ticks % 10 == 0) {
-            SidebarBounds.Sidebar sidebar = SidebarBounds.read(mc);
-            if (sidebar != null) {
-                for (SidebarBounds.Row row : sidebar.rows()) {
-                    String line = row.name().getString() + " " + row.score().getString();
-                    int seconds = MineClock.parseSidebar(line);
-                    if (seconds >= 0) {
-                        if (mineLineAt < 0 || now - mineLineAt > 60_000L) {
-                            log("auto-mine sidebar line \"%s\" -> %ds", line.strip(), seconds);
-                        }
-                        mineClock.onSidebar(now, seconds);
-                        mineLineAt = now;
-                        break;
-                    }
-                }
-            }
-        }
     }
 
     private void tickCore(Minecraft mc, long now) {
@@ -432,6 +371,7 @@ public final class EventTimersModule extends Module {
 
     private void tickPandora(Minecraft mc, long now) {
         if (chests.isEmpty()) {
+            visibleChests = Map.of();
             return;
         }
         long life = PandoraLabels.LIFE_MS + Math.round(Theme.get().num(L + "pandora_grace_ms"));
@@ -445,6 +385,26 @@ public final class EventTimersModule extends Module {
             }
             return expired || gone;
         });
+        Vec3 eye = mc.gameRenderer.getMainCamera().position();
+        Map<BlockPos, Long> visible = new LinkedHashMap<>();
+        for (Map.Entry<BlockPos, Long> e : chests.entrySet()) {
+            if (inPlainView(mc.level, eye, e.getKey(), mc.player)) {
+                visible.put(e.getKey(), e.getValue());
+            }
+        }
+        visibleChests = visible;
+    }
+
+    /** Nothing but air (or the chest itself) between the eye and the chest's centre or top. */
+    static boolean inPlainView(ClientLevel level, Vec3 eye, BlockPos chest, net.minecraft.world.entity.Entity viewer) {
+        for (double y : new double[]{0.45, 0.85}) {
+            Vec3 to = new Vec3(chest.getX() + 0.5, chest.getY() + y, chest.getZ() + 0.5);
+            HitResult hit = level.clip(new ClipContext(eye, to, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, viewer));
+            if (hit.getType() == HitResult.Type.MISS || hit instanceof BlockHitResult block && block.getBlockPos().equals(chest)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // ---- Sun Core ring ----

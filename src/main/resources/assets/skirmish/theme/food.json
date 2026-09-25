@@ -1,0 +1,10 @@
+{
+  "colors": {
+    "food_saturation": "#FFD24A"
+  },
+  "layout": {
+    "food": {
+      "pulse_ms": 900
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "skirmish.module.world_map.name": "World Map",
+  "skirmish.module.world_map.description": "A full-screen map of where you have been (key M): the surface like a vanilla map, your waypoints and yourself. Saved per server and dimension. Surface only — no caves, players or mobs; the roofed Nether is not drawn.",
+  "skirmish.module.world_map.setting.key": "Key",
+  "skirmish.module.world_map.setting.key.tooltip": "Open the map",
+  "key.skirmish.world_map": "World map",
+  "skirmish.worldmap.title": "Map",
+  "skirmish.worldmap.no_roof": "This dimension has a roof — no map",
+  "skirmish.worldmap.center": "Me",
+  "skirmish.worldmap.hint": "LMB — drag · wheel — zoom · RMB — add a waypoint",
+  "skirmish.worldmap.scale": "Scale %s",
+  "skirmish.worldmap.waypoint": "Waypoint %s %s"
+}

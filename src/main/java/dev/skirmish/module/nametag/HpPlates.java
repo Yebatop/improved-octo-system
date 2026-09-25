@@ -82,7 +82,7 @@ final class HpPlates implements HudElement {
         trails.keySet().removeIf(id -> mc.level.getEntity(id) == null);
     }
 
-    private static boolean lineOfSight(Minecraft mc, Vec3 from, Entity target) {
+    static boolean lineOfSight(Minecraft mc, Vec3 from, Entity target) {
         double h = target.getBbHeight();
         for (double f : new double[]{0.9, 0.55, 0.15}) {
             Vec3 to = target.position().add(0, h * f, 0);
@@ -236,6 +236,10 @@ final class HpPlates implements HudElement {
             float abs = player.getMaxHealth() > 0 ? Math.min(1f, player.getAbsorptionAmount() / player.getMaxHealth()) : 0f;
             if (module.absorption.get() && abs > 0.01f) {
                 ui.rect(cx, by, Math.max(barH, textW * abs), barH / 2f, r / 2f, ui.color("nametag_absorption"));
+            }
+            var cooldowns = dev.skirmish.module.enemycd.EnemyCooldownsModule.instance();
+            if (cooldowns != null) {
+                cooldowns.drawRow(ui, player, 0f, y);
             }
         } finally {
             ui.popAlpha();

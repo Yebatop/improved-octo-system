@@ -4,67 +4,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EventTimersTest {
-    @Test
-    void sidebarMineLines() {
-        assertEquals(252, MineClock.parseSidebar("§7Обновление шахты: §f4:12"));
-        assertEquals(185, MineClock.parseSidebar("Шахта обновится через 3 мин 5 сек"));
-        assertEquals(420, MineClock.parseSidebar("ᴀᴠᴛᴏшахта: 7 мин"));
-        assertEquals(42, MineClock.parseSidebar("До обновления шахты 42 сек."));
-        assertEquals(-1, MineClock.parseSidebar("Онлайн: 12:30"));
-        assertEquals(-1, MineClock.parseSidebar("Шахта"));
-    }
-
-    @Test
-    void mineClockExtrapolatesAndLearns() {
-        MineClock clock = new MineClock();
-        assertFalse(clock.known());
-        clock.onSidebar(0, 60);
-        assertEquals(60_000, clock.remainingMs(0));
-        assertFalse(clock.estimate(1_000));
-        // Past the predicted refill with nothing new seen: the next default period is assumed.
-        assertEquals(MineClock.DEFAULT_PERIOD_MS - 10_000, clock.remainingMs(70_000));
-        assertTrue(clock.estimate(70_000));
-
-        MineClock learned = new MineClock();
-        learned.onRefill(1_000);
-        learned.onRefill(1_000 + 7 * 60_000);
-        assertTrue(learned.learnedPeriod());
-        assertEquals(7 * 60_000, learned.periodMs());
-        assertEquals(7 * 60_000, learned.remainingMs(1_000 + 7 * 60_000));
-        // A gap outside 1–30 min does not change the period.
-        learned.onRefill(1_000 + 7 * 60_000 + 5_000);
-        assertEquals(7 * 60_000, learned.periodMs());
-    }
-
-    @Test
-    void burstNeedsManyBlocksInsideTheMine() {
-        MineClock.Burst burst = new MineClock.Burst(300, 0L, 40, 24);
-        for (int x = 0; x < 21; x++) {
-            for (int z = 0; z < 21; z++) {
-                burst.add(0, 100 + x, 60, 200 + z);
-            }
-        }
-        int[] c = burst.poll(0);
-        assertNotNull(c);
-        assertEquals(110, c[0]);
-        assertEquals(210, c[2]);
-
-        for (int i = 0; i < 50; i++) {
-            burst.add(10, i, 60, 0);
-        }
-        assertNull(burst.poll(10));
-
-        for (int i = 0; i < 400; i++) {
-            burst.add(20, i, 60, 0);
-        }
-        assertNull(burst.poll(20), "too wide for the mine");
-    }
-
     @Test
     void sunCoreDropsGroupAndWindow() {
         DropClock clock = new DropClock();

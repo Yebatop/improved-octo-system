@@ -1,0 +1,8 @@
+{
+  "skirmish.module.inventory_theme.name": "Inventory Theme",
+  "skirmish.module.inventory_theme.description": "Инвентарь, сундуки, бочки, шалкеры, воронки и раздатчики в тёмной скруглённой панели Skirmish со скруглёнными слотами вместо серой ванильной текстуры. Раскладка и клики ванильные; меню сервера со своей картинкой не трогаются.",
+  "skirmish.module.inventory_theme.setting.inventory": "Инвентарь",
+  "skirmish.module.inventory_theme.setting.inventory.tooltip": "Инвентарь игрока (E)",
+  "skirmish.module.inventory_theme.setting.containers": "Контейнеры",
+  "skirmish.module.inventory_theme.setting.containers.tooltip": "Сундуки, бочки, шалкеры, воронки, раздатчики и меню сервера на их основе"
+}

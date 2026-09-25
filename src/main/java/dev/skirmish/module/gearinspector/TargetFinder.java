@@ -25,7 +25,7 @@ final class TargetFinder {
     private TargetFinder() {
     }
 
-    static @Nullable Hit find(Minecraft mc, double maxDistance, double margin, boolean throughWalls) {
+    static @Nullable Hit find(Minecraft mc, double maxDistance, double margin) {
         Entity camera = mc.getCameraEntity();
         ClientLevel level = mc.level;
         Player self = mc.player;
@@ -60,7 +60,8 @@ final class TargetFinder {
         if (best == null) {
             return null;
         }
-        if (!throughWalls && bestDistance > 0) {
+        // Never through blocks (HolyWorld rule 2.4): a player behind a wall is not picked.
+        if (bestDistance > 0) {
             HitResult block = camera.pick(bestDistance, 1.0F, false);
             if (block.getType() != HitResult.Type.MISS && block.getLocation().distanceTo(eye) < bestDistance - 1e-3) {
                 return null;

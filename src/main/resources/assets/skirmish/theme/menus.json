@@ -1,0 +1,74 @@
+{
+  "colors": {
+    "bd_top": "#05050C",
+    "bd_bottom": "#150B2E",
+    "bd_nebula_a": "#7C5CFF60",
+    "bd_nebula_b": "#2F5BFF50",
+    "bd_nebula_c": "#FF4FB040",
+    "bd_quasar": "#9C7CFF",
+    "bd_quasar_hot": "#CFE6FF",
+    "pm_dim": "#05050AB8"
+  },
+  "text": {
+    "mm_title": {"size": 48, "weight": 800, "color": "text"},
+    "mm_sub": {"size": 14, "weight": 500, "color": "text_2"},
+    "mm_footer": {"size": 10, "weight": 500, "color": "text_3"},
+    "mm_tip_head": {"size": 11, "weight": 800, "color": "accent"},
+    "mm_tip": {"size": 13, "weight": 500, "color": "text"},
+    "pm_title": {"size": 20, "weight": 800, "color": "text"},
+    "pm_server": {"size": 12, "weight": 600, "color": "text_2"},
+    "pm_stat": {"size": 20, "weight": 800, "color": "text"},
+    "pm_stat_label": {"size": 10, "weight": 600, "color": "text_3"},
+    "ld_title": {"size": 36, "weight": 800, "color": "text"},
+    "ld_tip": {"size": 13, "weight": 500, "color": "text_2"}
+  },
+  "layout": {
+    "menus": {
+      "overlay_strength": 0.45,
+      "quasar_x": 0.72,
+      "quasar_y": 0.4,
+      "quasar_size": 0.13,
+      "fade_ms": 700
+    },
+    "mainmenu": {
+      "margin": 48,
+      "left": 0.09,
+      "raise": 20,
+      "logo": 76,
+      "logo_gap": 18,
+      "brand_gap": 34,
+      "button_width": 320,
+      "button_height": 42,
+      "button_gap": 10,
+      "quit_gap": 0,
+      "primary_pad_x": 18,
+      "ghost_pad_x": 16,
+      "footer": 14,
+      "tip_ms": 9000,
+      "tip_width": 330,
+      "tip_pad": 16,
+      "tip_gap": 6
+    },
+    "pausemenu": {
+      "width": 470,
+      "pad": 22,
+      "head": 36,
+      "logo": 30,
+      "logo_gap": 12,
+      "gap": 10,
+      "stat_h": 62,
+      "button_height": 40,
+      "primary_pad_x": 18,
+      "ghost_pad_x": 16
+    },
+    "loading": {
+      "logo": 64,
+      "logo_gap": 16,
+      "top": 0.14,
+      "bottom": 40,
+      "tip_ms": 7000,
+      "tip_width": 560,
+      "bar": 5
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "skirmish.module.enemy_cooldowns.name": "Enemy Cooldowns",
+  "skirmish.module.enemy_cooldowns.description": "Если при тебе соперник бросил жемчуг, съел гэпл или ему выбили щит топором, над его головой идёт отсчёт его отката. Длина отката берётся из твоих собственных (сервер присылает их тебе) и запоминается; до этого — по новостям HolyWorld (жемчуг 6 с, золотое яблоко 5 с). Только для игроков в прямой видимости.",
+  "skirmish.module.enemy_cooldowns.setting.pearl": "Жемчуг",
+  "skirmish.module.enemy_cooldowns.setting.pearl.tooltip": "Откат после броска эндер-жемчуга",
+  "skirmish.module.enemy_cooldowns.setting.gapple": "Гэплы",
+  "skirmish.module.enemy_cooldowns.setting.gapple.tooltip": "Откат после золотого и зачарованного яблока",
+  "skirmish.module.enemy_cooldowns.setting.shield": "Щит",
+  "skirmish.module.enemy_cooldowns.setting.shield.tooltip": "Сколько ещё щит выбит после удара топором"
+}

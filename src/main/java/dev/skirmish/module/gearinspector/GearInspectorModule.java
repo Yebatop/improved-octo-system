@@ -25,7 +25,6 @@ public final class GearInspectorModule extends Module {
     final NumberSetting lockDistance = add(new NumberSetting("lock_distance", 64, 5, 128, 1).unit(" m"));
     final NumberSetting linger = add(new NumberSetting("linger", 1.0, 0, 5, 0.5).unit(" s"));
     final NumberSetting hitboxMargin = add(new NumberSetting("hitbox_margin", 0.2, 0, 1, 0.1).unit(" m"));
-    final BoolSetting throughWalls = (BoolSetting) add(new BoolSetting("through_walls", false)).feature("through_walls");
     final BoolSetting showHands = add(new BoolSetting("show_hands", true));
     final BoolSetting showEmptySlots = add(new BoolSetting("show_empty_slots", true));
     final BoolSetting showEnchantments = add(new BoolSetting("show_enchantments", false));

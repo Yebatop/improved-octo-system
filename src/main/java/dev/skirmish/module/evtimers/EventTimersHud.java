@@ -15,7 +15,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * A column of event chips (Sun Core, castle, Pandora Box, auto-mine) in the style of the item timers: accent bar in
+ * A column of event chips (Sun Core, castle, Pandora Box) in the style of the item timers: accent bar in
  * the event's tone, name, value on the right (coloured parts for the castle's rarity counts), a note line and an
  * optional bar. In the top-left column under the events list and schedule, away from the crosshair.
  */
@@ -77,15 +77,10 @@ final class EventTimersHud extends HudBlock {
             if (!module.chests().isEmpty()) {
                 out.add(pandoraChip(t, now));
             }
-            if (module.mineRelevant(now)) {
-                out.add(mineChip(t, now));
-            }
         }
         if (preview && out.isEmpty()) {
             out.add(new Chip(Ui.tr("skirmish.evtimers.sun.title"), List.of(new Part("+0:34", t.color("text"))),
                     Ui.tr("skirmish.evtimers.sun.in_zone"), t.color("good"), t.color("ev_sun"), 0.35f));
-            out.add(new Chip(Ui.tr("skirmish.evtimers.mine.title"), List.of(new Part("4:12", t.color("text"))),
-                    Ui.tr("skirmish.evtimers.mine.period", "10:00"), t.color("text_2"), t.color("ev_mine"), 0.42f));
         }
         chips = out;
     }
@@ -144,17 +139,6 @@ final class EventTimersHud extends HudBlock {
                 List.of(new Part(Ui.tr("skirmish.evtimers.seconds", PandoraLabels.secondsText(left)), t.color(tone))),
                 Ui.tr("skirmish.evtimers.pandora.chests", module.chests().size()), t.color("text_2"), t.color("ev_pandora"),
                 Math.max(0f, left / (float) PandoraLabels.LIFE_MS));
-    }
-
-    private Chip mineChip(Theme t, long now) {
-        MineClock clock = module.mineClock;
-        long left = clock.remainingMs(now);
-        String value = (clock.estimate(now) ? "~" : "") + Ui.duration(left + 999);
-        String period = Ui.duration(clock.periodMs());
-        String note = clock.learnedPeriod() ? Ui.tr("skirmish.evtimers.mine.period_seen", period)
-                : Ui.tr("skirmish.evtimers.mine.period", period);
-        return new Chip(Ui.tr("skirmish.evtimers.mine.title"), List.of(new Part(value, t.color(left < 30_000 ? "warn" : "text"))),
-                note, t.color("text_2"), t.color("ev_mine"), Math.min(1f, left / (float) clock.periodMs()));
     }
 
     static String rarityTone(CastleShulkers.Rarity rarity) {

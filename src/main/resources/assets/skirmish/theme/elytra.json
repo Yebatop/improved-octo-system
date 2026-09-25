@@ -1,0 +1,39 @@
+{
+  "text": {
+    "el_title": {
+      "size": 12,
+      "weight": 700,
+      "color": "text"
+    },
+    "el_speed": {
+      "size": 16,
+      "weight": 700,
+      "color": "accent",
+      "mono": true
+    },
+    "el_label": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_2"
+    },
+    "el_row": {
+      "size": 11,
+      "weight": 600,
+      "color": "text",
+      "mono": true
+    }
+  },
+  "layout": {
+    "elytra": {
+      "default_x": 18,
+      "default_y": 70,
+      "width": 188,
+      "pad_x": 12,
+      "pad_y": 9,
+      "title_gap": 6,
+      "row_gap": 3,
+      "smoothing": 0.3,
+      "linger_ms": 1500
+    }
+  }
+}

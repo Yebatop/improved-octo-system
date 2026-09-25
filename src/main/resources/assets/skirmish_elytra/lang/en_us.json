@@ -1,0 +1,16 @@
+{
+  "skirmish.module.elytra_hud.name": "Elytra HUD",
+  "skirmish.module.elytra_hud.description": "While you glide: speed, height and angle, rockets left, how long the elytra still flies (1 durability per second) and distance and time to the selected waypoint.",
+  "skirmish.module.elytra_hud.setting.waypoint": "To waypoint",
+  "skirmish.module.elytra_hud.setting.waypoint.tooltip": "Distance and flight time to the selected waypoint",
+  "skirmish.module.elytra_hud.setting.angle": "Angle",
+  "skirmish.module.elytra_hud.setting.angle.tooltip": "Pitch next to the height",
+  "skirmish.hud.element.elytra_hud": "Elytra HUD",
+  "skirmish.elytra.title": "Flight",
+  "skirmish.elytra.speed": "%s b/s",
+  "skirmish.elytra.height": "Height",
+  "skirmish.elytra.rockets": "Rockets",
+  "skirmish.elytra.elytra": "Elytra",
+  "skirmish.elytra.m": "m",
+  "skirmish.elytra.km": "km"
+}

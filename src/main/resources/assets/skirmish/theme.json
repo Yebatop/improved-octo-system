@@ -19,7 +19,14 @@
     "theme/invhighlight.json",
     "theme/regions.json",
     "theme/scoreboard.json",
-    "theme/evtimers.json"
+    "theme/evtimers.json",
+    "theme/food.json",
+    "theme/toolsaver.json",
+    "theme/elytra.json",
+    "theme/enemycd.json",
+    "theme/menus.json",
+    "theme/invtheme.json",
+    "theme/worldmap.json"
   ],
   "colors": {
     "page": "#0B0B12",
@@ -133,7 +140,9 @@
       16,
       20,
       22,
-      24
+      24,
+      36,
+      48
     ],
     "weights": [
       500,

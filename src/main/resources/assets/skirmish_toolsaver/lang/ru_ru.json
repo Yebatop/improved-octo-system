@@ -1,0 +1,17 @@
+{
+  "skirmish.module.tool_saver.name": "Tool Saver",
+  "skirmish.module.tool_saver.description": "Не даёт сломать почти убитый инструмент: кирка, топор или лопата с остатком прочности ниже порога перестаёт копать (по желанию и оружие перестаёт бить). Нажми ещё раз сразу — и всё равно ударишь. Заранее предупреждает плашкой.",
+  "skirmish.module.tool_saver.setting.threshold": "Порог",
+  "skirmish.module.tool_saver.setting.threshold.tooltip": "Сколько использований должно остаться, чтобы инструмент перестал работать",
+  "skirmish.module.tool_saver.setting.weapons": "Оружие тоже",
+  "skirmish.module.tool_saver.setting.weapons.tooltip": "Не бить почти сломанным мечом или топором по игрокам и мобам (в бою осторожно)",
+  "skirmish.module.tool_saver.setting.warn_percent": "Предупреждать с",
+  "skirmish.module.tool_saver.setting.warn_percent.tooltip": "Плашка появляется, когда прочность ниже этого процента",
+  "skirmish.module.tool_saver.setting.sound": "Звук",
+  "skirmish.module.tool_saver.setting.sound.tooltip": "Короткий звук, когда удар придержан",
+  "skirmish.hud.element.tool_saver": "Tool Saver",
+  "skirmish.tool_saver.blocked": "%s: осталось %s — нажми ещё раз, чтобы всё равно",
+  "skirmish.tool_saver.left": "ещё %s",
+  "skirmish.tool_saver.guard": "защита · %s",
+  "skirmish.tool_saver.sample": "Алмазная кирка"
+}

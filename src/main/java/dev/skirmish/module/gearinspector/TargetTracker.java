@@ -52,7 +52,7 @@ final class TargetTracker {
         }
 
         double maxDistance = module.maxDistance.get();
-        TargetFinder.Hit hit = TargetFinder.find(mc, maxDistance, module.hitboxMargin.get(), module.throughWalls.get());
+        TargetFinder.Hit hit = TargetFinder.find(mc, maxDistance, module.hitboxMargin.get());
         aimed = hit == null ? null : hit.player();
         long now = Util.getMillis();
         String dropReason = null;

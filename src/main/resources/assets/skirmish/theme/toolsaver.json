@@ -1,0 +1,26 @@
+{
+  "text": {
+    "ts_title": {
+      "size": 12,
+      "weight": 700,
+      "color": "text"
+    },
+    "ts_value": {
+      "size": 11,
+      "weight": 700,
+      "color": "text",
+      "mono": true
+    }
+  },
+  "layout": {
+    "toolsaver": {
+      "width": 196,
+      "pad_x": 10,
+      "pad_y": 7,
+      "bar_gap": 5,
+      "bar": 3,
+      "bypass_ms": 700,
+      "notify_ms": 1500
+    }
+  }
+}

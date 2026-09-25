@@ -37,7 +37,11 @@
     "skirmish-hwitems.mixins.json",
     "skirmish-nametag.mixins.json",
     "skirmish-lag.mixins.json",
-    "skirmish-evtimers.mixins.json"
+    "skirmish-evtimers.mixins.json",
+    "skirmish-toolsaver.mixins.json",
+    "skirmish-enemycd.mixins.json",
+    "skirmish-menus.mixins.json",
+    "skirmish-invtheme.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_min_version}",

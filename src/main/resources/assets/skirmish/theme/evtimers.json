@@ -3,7 +3,6 @@
     "ev_sun": "#FFB938",
     "ev_castle": "#9C7CFF",
     "ev_pandora": "#FF6BD5",
-    "ev_mine": "#4FD8E8",
     "ev_shulker_common": "#B8BCC8",
     "ev_shulker_rare": "#58C8FF",
     "ev_shulker_epic": "#B07CFF"
@@ -62,12 +61,7 @@
       "pandora_pad_y": 5,
       "pandora_bar": 3,
       "pandora_bar_gap": 3,
-      "pandora_min_width": 52,
-      "mine_burst_min": 300,
-      "mine_burst_xz": 40,
-      "mine_burst_y": 24,
-      "mine_near": 96,
-      "mine_keep_ms": 180000
+      "pandora_min_width": 52
     }
   }
 }

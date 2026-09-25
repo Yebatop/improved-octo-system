@@ -1,0 +1,8 @@
+{
+  "skirmish.module.inventory_theme.name": "Inventory Theme",
+  "skirmish.module.inventory_theme.description": "The inventory, chests, barrels, shulker boxes, hoppers and dispensers in a dark rounded Skirmish panel with rounded slots instead of vanilla's grey texture. Layout and clicks stay vanilla; server menus with their own picture are left alone.",
+  "skirmish.module.inventory_theme.setting.inventory": "Inventory",
+  "skirmish.module.inventory_theme.setting.inventory.tooltip": "The player inventory (E)",
+  "skirmish.module.inventory_theme.setting.containers": "Containers",
+  "skirmish.module.inventory_theme.setting.containers.tooltip": "Chests, barrels, shulker boxes, hoppers, dispensers and server menus built on them"
+}

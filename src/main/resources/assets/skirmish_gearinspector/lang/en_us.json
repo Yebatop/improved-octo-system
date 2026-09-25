@@ -7,8 +7,6 @@
   "skirmish.module.gearinspector.setting.linger.tooltip": "How long the panel stays after the crosshair leaves the player (without a lock).",
   "skirmish.module.gearinspector.setting.hitbox_margin": "Hitbox margin",
   "skirmish.module.gearinspector.setting.hitbox_margin.tooltip": "Enlarges player hitboxes for the inspector's own raycast, so aiming at range is easier.",
-  "skirmish.module.gearinspector.setting.through_walls": "Through walls",
-  "skirmish.module.gearinspector.setting.through_walls.tooltip": "Also pick players behind blocks.",
   "skirmish.module.gearinspector.setting.show_hands": "Show hands",
   "skirmish.module.gearinspector.setting.show_hands.tooltip": "Main hand and off hand rows below the armor.",
   "skirmish.module.gearinspector.setting.show_empty_slots": "Show empty slots",

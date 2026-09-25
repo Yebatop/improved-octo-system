@@ -7,8 +7,6 @@
   "skirmish.module.gearinspector.setting.linger.tooltip": "Сколько панель остаётся на экране после того, как прицел ушёл с игрока (без закрепления).",
   "skirmish.module.gearinspector.setting.hitbox_margin": "Запас хитбокса",
   "skirmish.module.gearinspector.setting.hitbox_margin.tooltip": "Расширяет хитбоксы игроков для собственного луча инспектора, чтобы было проще навестись издалека.",
-  "skirmish.module.gearinspector.setting.through_walls": "Сквозь стены",
-  "skirmish.module.gearinspector.setting.through_walls.tooltip": "Выбирать игроков и за блоками.",
   "skirmish.module.gearinspector.setting.show_hands": "Показывать руки",
   "skirmish.module.gearinspector.setting.show_hands.tooltip": "Строки основной и второй руки под бронёй.",
   "skirmish.module.gearinspector.setting.show_empty_slots": "Показывать пустые слоты",

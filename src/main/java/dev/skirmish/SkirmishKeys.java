@@ -40,6 +40,9 @@ public final class SkirmishKeys {
     /** «Меню игрока»: actions for the player under the crosshair (or a pick from the tab list). Unbound by default. */
     public static final KeyMapping PLAYER_MENU = key("key.skirmish.player_menu.open", InputConstants.UNKNOWN.getValue());
 
+    /** «World Map»: full-screen map of the places you have been. M is free in vanilla. */
+    public static final KeyMapping WORLD_MAP = key("key.skirmish.world_map", GLFW.GLFW_KEY_M);
+
     private SkirmishKeys() {
     }
 
@@ -48,7 +51,7 @@ public final class SkirmishKeys {
     }
 
     static void register() {
-        for (KeyMapping mapping : new KeyMapping[]{OPEN_MENU, WAYPOINT_ADD, WAYPOINT_CYCLE, KILLCAM_REPLAY, KILLCAM_CLIP, KILLCAM_LIBRARY,
+        for (KeyMapping mapping : new KeyMapping[]{OPEN_MENU, WAYPOINT_ADD, WAYPOINT_CYCLE, KILLCAM_REPLAY, KILLCAM_CLIP, KILLCAM_LIBRARY, WORLD_MAP,
                 CLANSHARE_SHARE, GEARINSPECTOR_LOCK, ANVILCALC_CALCULATE, KILLCARD_OPEN_FOLDER, DETAILS, ZOOM, FULLBRIGHT_TOGGLE, AUTO_SPRINT_TOGGLE,
                 FRIEND_TOGGLE, FIGHT_REVIEW, PLAYER_MENU}) {
             KeyBindingHelper.registerKeyBinding(mapping);

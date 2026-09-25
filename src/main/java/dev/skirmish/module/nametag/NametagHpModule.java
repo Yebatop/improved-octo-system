@@ -97,9 +97,14 @@ public final class NametagHpModule extends Module {
     }
 
     /** Whether a Skirmish plate stands in for this player's vanilla nametag this tick. */
-    static boolean replacesNameTag(int entityId) {
+    public static boolean replacesNameTag(int entityId) {
         NametagHpModule module = instance;
         return module != null && module.isEnabled() && module.skirmishStyle() && module.plates.shows(entityId);
+    }
+
+    /** Plain line of sight from {@code from} to the target's head, middle or feet (the plates' own test). */
+    public static boolean inPlainSight(net.minecraft.client.Minecraft mc, net.minecraft.world.phys.Vec3 from, net.minecraft.world.entity.Entity target) {
+        return HpPlates.lineOfSight(mc, from, target);
     }
 
     boolean inPvp() {

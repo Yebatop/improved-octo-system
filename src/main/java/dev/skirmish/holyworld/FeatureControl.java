@@ -19,7 +19,7 @@ import java.util.function.BooleanSupplier;
  * HolyWorld Feature Control ({@code liteapi:feature-control}): on joining a HolyWorld server the mod sends
  * {@code checkFeatures} with every feature id it has, and hides whatever comes back in {@code blocklist}
  * (FeatureGate). This is the one plugin message the mod sends, only to HolyWorld, at most once per 10 s. Safe mode
- * adds a local list of features that HolyWorld's rules make risky (free camera, info through walls).
+ * adds a local list of features that HolyWorld's rules make risky (the replay's free camera).
  */
 public final class FeatureControl {
     private static final String TAG = "holyworld";
@@ -28,7 +28,7 @@ public final class FeatureControl {
     private static final long TIMEOUT_MS = 5_000;
     private static final int JOIN_DELAY_TICKS = 20;
     /** Features HolyWorld's rule 2.4 makes risky; hidden there while safe mode is on. */
-    public static final Set<String> SAFE_MODE_FEATURES = Set.of("freecam", "through_walls");
+    public static final Set<String> SAFE_MODE_FEATURES = Set.of("freecam");
 
     private static Set<String> serverBlocked = Set.of();
     private static @Nullable String pendingId;
