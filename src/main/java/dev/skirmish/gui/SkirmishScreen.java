@@ -703,7 +703,9 @@ public final class SkirmishScreen extends UiScreen {
         private String settingsLabel() {
             int n = 0;
             for (Setting<?> setting : module.settings()) {
-                if (!setting.isBlocked() && !(setting instanceof KeySetting)) {
+                boolean shown = setting instanceof BoolSetting || setting instanceof NumberSetting || setting instanceof EnumSetting
+                        || setting instanceof StringSetting || setting instanceof ActionSetting;
+                if (!setting.isBlocked() && shown) {
                     n++;
                 }
             }

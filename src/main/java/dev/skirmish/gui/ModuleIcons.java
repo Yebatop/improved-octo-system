@@ -141,12 +141,91 @@ public final class ModuleIcons {
                 }
                 p(ui, x, y, s, c, handle);
             }
+            case "fight_review" -> { // bar chart
+                p(ui, x, y, s, c, 3f, 3f, 3f, 21f, 21f, 21f);
+                p(ui, x, y, s, c, 8f, 17f, 8f, 12f);
+                p(ui, x, y, s, c, 13f, 17f, 13f, 7f);
+                p(ui, x, y, s, c, 18f, 17f, 18f, 10f);
+            }
+            case "combo_hud" -> { // double chevron up
+                p(ui, x, y, s, c, 5f, 12f, 12f, 5f, 19f, 12f);
+                p(ui, x, y, s, c, 5f, 19f, 12f, 12f, 19f, 19f);
+            }
+            case "kill_feed" -> { // list
+                for (float ly : new float[]{6f, 12f, 18f}) {
+                    ui.circle(x + 4f * s, y + ly * s, 3f * s, c);
+                    p(ui, x, y, s, c, 9f, ly, 21f, ly);
+                }
+            }
+            case "dossier" -> { // id card
+                ui.border(x + 2f * s, y + 5f * s, 20f * s, 14f * s, 2.5f * s, STROKE * s, c);
+                ui.ring(x + 8f * s, y + 10.5f * s, 5f * s + STROKE * s, STROKE * s, c);
+                p(ui, x, y, s, c, 5.5f, 15.5f, 10.5f, 15.5f);
+                p(ui, x, y, s, c, 14f, 10f, 19f, 10f);
+                p(ui, x, y, s, c, 14f, 14f, 17.5f, 14f);
+            }
+            case "nametag_hp" -> { // heart
+                int n = 28;
+                float[] heart = new float[(n + 1) * 2];
+                for (int i = 0; i <= n; i++) {
+                    double t = Math.PI * 2 * i / n;
+                    double sin = Math.sin(t);
+                    heart[i * 2] = 12f + 0.55f * (float) (16 * sin * sin * sin);
+                    heart[i * 2 + 1] = 11.8f - 0.55f * (float) (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                }
+                p(ui, x, y, s, c, heart);
+            }
+            case "friends" -> { // two people
+                ui.ring(x + 9f * s, y + 7.5f * s, 7f * s + STROKE * s, STROKE * s, c);
+                p(ui, x, y, s, c, arc(9f, 21f, 6.5f, 180, 0));
+                ui.ring(x + 17f * s, y + 8.5f * s, 5f * s + STROKE * s, STROKE * s, c);
+                p(ui, x, y, s, c, arc(17f, 21f, 5f, 75, 0));
+            }
+            case "survival_alerts" -> { // bell
+                float[] top = arc(12f, 10f, 6f, 180, 0);
+                float[] bell = new float[top.length + 8];
+                bell[0] = 4.5f;
+                bell[1] = 17f;
+                bell[2] = 6f;
+                bell[3] = 15f;
+                System.arraycopy(top, 0, bell, 4, top.length);
+                bell[bell.length - 4] = 18f;
+                bell[bell.length - 3] = 15f;
+                bell[bell.length - 2] = 19.5f;
+                bell[bell.length - 1] = 17f;
+                p(ui, x, y, s, c, bell);
+                p(ui, x, y, s, c, 4.5f, 17f, 19.5f, 17f);
+                p(ui, x, y, s, c, 10f, 20.5f, 14f, 20.5f);
+            }
+            case "item_counter" -> { // box
+                p(ui, x, y, s, c, 12f, 2.5f, 21f, 7f, 21f, 17f, 12f, 21.5f, 3f, 17f, 3f, 7f, 12f, 2.5f);
+                p(ui, x, y, s, c, 3f, 7f, 12f, 11.5f, 21f, 7f);
+                p(ui, x, y, s, c, 12f, 11.5f, 12f, 21.5f);
+            }
+            case "lag_meter" -> { // signal bars
+                p(ui, x, y, s, c, 5f, 20f, 5f, 16f);
+                p(ui, x, y, s, c, 10f, 20f, 10f, 12f);
+                p(ui, x, y, s, c, 15f, 20f, 15f, 8f);
+                p(ui, x, y, s, c, 20f, 20f, 20f, 4f);
+            }
             case "waypoints" -> CategoryIcons.pin(ui, x, y, size, c);
             default -> {
                 return false;
             }
         }
         return true;
+    }
+
+    /** Arc points (view box units) around (cx, cy) from {@code from} to {@code to} degrees, y up. */
+    private static float[] arc(float cx, float cy, float r, int from, int to) {
+        int n = Math.max(2, Math.abs(to - from) / 15);
+        float[] pts = new float[(n + 1) * 2];
+        for (int i = 0; i <= n; i++) {
+            double a = Math.toRadians(from + (to - from) * (double) i / n);
+            pts[i * 2] = cx + r * (float) Math.cos(a);
+            pts[i * 2 + 1] = cy - r * (float) Math.sin(a);
+        }
+        return pts;
     }
 
     private static void p(Ui ui, float x, float y, float s, int color, float... points) {
