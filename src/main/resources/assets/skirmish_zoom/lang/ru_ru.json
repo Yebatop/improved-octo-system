@@ -1,6 +1,6 @@
 {
   "key.skirmish.zoom": "Зум (удерживать)",
-  "skirmish.module.zoom.name": "Зум",
+  "skirmish.module.zoom.name": "Zoom",
   "skirmish.module.zoom.description": "Удерживайте клавишу, чтобы приблизить обзор. Колесо мыши во время зума меняет приближение.",
   "skirmish.module.zoom.setting.factor": "Приближение",
   "skirmish.module.zoom.setting.factor.tooltip": "Во сколько раз уменьшается поле зрения при нажатии",

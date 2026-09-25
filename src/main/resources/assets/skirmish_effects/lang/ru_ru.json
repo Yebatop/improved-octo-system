@@ -1,5 +1,5 @@
 {
-  "skirmish.module.effect_hud.name": "Эффекты",
+  "skirmish.module.effect_hud.name": "Effects",
   "skirmish.module.effect_hud.description": "Список ваших активных эффектов: значок, уровень и оставшееся время.",
   "skirmish.module.effect_hud.setting.hide_vanilla": "Скрыть ванильные значки",
   "skirmish.module.effect_hud.setting.hide_vanilla.tooltip": "Убрать значки эффектов в правом верхнем углу (в инвентаре они остаются)",
@@ -7,7 +7,7 @@
   "skirmish.module.effect_hud.setting.show_ambient.tooltip": "Показывать фоновые эффекты от маяка и подобных источников",
   "skirmish.module.effect_hud.setting.warn_seconds": "Подсветка окончания",
   "skirmish.module.effect_hud.setting.warn_seconds.tooltip": "Время подсвечивается, когда до конца эффекта осталось меньше этого (0 — не подсвечивать)",
-  "skirmish.module.armor_hud.name": "Броня",
+  "skirmish.module.armor_hud.name": "Armor",
   "skirmish.module.armor_hud.description": "Прочность вашей брони и предметов в руках. Только ваши вещи.",
   "skirmish.module.armor_hud.setting.mode": "Показывать",
   "skirmish.module.armor_hud.setting.mode.tooltip": "Процент прочности или сколько использований осталось",
@@ -17,6 +17,6 @@
   "skirmish.module.armor_hud.setting.show_hands.tooltip": "Показывать основную и вторую руку рядом с бронёй",
   "skirmish.module.armor_hud.setting.warn_percent": "Порог износа",
   "skirmish.module.armor_hud.setting.warn_percent.tooltip": "Ниже этого прочность красная, ниже двойного значения — жёлтая",
-  "skirmish.hud.element.effects": "Эффекты",
-  "skirmish.hud.element.armor": "Броня"
+  "skirmish.hud.element.effects": "Effects",
+  "skirmish.hud.element.armor": "Armor"
 }

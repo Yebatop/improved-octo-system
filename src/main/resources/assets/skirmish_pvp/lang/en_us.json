@@ -9,7 +9,7 @@
   "skirmish.module.pvp.setting.tag_duration.tooltip": "When the server shows no tag, a timer of this length restarts on every hit to or from a player.",
   "skirmish.module.pvp.setting.cooldown_hud": "My cooldowns",
   "skirmish.module.pvp.setting.cooldown_hud.tooltip": "Pearl, golden apples, chorus, wind charge, traps, stun: icon, ring and seconds",
-  "skirmish.hud.element.combat_tag": "Combat tag",
+  "skirmish.hud.element.combat_tag": "Combat Tag",
   "skirmish.hud.element.cooldowns": "Cooldowns",
   "skirmish.pvp.tag.title": "PvP mode",
   "skirmish.pvp.tag.hint": "Don't log out",

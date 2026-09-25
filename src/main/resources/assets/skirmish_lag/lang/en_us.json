@@ -1,5 +1,5 @@
 {
-  "skirmish.module.lag_meter.name": "Lag detector",
+  "skirmish.module.lag_meter.name": "Lag Detector",
   "skirmish.module.lag_meter.description": "Server TPS (from world time packets), your ping and the time since the last packet. When the server goes silent, a big warning: do not move until it answers.",
   "skirmish.module.lag_meter.setting.hud": "Panel",
   "skirmish.module.lag_meter.setting.hud.tooltip": "A \"TPS · ping · silence\" pill in the bottom-right corner",
@@ -19,6 +19,6 @@
   "skirmish.lag.banner.title": "Server not responding for %s s — don't move",
   "skirmish.lag.banner.body": "Movement during a stall gets rejected later, or kicked for",
   "skirmish.lag.banner.meta": "Last packet %s s ago · TPS %s",
-  "skirmish.hud.element.lag_meter": "Lag detector",
-  "skirmish.hud.element.lag_warning": "Server not responding"
+  "skirmish.hud.element.lag_meter": "Lag Detector",
+  "skirmish.hud.element.lag_warning": "Server Not Responding"
 }

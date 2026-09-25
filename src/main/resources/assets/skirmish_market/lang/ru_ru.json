@@ -1,5 +1,5 @@
 {
-  "skirmish.module.market.name": "Аукцион",
+  "skirmish.module.market.name": "Auction",
   "skirmish.module.market.description": "Цена за штуку на лотах /ah, самый дешёвый лот и история цен. Только подсказки: ничего не покупает и не нажимает.",
   "skirmish.module.market.setting.overlay": "Цены на слотах",
   "skirmish.module.market.setting.overlay.tooltip": "В окне аукциона показывать на каждом лоте цену за 1 шт. Зелёная — заметно дешевле обычного, красная — дороже. «↑» — ставка, она ещё может вырасти.",

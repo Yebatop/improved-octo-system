@@ -1,5 +1,5 @@
 {
-  "skirmish.module.camera_comfort.name": "Camera comfort",
+  "skirmish.module.camera_comfort.name": "Camera Comfort",
   "skirmish.module.camera_comfort.description": "Vanilla camera options in one place: view bobbing, damage tilt, FOV and distortion effects, lightning flashes. While the module is on it changes these game options; your previous values come back when it is turned off.",
   "skirmish.module.camera_comfort.setting.view_bobbing": "View bobbing",
   "skirmish.module.camera_comfort.setting.view_bobbing.tooltip": "Vanilla \"View Bobbing\" while walking",
@@ -11,7 +11,7 @@
   "skirmish.module.camera_comfort.setting.distortion.tooltip": "Vanilla \"Distortion Effects\": nausea and portals",
   "skirmish.module.camera_comfort.setting.hide_lightning": "Hide lightning flashes",
   "skirmish.module.camera_comfort.setting.hide_lightning.tooltip": "Vanilla option: the sky doesn't flash on lightning (bolts stay visible)",
-  "skirmish.module.low_fire.name": "Low fire",
+  "skirmish.module.low_fire.name": "Low Fire",
   "skirmish.module.low_fire.description": "Lower, fainter fire on screen, like a \"low fire\" resource pack. You can still see that you are burning.",
   "skirmish.module.low_fire.setting.lower_by": "Lower by",
   "skirmish.module.low_fire.setting.lower_by.tooltip": "How far below vanilla the flames sit",

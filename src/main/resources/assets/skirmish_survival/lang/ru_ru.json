@@ -1,5 +1,5 @@
 {
-  "skirmish.module.survival_alerts.name": "Предупреждения выживания",
+  "skirmish.module.survival_alerts.name": "Survival Alerts",
   "skirmish.module.survival_alerts.description": "Крупное предупреждение по центру и звук: мало здоровья, нет тотема во второй руке в бою, ломается броня, мало еды, кончаются жемчуг или яблоки. Только читает ваш инвентарь — ничего не перекладывает.",
   "skirmish.module.survival_alerts.setting.low_hp": "Мало здоровья",
   "skirmish.module.survival_alerts.setting.low_hp.tooltip": "Предупреждать, когда здоровье опускается до порога",
@@ -37,8 +37,8 @@
   "skirmish.survival.alert.food": "Мало еды: %s",
   "skirmish.survival.alert.pearls": "Жемчуг: %s",
   "skirmish.survival.alert.gapples": "Яблоки: %s",
-  "skirmish.hud.element.survival_alerts": "Предупреждения выживания",
-  "skirmish.module.item_counter.name": "Счётчик предметов",
+  "skirmish.hud.element.survival_alerts": "Survival Alerts",
+  "skirmish.module.item_counter.name": "Item Counter",
   "skirmish.module.item_counter.description": "Сколько у вас тотемов, золотых и чарок, жемчуга, пузырьков опыта и своих предметов — считая вторую руку. Закончившиеся тускнеют.",
   "skirmish.module.item_counter.setting.totems": "Тотемы",
   "skirmish.module.item_counter.setting.totems.tooltip": "Тотемы бессмертия",
@@ -58,5 +58,5 @@
   "skirmish.module.item_counter.setting.layout.tooltip": "В одну строку или столбиком",
   "skirmish.module.item_counter.setting.layout.row": "Строка",
   "skirmish.module.item_counter.setting.layout.column": "Столбик",
-  "skirmish.hud.element.item_counter": "Счётчик предметов"
+  "skirmish.hud.element.item_counter": "Item Counter"
 }

@@ -1,5 +1,5 @@
 {
-  "skirmish.module.nametag_hp.name": "ХП над головой",
+  "skirmish.module.nametag_hp.name": "Nametag HP",
   "skirmish.module.nametag_hp.description": "Здоровье и поглощение других игроков рядом с их ником, цветом по проценту. Видно только там, где игра сама показывает ник; невидимых игроков не показывает.",
   "skirmish.module.nametag_hp.setting.show": "Когда показывать",
   "skirmish.module.nametag_hp.setting.show.tooltip": "Всегда, только пока вы в бою (КТ или активный бой) или только у тех, с кем вы сейчас деретесь",
