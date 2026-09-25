@@ -6,7 +6,8 @@
     "theme/events.json",
     "theme/holyprofile.json",
     "theme/market.json",
-    "theme/qol.json"
+    "theme/qol.json",
+    "theme/analytics.json"
   ],
   "colors": {
     "page": "#0B0B12",

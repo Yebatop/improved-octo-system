@@ -49,4 +49,11 @@ public interface CombatListener {
     /** Critical hit particles on {@code target} (ClientboundAnimatePacket 4 = crit, 5 = magic crit). */
     default void onCrit(Entity target, boolean magic) {
     }
+
+    /**
+     * My own left-click attack attempt, read from {@code Minecraft.startAttack} (nothing is sent or changed).
+     * {@code targetId} is the entity under the crosshair, or -1 for a swing at air.
+     */
+    default void onAttackAttempt(int targetId) {
+    }
 }
