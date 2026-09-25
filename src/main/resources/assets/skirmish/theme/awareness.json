@@ -111,10 +111,8 @@
       "plate_bar_gap": 5,
       "plate_radius": 9,
       "plate_pointer": 5,
-      "plate_near": 8,
-      "plate_far": 32,
-      "plate_min_scale": 0.55,
-      "plate_invisible_alpha": 0.75
+      "plate_invisible_alpha": 0.75,
+      "plate_compact_from": 16
     }
   }
 }

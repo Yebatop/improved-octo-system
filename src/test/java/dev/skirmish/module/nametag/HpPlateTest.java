@@ -62,10 +62,8 @@ class HpPlateTest {
     }
 
     @Test
-    void platesShrinkWithDistance() {
-        assertEquals(1f, HpPlates.distanceScale(3, 8, 32, 0.55f), 1e-6);
-        assertEquals(0.55f, HpPlates.distanceScale(40, 8, 32, 0.55f), 1e-6);
-        float mid = HpPlates.distanceScale(20, 8, 32, 0.55f);
-        assertTrue(mid < 1f && mid > 0.55f);
+    void farPlatesGoCompact() {
+        assertFalse(HpPlates.compact(10, 16f));
+        assertTrue(HpPlates.compact(20, 16f));
     }
 }

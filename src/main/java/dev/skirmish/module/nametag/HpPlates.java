@@ -31,7 +31,8 @@ import java.util.Set;
  * Skirmish-style HP plates: for each player in plain line of sight (checked each tick with a block ray, glass and
  * other see-through blocks don't block it), a plate is drawn at the projected point above the head: face, nick
  * (friend colour), HP with a heart and absorption, and a bar coloured red → amber → green with a damage trail
- * ({@link HpTrail}). The plate shrinks with distance; far ones are drawn first.
+ * ({@link HpTrail}). The plate keeps its size at any distance (sharp text); far ones drop the face and are drawn
+ * first, so near plates stay on top.
  */
 final class HpPlates implements HudElement {
     private static final String L = "layout.nametag.";
@@ -138,13 +139,9 @@ final class HpPlates implements HudElement {
         }
     }
 
-    /** Plate scale for a distance: full size up to {@code plate_near} blocks, down to {@code plate_min_scale} at far. */
-    static float distanceScale(double distance, float near, float far, float min) {
-        if (distance <= near) {
-            return 1f;
-        }
-        float t = (float) Math.min(1.0, (distance - near) / Math.max(0.001, far - near));
-        return 1f + (min - 1f) * t;
+    /** Beyond this distance a plate drops the face to stay small; text never shrinks, so it stays sharp. */
+    static boolean compact(double distance, float compactFrom) {
+        return distance > compactFrom;
     }
 
     private void draw(Ui ui, Plate plate, long now) {
@@ -157,12 +154,13 @@ final class HpPlates implements HudElement {
         float flash = trail.hitFlash(now);
         boolean invisible = player.isInvisibleTo(mc.player);
 
-        float scale = module.scale.getFloat() / 100f
-                * distanceScale(plate.distance(), ui.num(L + "plate_near"), ui.num(L + "plate_far"), ui.num(L + "plate_min_scale"));
+        // Only the «Размер» setting scales the plate: shrinking it with distance made the text blurry and unreadable.
+        float scale = module.scale.getFloat() / 100f;
+        boolean compact = compact(plate.distance(), ui.num(L + "plate_compact_from"));
         float stroke = ui.num("stroke.width");
         float padX = ui.num(L + "plate_pad_x");
         float padY = ui.num(L + "plate_pad_y");
-        float faceSize = module.face.get() ? ui.num(L + "plate_face") : 0f;
+        float faceSize = module.face.get() && !compact ? ui.num(L + "plate_face") : 0f;
         float gap = ui.num(L + "plate_gap");
         float heart = ui.num(L + "plate_heart");
         char separator = mc.options.languageCode.startsWith("en") ? '.' : ',';
@@ -176,7 +174,7 @@ final class HpPlates implements HudElement {
         float barH = ui.num(L + "plate_bar");
         float textBlockH = rowH + ui.num(L + "plate_bar_gap") + barH;
         float innerH = Math.max(faceSize, textBlockH);
-        float textW = Math.max(ui.num(L + "plate_min_text"), ui.textWidth("hp_name", name) + gap * 2 + valueW);
+        float textW = Math.max(compact ? 0f : ui.num(L + "plate_min_text"), ui.textWidth("hp_name", name) + gap * 2 + valueW);
         float w = Math.round(stroke * 2 + padX * 2 + faceSize + (faceSize > 0 ? gap : 0f) + textW);
         float h = Math.round(stroke * 2 + padY * 2 + innerH);
         float pointer = ui.num(L + "plate_pointer");
