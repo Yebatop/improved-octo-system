@@ -361,6 +361,12 @@ public final class ModuleIcons {
                 ui.triangle(x + 12f * s, y + 5f * s, x + 14.5f * s, y + 12f * s, x + 9.5f * s, y + 12f * s, 1f, c);
                 p(ui, x, y, s, c, 9.5f, 12f, 12f, 19f, 14.5f, 12f);
             }
+            case "base_os" -> { // house with a storage box inside
+                p(ui, x, y, s, c, 3f, 11f, 12f, 3.5f, 21f, 11f);
+                p(ui, x, y, s, c, 5f, 10f, 5f, 21f, 19f, 21f, 19f, 10f);
+                p(ui, x, y, s, c, 9f, 21f, 9f, 14f, 15f, 14f, 15f, 21f);
+                p(ui, x, y, s, c, 9f, 17.5f, 15f, 17.5f);
+            }
             case "event_timers" -> { // alarm clock
                 ui.ring(x + 12f * s, y + 13f * s, 16f * s + STROKE * s, STROKE * s, c);
                 p(ui, x, y, s, c, 12f, 13f, 12f, 9f);

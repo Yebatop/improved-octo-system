@@ -90,6 +90,22 @@ public final class MarketModule extends Module {
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> prices.saveNow());
     }
 
+    /**
+     * Usual price of one item by its history key (median of the auction lots seen in the last two weeks), for other
+     * modules such as Base OS; empty when the market module is off or the item has too little history.
+     */
+    public static java.util.OptionalDouble usualPrice(String itemKey) {
+        if (!(dev.skirmish.module.ModuleManager.get().byId(ID) instanceof MarketModule m) || !m.isEnabled()) {
+            return java.util.OptionalDouble.empty();
+        }
+        return m.history().median(itemKey, System.currentTimeMillis(), AuctionOverlay.MEDIAN_MAX_AGE_MS, AuctionOverlay.MEDIAN_MIN_SAMPLES);
+    }
+
+    /** The key prices are kept under for a stack: registry id, plus the cleaned custom name for renamed items. */
+    public static String itemKey(ItemStack stack) {
+        return LotInfo.itemKey(stack);
+    }
+
     PriceHistory history() {
         PriceStore s = store;
         return s == null ? new PriceHistory(1, 1) : s.history();

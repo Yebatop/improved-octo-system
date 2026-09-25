@@ -46,6 +46,9 @@ public final class SkirmishKeys {
     /** «Navigator»: route to the home waypoint (created here if missing). H is free in vanilla. */
     public static final KeyMapping NAVIGATOR_HOME = key("key.skirmish.navigator.home", GLFW.GLFW_KEY_H);
 
+    /** «Base OS»: the base screen. B is free in vanilla. */
+    public static final KeyMapping BASE_OS = key("key.skirmish.base_os.open", GLFW.GLFW_KEY_B);
+
     private SkirmishKeys() {
     }
 
@@ -54,7 +57,7 @@ public final class SkirmishKeys {
     }
 
     static void register() {
-        for (KeyMapping mapping : new KeyMapping[]{OPEN_MENU, WAYPOINT_ADD, WAYPOINT_CYCLE, KILLCAM_REPLAY, KILLCAM_CLIP, KILLCAM_LIBRARY, WORLD_MAP, NAVIGATOR_HOME,
+        for (KeyMapping mapping : new KeyMapping[]{OPEN_MENU, WAYPOINT_ADD, WAYPOINT_CYCLE, KILLCAM_REPLAY, KILLCAM_CLIP, KILLCAM_LIBRARY, WORLD_MAP, NAVIGATOR_HOME, BASE_OS,
                 CLANSHARE_SHARE, GEARINSPECTOR_LOCK, ANVILCALC_CALCULATE, KILLCARD_OPEN_FOLDER, DETAILS, ZOOM, FULLBRIGHT_TOGGLE, AUTO_SPRINT_TOGGLE,
                 FRIEND_TOGGLE, FIGHT_REVIEW, PLAYER_MENU}) {
             KeyBindingHelper.registerKeyBinding(mapping);

@@ -60,7 +60,7 @@ public final class InventoryThemeModule extends Module {
         String text = title.getString();
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
-            if (c >= '' && c <= '') {
+            if (c >= '\uE000' && c <= '\uF8FF') {
                 return true;
             }
         }

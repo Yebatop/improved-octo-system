@@ -177,6 +177,23 @@ public final class RegionBoundsModule extends Module {
                 pos.getX(), pos.getY(), pos.getZ(), s.holo());
     }
 
+    /** The region a block of this id makes on the server we are on (the «Сервер» setting or detection), or null. */
+    public static RegionTable.@Nullable Type typeFor(String blockId) {
+        ServerChoice choice = ModuleManager.get().byId(ID) instanceof RegionBoundsModule m ? m.server.get() : ServerChoice.AUTO;
+        RegionTable.Server srv = switch (choice) {
+            case LITE -> RegionTable.Server.LITE;
+            case PRIME -> RegionTable.Server.PRIME;
+            case AUTO -> {
+                ServerParser.Mode mode = detectedMode();
+                if (mode == ServerParser.Mode.PRIME || mode == ServerParser.Mode.LITE) {
+                    yield mode == ServerParser.Mode.PRIME ? RegionTable.Server.PRIME : RegionTable.Server.LITE;
+                }
+                yield RegionTable.lookup(RegionTable.Server.LITE, blockId) != null ? RegionTable.Server.LITE : RegionTable.Server.PRIME;
+            }
+        };
+        return RegionTable.lookup(srv, blockId);
+    }
+
     private static ServerParser.Mode detectedMode() {
         return ModuleManager.get().byId(EventsModule.ID) instanceof EventsModule events ? events.serverMode()
                 : ServerParser.Mode.UNKNOWN;
@@ -195,7 +212,7 @@ public final class RegionBoundsModule extends Module {
      * Text of the hologram right above a block: text displays and named armor stands / markers within a few blocks
      * up, top line first. Null when there is none.
      */
-    static @Nullable String hologramText(Level level, BlockPos pos) {
+    public static @Nullable String hologramText(Level level, BlockPos pos) {
         Theme theme = Theme.get();
         AABB box = new AABB(pos.getX() - 1, pos.getY() + 0.5, pos.getZ() - 1,
                 pos.getX() + 2, pos.getY() + 1 + theme.num(L + "holo_height"), pos.getZ() + 2);
@@ -215,7 +232,7 @@ public final class RegionBoundsModule extends Module {
         return out.toString();
     }
 
-    private static boolean isHologram(Entity e) {
+    public static boolean isHologram(Entity e) {
         if (e instanceof Display.TextDisplay) {
             return true;
         }
