@@ -3,10 +3,16 @@ package dev.skirmish.module.killcam;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.skirmish.combat.Combatant;
 import dev.skirmish.combat.OwnDeath;
+import dev.skirmish.module.killcam.library.ReplayCapture;
+import dev.skirmish.module.killcam.library.ReplayCodec;
+import dev.skirmish.module.killcam.library.ReplayHeader;
+import dev.skirmish.module.killcam.library.ReplayKind;
+import dev.skirmish.module.killcam.library.ReplayRecording;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.DeathScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.particles.ParticleTypes;
@@ -20,6 +26,7 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -50,7 +57,7 @@ final class ReplaySession {
     final KillCamModule module;
     final ReplayBuffer buffer;
     final ClientLevel level;
-    final LocalPlayer deadPlayer;
+    final LocalPlayer player;
     final @Nullable Component deathMessage;
     final boolean hardcore;
     final long startTick;
@@ -92,29 +99,34 @@ final class ReplaySession {
     private float freePitch;
     private float freeSpeed = 6.0F;
 
+    final @Nullable Saved saved;
     private final long startedMs = System.currentTimeMillis();
     private int frames;
     private long frameNanos;
     private long frameMaxNanos;
     private int eventsFired;
 
-    private ReplaySession(KillCamModule module, ReplayBuffer buffer, ClientLevel level, LocalPlayer deadPlayer, @Nullable OwnDeath death,
-                          long startTick, long endTick, long deathTick, int victimTrack, int killerTrack, String killerSource) {
+    /** A replay from the library: what was saved and where to go back to. */
+    record Saved(ReplayHeader header, @Nullable Screen returnTo, boolean startedDead, boolean elsewhere) {
+    }
+
+    private ReplaySession(KillCamModule module, ReplayBuffer buffer, ClientLevel level, LocalPlayer player, @Nullable Component deathMessage,
+                          String fallbackKiller, long startTick, long endTick, long deathTick, int victimTrack, int killerTrack,
+                          String killerSource, @Nullable Saved saved) {
         this.module = module;
         this.buffer = buffer;
         this.level = level;
-        this.deadPlayer = deadPlayer;
-        this.deathMessage = death == null ? null : death.message();
+        this.player = player;
+        this.deathMessage = deathMessage;
         this.hardcore = level.getLevelData().isHardcore();
         this.startTick = startTick;
         this.endTick = endTick;
         this.deathTick = deathTick;
         this.victimTrack = victimTrack;
         this.killerTrack = killerTrack;
-        this.killerName = killerTrack == ReplayBuffer.NO_TRACK
-                ? (death != null && death.killer() != null ? death.killer().name() : "")
-                : buffer.name(killerTrack);
+        this.killerName = killerTrack == ReplayBuffer.NO_TRACK ? fallbackKiller : buffer.name(killerTrack);
         this.killerSource = killerSource;
+        this.saved = saved;
         this.fakeByTrack = new ReplayPlayer[buffer.allocatedTracks()];
         this.time = startTick;
         this.speed = module.defaultSpeed();
@@ -127,6 +139,28 @@ final class ReplaySession {
 
     static boolean isActive() {
         return current != null;
+    }
+
+    /** Killer track and how it was found: the death packet's killer when recorded, else the last recorded hit on the victim. */
+    record Killer(int track, String source) {
+    }
+
+    static Killer resolveKiller(ReplayBuffer buffer, int victim, @Nullable Combatant killerCombatant, long start, long end) {
+        if (killerCombatant != null && !killerCombatant.self() && buffer.findTrack(killerCombatant.uuid()) != ReplayBuffer.NO_TRACK) {
+            return new Killer(buffer.findTrack(killerCombatant.uuid()), "OwnDeath.killer " + killerCombatant.name());
+        }
+        int killer = ReplayBuffer.NO_TRACK;
+        for (int i = buffer.eventCount() - 1; i >= 0; i--) {
+            if (buffer.eventType(i) == ReplayBuffer.EVENT_HIT && buffer.eventA(i) == victim && buffer.eventB(i) != ReplayBuffer.NO_TRACK
+                    && buffer.eventB(i) != victim && buffer.eventTick(i) >= start && buffer.eventTick(i) <= end) {
+                killer = buffer.eventB(i);
+                break;
+            }
+        }
+        String source = killer != ReplayBuffer.NO_TRACK ? "last recorded hit on me"
+                : killerCombatant != null ? "none: killer " + killerCombatant.name() + " was not within the recording radius"
+                : "none: no attacker known";
+        return new Killer(killer, source);
     }
 
     /** Starts a replay of the frozen buffer, or returns null (reason in debug.log). */
@@ -160,34 +194,68 @@ final class ReplaySession {
         long start = Math.max(buffer.oldestTick(), death - module.preDeathTicks());
         int victim = buffer.findTrack(player.getUUID());
         OwnDeath ownDeath = recorder.death();
-
-        int killer = ReplayBuffer.NO_TRACK;
-        String source;
         Combatant killerCombatant = ownDeath == null ? null : ownDeath.killer();
-        if (killerCombatant != null && !killerCombatant.self() && buffer.findTrack(killerCombatant.uuid()) != ReplayBuffer.NO_TRACK) {
-            killer = buffer.findTrack(killerCombatant.uuid());
-            source = "OwnDeath.killer " + killerCombatant.name();
-        } else {
-            for (int i = buffer.eventCount() - 1; i >= 0; i--) {
-                if (buffer.eventType(i) == ReplayBuffer.EVENT_HIT && buffer.eventA(i) == victim && buffer.eventB(i) != ReplayBuffer.NO_TRACK
-                        && buffer.eventB(i) != victim && buffer.eventTick(i) >= start && buffer.eventTick(i) <= end) {
-                    killer = buffer.eventB(i);
-                    break;
-                }
-            }
-            source = killer != ReplayBuffer.NO_TRACK ? "last recorded hit on me"
-                    : killerCombatant != null ? "none: killer " + killerCombatant.name() + " was not within the recording radius"
-                    : "none: no attacker known";
-        }
+        Killer killer = resolveKiller(buffer, victim, killerCombatant, start, end);
 
-        ReplaySession session = new ReplaySession(module, buffer, level, player, ownDeath, start, end, death, victim, killer, source);
+        ReplaySession session = new ReplaySession(module, buffer, level, player, ownDeath == null ? null : ownDeath.message(),
+                killerCombatant != null ? killerCombatant.name() : "", start, end, death, victim, killer.track(), killer.source(), null);
         session.spawnFakes();
         current = session;
         module.log("replay start (%s): window %d..%d = %.2f s, death at %.2f s, victim track %s, killer %s (%s), camera %s, speed %.2fx, %d fakes",
                 trigger, start, end, (end - start) / 20.0, (death - start) / 20.0, victim, session.killerName.isEmpty() ? "-" : session.killerName,
-                source, session.mode, session.speed, session.fakes.size());
+                killer.source(), session.mode, session.speed, session.fakes.size());
         mc.setScreen(new ReplayScreen(session));
         return session;
+    }
+
+    /**
+     * Plays a saved replay in the current world: the recording is written into a fresh buffer and runs through the
+     * same session, screen, cameras and markers as the live KillCam. Needs a world (the fakes live in the client
+     * level); the terrain is whatever is loaded there. Returns null when it cannot start (reason in debug.log).
+     */
+    static @Nullable ReplaySession startSaved(KillCamModule module, ReplayCodec.Decoded decoded, @Nullable Screen returnTo, String trigger) {
+        Minecraft mc = Minecraft.getInstance();
+        if (current != null) {
+            module.log("saved replay not started (%s): a replay is already running", trigger);
+            return null;
+        }
+        LocalPlayer player = mc.player;
+        ClientLevel level = mc.level;
+        if (player == null || level == null) {
+            module.log("saved replay not started (%s): no world", trigger);
+            return null;
+        }
+        ReplayRecording rec = decoded.recording();
+        ReplayHeader header = decoded.header();
+        List<ItemStack> items = new ArrayList<>(rec.items.size());
+        for (ReplayRecording.Item item : rec.items) {
+            items.add(ItemBlobs.decode(item, level.registryAccess(), module));
+        }
+        ReplayCapture.Rebuilt rebuilt = ReplayCapture.rebuild(rec, items::get, (track, source) -> TrackMeta.saved(source));
+        boolean elsewhere = !header.server.equals(dev.skirmish.util.ServerContext.serverDisplayName())
+                || !header.dimension.equals(level.dimension().identifier().toString()) || !recordedAreaLoaded(level, rec);
+        Saved saved = new Saved(header, returnTo, player.isDeadOrDying(), elsewhere);
+        ReplaySession session = new ReplaySession(module, rebuilt.buffer(), level, player, null,
+                header.kind == ReplayKind.DEATH ? header.opponent : "", rebuilt.startTick(), rebuilt.endTick(), rebuilt.focusTick(),
+                rebuilt.victimTrack(), rebuilt.killerTrack(), "saved replay", saved);
+        session.spawnFakes();
+        current = session;
+        module.log("saved replay start (%s): %s, %d ticks, focus %d, victim %s, killer %s, %d fakes, %d items, recorded %s",
+                trigger, header, rec.ticks, rec.focusTick, rec.name(rec.victimTrack), rec.name(rec.killerTrack), session.fakes.size(),
+                items.size(), elsewhere ? "elsewhere (terrain differs or is not loaded)" : "here");
+        mc.setScreen(new ReplayScreen(session));
+        return session;
+    }
+
+    /** Whether the chunk under my first recorded position is loaded in this level. */
+    private static boolean recordedAreaLoaded(ClientLevel level, ReplayRecording rec) {
+        for (ReplayRecording.Track track : rec.tracks) {
+            if (!track.frames.isEmpty() && (track.self || rec.tracks.size() == 1)) {
+                TrackSample s = track.frames.getFirst().sample();
+                return level.hasChunk(Mth.floor(s.x) >> 4, Mth.floor(s.z) >> 4);
+            }
+        }
+        return false;
     }
 
     private void spawnFakes() {
@@ -331,9 +399,18 @@ final class ReplaySession {
                 place(freeX, freeY, freeZ, freeYaw, freePitch);
             }
         }
+        if (!cameraPlaced && saved != null) {
+            // A saved replay may be far from me: look at whoever is recorded rather than at my own position.
+            for (ReplayPlayer fake : fakes) {
+                if (fake.present) {
+                    orbit(fake);
+                    break;
+                }
+            }
+        }
         if (!cameraPlaced) {
-            Vec3 eye = deadPlayer.getEyePosition();
-            place(eye.x, eye.y, eye.z, deadPlayer.getYHeadRot(), 0.0F);
+            Vec3 eye = player.getEyePosition();
+            place(eye.x, eye.y, eye.z, player.getYHeadRot(), 0.0F);
         }
     }
 
@@ -447,11 +524,16 @@ final class ReplaySession {
 
     /** Main-hand item of the killer at the moment of my death (empty when unknown). */
     net.minecraft.world.item.ItemStack killerWeapon() {
-        if (killerTrack == ReplayBuffer.NO_TRACK) {
+        if (killerTrack == ReplayBuffer.NO_TRACK || deathTick < 0) {
             return net.minecraft.world.item.ItemStack.EMPTY;
         }
         Object stack = buffer.equipmentAt(killerTrack, MAINHAND_SLOT, deathTick);
         return stack instanceof net.minecraft.world.item.ItemStack item ? item : net.minecraft.world.item.ItemStack.EMPTY;
+    }
+
+    /** The first-person camera is my own view (my kills and clips from the library). */
+    boolean killerIsSelf() {
+        return killerTrack != ReplayBuffer.NO_TRACK && buffer.isSelf(killerTrack);
     }
 
     void setSpeed(double value) {
@@ -594,9 +676,15 @@ final class ReplaySession {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level != level) {
             stop(mc.level == null ? "disconnected" : "world changed", SCREEN_CLOSE);
-        } else if (mc.player != deadPlayer) {
+        } else if (mc.player != player) {
             stop("respawned (new player entity)", SCREEN_CLOSE);
-        } else if (!deadPlayer.isDeadOrDying()) {
+        } else if (saved != null) {
+            if (!saved.startedDead() && player.isDeadOrDying()) {
+                stop("died while watching a saved replay", SCREEN_CLOSE);
+            } else if (!(mc.screen instanceof ReplayScreen)) {
+                stop("screen replaced by " + (mc.screen == null ? "none" : mc.screen.getClass().getSimpleName()), SCREEN_KEEP);
+            }
+        } else if (!player.isDeadOrDying()) {
             stop("respawned (alive again)", SCREEN_CLOSE);
         } else if (!(mc.screen instanceof ReplayScreen)) {
             stop("screen replaced by " + (mc.screen == null ? "none" : mc.screen.getClass().getSimpleName()), SCREEN_KEEP);
@@ -609,8 +697,10 @@ final class ReplaySession {
         if (mc.level == null) {
             return;
         }
-        if (mc.player == deadPlayer && deadPlayer.isDeadOrDying()) {
-            mc.setScreen(new DeathScreen(deathMessage, hardcore, deadPlayer));
+        if (saved != null) {
+            mc.setScreen(saved.returnTo());
+        } else if (mc.player == player && player.isDeadOrDying()) {
+            mc.setScreen(new DeathScreen(deathMessage, hardcore, player));
         } else {
             mc.setScreen(null);
         }
@@ -635,9 +725,16 @@ final class ReplaySession {
                 reason, (System.currentTimeMillis() - startedMs) / 1000.0, frames, frames == 0 ? 0 : frameNanos / 1000.0 / frames,
                 frameMaxNanos / 1000.0, eventsFired, fakes.size()));
         fakes.clear();
-        boolean dead = mc.player == deadPlayer && deadPlayer.isDeadOrDying() && mc.level == level;
-        if (screenAction == SCREEN_DEATH && dead) {
-            mc.setScreen(new DeathScreen(deathMessage, hardcore, deadPlayer));
+        boolean dead = mc.player == player && player.isDeadOrDying() && mc.level == level;
+        if (saved != null) {
+            if (screenAction == SCREEN_DEATH && mc.level == level && mc.player == player) {
+                mc.setScreen(saved.returnTo());
+                module.log("saved replay closed, back to %s", saved.returnTo() == null ? "the game" : saved.returnTo().getClass().getSimpleName());
+            } else if (screenAction != SCREEN_KEEP && mc.screen instanceof ReplayScreen && mc.level != null) {
+                mc.setScreen(null);
+            }
+        } else if (screenAction == SCREEN_DEATH && dead) {
+            mc.setScreen(new DeathScreen(deathMessage, hardcore, player));
             module.log("death screen restored with the original message: \"%s\"", deathMessage == null ? "" : deathMessage.getString());
         } else if (screenAction != SCREEN_KEEP && mc.screen instanceof ReplayScreen && mc.level != null) {
             mc.setScreen(null);

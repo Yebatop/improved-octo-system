@@ -9,6 +9,7 @@ import dev.skirmish.combat.DamageInfo;
 import dev.skirmish.combat.Fight;
 import dev.skirmish.combat.OwnDeath;
 import dev.skirmish.module.Module;
+import dev.skirmish.setting.ActionSetting;
 import dev.skirmish.setting.BoolSetting;
 import dev.skirmish.setting.EnumSetting;
 import dev.skirmish.setting.KeySetting;
@@ -27,7 +28,10 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 
-/** KillCam: records the last seconds around me and replays them from the death screen. */
+/**
+ * KillCam: records the last seconds around me and replays them from the death screen. Kills, deaths and clips
+ * («Сохранить момент») are saved to the replay library («Мои реплеи», config/skirmish/replays).
+ */
 public final class KillCamModule extends Module {
     public static final String ID = "killcam";
 
@@ -45,7 +49,23 @@ public final class KillCamModule extends Module {
     private final BoolSetting particles = add(new BoolSetting("particles", true));
     private final BoolSetting sounds = add(new BoolSetting("sounds", true));
 
+    /** What is saved to the library automatically. */
+    public enum SaveMode {
+        BOTH, KILLS, DEATHS, OFF
+    }
+
+    private final EnumSetting<SaveMode> saveMode = add(new EnumSetting<>("save_mode", SaveMode.BOTH));
+    private final KeySetting clipKey = add(new KeySetting("clip_key", "key.skirmish.killcam.clip"));
+    private final ActionSetting library = add(new ActionSetting("library", this::openLibraryFromMenu));
+    private final KeySetting libraryKey = add(new KeySetting("library_key", "key.skirmish.killcam.library"));
+    private final NumberSetting maxReplays = add(new NumberSetting("max_replays", 50, 5, 500, 5));
+    private final NumberSetting maxMegabytes = add(new NumberSetting("max_mb", 200, 10, 2000, 10).unit(" mb"));
+    private final BoolSetting stopOnDamage = add(new BoolSetting("stop_on_damage", true));
+
     private final Recorder recorder = new Recorder(this);
+    private final ReplaySaver saver = new ReplaySaver(this, recorder, dev.skirmish.SkirmishClient.configDir().resolve("replays"));
+    private String noticeKey = "";
+    private long noticeUntilMs;
 
     @Override
     public Category category() {
@@ -97,6 +117,66 @@ public final class KillCamModule extends Module {
         return sounds.get();
     }
 
+    boolean saveKills() {
+        return saveMode.get() == SaveMode.BOTH || saveMode.get() == SaveMode.KILLS;
+    }
+
+    boolean saveDeaths() {
+        return saveMode.get() == SaveMode.BOTH || saveMode.get() == SaveMode.DEATHS;
+    }
+
+    int maxReplays() {
+        return maxReplays.getInt();
+    }
+
+    long maxBytes() {
+        return (long) maxMegabytes.getInt() * 1024 * 1024;
+    }
+
+    ReplaySaver saver() {
+        return saver;
+    }
+
+    /** Recorder callback: the buffer is about to be cleared; queued saves are written from what is there. */
+    void beforeBufferReset(String reason) {
+        saver.flush(reason);
+    }
+
+    /**
+     * Short confirmation («Клип сохранён») in the KillCam pill for a few seconds. With {@code chatFallback} it also
+     * goes to the local chat when the pill is switched off or hidden (e.g. after pressing the clip key).
+     */
+    void notice(String key, boolean chatFallback) {
+        noticeKey = key;
+        noticeUntilMs = System.currentTimeMillis() + 3000;
+        Minecraft mc = Minecraft.getInstance();
+        boolean pillShown = hudIndicator.get() && mc.player != null && mc.player.isAlive() && !recorder.isFrozen();
+        if (chatFallback && !pillShown && mc.player != null) {
+            mc.gui.getChat().addMessage(Component.empty()
+                    .append(Component.literal("[KillCam] ").withStyle(net.minecraft.ChatFormatting.GOLD))
+                    .append(Component.translatable(key)));
+        }
+    }
+
+    /** Current notice key, or null when none is showing. */
+    @Nullable String notice() {
+        return System.currentTimeMillis() < noticeUntilMs ? noticeKey : null;
+    }
+
+    /** Opens «Мои реплеи» on top of {@code parent} (null = over the game). */
+    public void openLibrary(@Nullable Screen parent) {
+        Minecraft.getInstance().setScreen(new ReplayLibraryScreen(this, parent));
+    }
+
+    private void openLibraryFromMenu() {
+        openLibrary(Minecraft.getInstance().screen);
+    }
+
+    /** Library watch button: starts a saved replay, returning to {@code returnTo} afterwards. */
+    boolean watchSaved(dev.skirmish.module.killcam.library.ReplayCodec.Decoded decoded, Screen returnTo) {
+        return ReplaySession.startSaved(this, decoded, returnTo, "library") != null;
+    }
+
     @Override
     public void onInitialize() {
         CombatTracker.get().addListener(new Listener());
@@ -138,9 +218,20 @@ public final class KillCamModule extends Module {
             session.tick();
         }
         recorder.tick(mc);
+        saver.tick();
         while (SkirmishKeys.KILLCAM_REPLAY.consumeClick()) {
             if (mc.player != null && mc.player.isDeadOrDying()) {
                 ReplaySession.start(this, recorder, "key without screen");
+            }
+        }
+        while (SkirmishKeys.KILLCAM_CLIP.consumeClick()) {
+            if (mc.player != null && !ReplaySession.isActive()) {
+                saver.saveClip();
+            }
+        }
+        while (SkirmishKeys.KILLCAM_LIBRARY.consumeClick()) {
+            if (mc.screen == null && mc.player != null) {
+                openLibrary(null);
             }
         }
     }
@@ -164,6 +255,20 @@ public final class KillCamModule extends Module {
                 widgets.widget(ui, watch, mx, my);
                 String info = watchInfo(available);
                 ui.text("death_info", info, (ui.width() - ui.textWidth("death_info", info)) / 2f, y + h + ui.num(l + "info_gap"));
+            });
+            dev.skirmish.ui.widget.Button libraryButton = new dev.skirmish.ui.widget.Button(
+                    () -> dev.skirmish.ui.Ui.tr("skirmish.killcam.library.open"), false, () -> openLibrary(screen))
+                    .layout("layout.menu.small_");
+            // «Мои реплеи» under the info line: saved kills, deaths and clips, back to this death screen afterwards.
+            dev.skirmish.ui.widget.ScreenWidgets.attach(screen, (ui, widgets, mx, my) -> {
+                String l = "layout.death_button.";
+                float h = ui.num(l + "height");
+                float y = (float) dev.skirmish.ui.Ui.toDesignOnVanilla(screen.height / 4 + 96 + 20) + ui.num(l + "gap") + h
+                        + ui.num(l + "info_gap") + ui.lineHeight("death_info") + ui.num(l + "library_gap");
+                float w = libraryButton.preferredWidth(ui);
+                float bh = ui.num(l + "library_height");
+                libraryButton.bounds((ui.width() - w) / 2f, y, w, bh);
+                widgets.widget(ui, libraryButton, mx, my);
             });
             ReplayBuffer buffer = recorder.buffer();
             log("death screen opened: Watch button added (recorded %.2f s, %d players, dead=%s, frozen=%s)",
@@ -197,6 +302,10 @@ public final class KillCamModule extends Module {
                 return;
             }
             Combatant attacker = info.attacker();
+            ReplaySession session = ReplaySession.current();
+            if (session != null && session.saved != null && !session.saved.startedDead() && info.victim().self() && stopOnDamage.get()) {
+                session.stop("I took damage while watching a saved replay", ReplaySession.SCREEN_CLOSE);
+            }
             recorder.onEvent(ReplayBuffer.EVENT_HIT, info.victim().uuid(), attacker == null ? null : attacker.uuid(), info.damageType(),
                     (attacker == null ? "?" : attacker.name()) + " -> " + info.victim().name() + " (" + info.damageType() + ")");
         }
@@ -224,10 +333,18 @@ public final class KillCamModule extends Module {
         }
 
         @Override
+        public void onKill(Fight fight) {
+            if (isEnabled()) {
+                saver.onKill(fight.opponent());
+            }
+        }
+
+        @Override
         public void onOwnDeath(OwnDeath death) {
             LocalPlayer player = Minecraft.getInstance().player;
             if (isEnabled() && player != null) {
                 recorder.onOwnDeath(death, player);
+                saver.onOwnDeath(death);
             }
         }
     }

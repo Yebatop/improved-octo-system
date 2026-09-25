@@ -19,6 +19,9 @@ public final class SkirmishKeys {
     public static final KeyMapping WAYPOINT_CYCLE = key("key.skirmish.waypoint_cycle", InputConstants.UNKNOWN.getValue());
 
     public static final KeyMapping KILLCAM_REPLAY = key("key.skirmish.killcam.replay", GLFW.GLFW_KEY_K);
+    /** «Сохранить момент»: the last seconds into the replay library. J is free in vanilla and sits next to K. */
+    public static final KeyMapping KILLCAM_CLIP = key("key.skirmish.killcam.clip", GLFW.GLFW_KEY_J);
+    public static final KeyMapping KILLCAM_LIBRARY = key("key.skirmish.killcam.library", InputConstants.UNKNOWN.getValue());
     public static final KeyMapping CLANSHARE_SHARE = key("key.skirmish.clanshare.share", InputConstants.UNKNOWN.getValue());
     public static final KeyMapping GEARINSPECTOR_LOCK = key("key.skirmish.gearinspector.lock", InputConstants.UNKNOWN.getValue());
     public static final KeyMapping ANVILCALC_CALCULATE = key("key.skirmish.anvilcalc.calculate", InputConstants.UNKNOWN.getValue());
@@ -37,7 +40,7 @@ public final class SkirmishKeys {
     }
 
     static void register() {
-        for (KeyMapping mapping : new KeyMapping[]{OPEN_MENU, WAYPOINT_ADD, WAYPOINT_CYCLE, KILLCAM_REPLAY,
+        for (KeyMapping mapping : new KeyMapping[]{OPEN_MENU, WAYPOINT_ADD, WAYPOINT_CYCLE, KILLCAM_REPLAY, KILLCAM_CLIP, KILLCAM_LIBRARY,
                 CLANSHARE_SHARE, GEARINSPECTOR_LOCK, ANVILCALC_CALCULATE, KILLCARD_OPEN_FOLDER, DETAILS, ZOOM, FULLBRIGHT_TOGGLE}) {
             KeyBindingHelper.registerKeyBinding(mapping);
         }

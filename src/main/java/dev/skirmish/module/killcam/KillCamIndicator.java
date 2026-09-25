@@ -6,7 +6,7 @@ import dev.skirmish.hud.Placement;
 import dev.skirmish.ui.Ui;
 import net.minecraft.client.Minecraft;
 
-/** «● KillCam · последние 10 с» pill while the recorder is running. */
+/** «● KillCam · последние 10 с» pill while the recorder is running; «KillCam · клип сохранён» for a moment after a save. */
 final class KillCamIndicator extends HudBlock {
     private final KillCamModule module;
     private final Recorder recorder;
@@ -34,6 +34,10 @@ final class KillCamIndicator extends HudBlock {
     }
 
     private String sub() {
+        String notice = module.notice();
+        if (notice != null) {
+            return Ui.tr(notice);
+        }
         return Ui.tr("skirmish.hud.killcam.last", Ui.decimal(module.preDeathTicks() / 20.0, 0));
     }
 
