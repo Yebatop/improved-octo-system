@@ -30,6 +30,7 @@
     "skirmish-fullbright.mixins.json",
     "skirmish-zoom.mixins.json",
     "skirmish-camera.mixins.json",
+    "skirmish-hwitems.mixins.json",
     "skirmish-nametag.mixins.json",
     "skirmish-lag.mixins.json"
   ],

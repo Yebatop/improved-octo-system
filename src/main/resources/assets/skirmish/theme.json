@@ -13,7 +13,8 @@
     "theme/rune_window.json",
     "theme/damage_numbers.json",
     "theme/kill_fx.json",
-    "theme/player_menu.json"
+    "theme/player_menu.json",
+    "theme/hwutility.json"
   ],
   "colors": {
     "page": "#0B0B12",
