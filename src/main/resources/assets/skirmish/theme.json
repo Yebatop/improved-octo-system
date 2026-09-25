@@ -57,7 +57,9 @@
     "accent_10": "#7C5CFF1A",
     "hud_edit_backdrop": "#06060A66",
     "fill_10": "#FFFFFF1A",
-    "play_hover": "#E4E4EC"
+    "play_hover": "#E4E4EC",
+    "logo_slash": "#FFFFFFAA",
+    "logo_slash": "#FFFFFFAA"
   },
   "accents": {
     "violet": "#7C5CFF",
@@ -248,16 +250,6 @@
       "size": 10,
       "weight": 600,
       "color": "text_3"
-    },
-    "menu_mono": {
-      "size": 14,
-      "weight": 800,
-      "color": "accent"
-    },
-    "menu_mono_big": {
-      "size": 18,
-      "weight": 800,
-      "color": "accent"
     },
     "menu_back": {
       "size": 12,
@@ -683,6 +675,8 @@
       "search_width": 220,
       "search_icon": 14,
       "card_min_width": 200,
+      "tile_icon_ratio": 0.56,
+      "tile_icon_ratio": 0.56,
       "card_height": 132,
       "card_gap": 12,
       "card_pad": 14,

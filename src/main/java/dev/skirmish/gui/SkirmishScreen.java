@@ -357,8 +357,7 @@ public final class SkirmishScreen extends UiScreen {
         float rowH = Math.max(logo, textH);
         float ly = by + (rowH - logo) / 2f;
         ui.rect(bx, ly, logo, logo, ui.theme().radius("logo"), ui.color("accent"));
-        float icon = ui.num(L + "logo_icon");
-        Icons.sword(ui, bx + (logo - icon) / 2f, ly + (logo - icon) / 2f, icon, ui.num(L + "logo_icon_stroke"), ui.color("white"), false);
+        ModuleIcons.logo(ui, bx, ly, logo, ui.color("white"), ui.color("logo_slash"));
         float tx = bx + logo + ui.num(L + "brand_gap");
         float ty = by + (rowH - textH) / 2f;
         ui.text("menu_brand", "Skirmish", tx, ty);
@@ -605,17 +604,16 @@ public final class SkirmishScreen extends UiScreen {
         ui.rect(centerX - barW / 2f, barY, barW, barH, barW / 2f, ui.color("stroke_12"));
     }
 
-    /** Monogram tile of a module: its first letter, tinted when the module is on ({@code on} 0..1). */
-    private static void monogram(Ui ui, Module module, float x, float y, float size, float radius, String style, float on) {
+    /** Icon tile of a module, tinted when the module is on ({@code on} 0..1). */
+    private static void moduleTile(Ui ui, Module module, float x, float y, float size, float radius, float on) {
         ui.rect(x, y, size, size, radius, Anim.lerpColor(ui.color("fill_05"), ui.color("accent_16"), on));
-        String n = name(module);
-        String letter = n.isEmpty() ? "?" : n.substring(0, n.offsetByCodePoints(0, 1)).toUpperCase(Locale.ROOT);
-        float lw = ui.textWidth(style, letter);
-        ui.textCentered(style, letter, x + (size - lw) / 2f, y, size, Anim.lerpColor(ui.color("text_3"), ui.color("accent"), on));
+        float icon = Math.round(size * ui.num(L + "tile_icon_ratio"));
+        ModuleIcons.draw(ui, module, x + (size - icon) / 2f, y + (size - icon) / 2f, icon,
+                Anim.lerpColor(ui.color("text_3"), ui.color("accent"), on));
     }
 
     /**
-     * Module card: monogram, name, switch, two lines of description, the settings count (or the setting that
+     * Module card: icon, name, switch, two lines of description, the settings count (or the setting that
      * matched the search), its bound key and an arrow. Clicking anywhere but the switch opens the module page.
      */
     private final class ModuleCard extends Widget {
@@ -647,7 +645,7 @@ public final class SkirmishScreen extends UiScreen {
 
             float pad = ui.num(L + "card_pad");
             float mono = ui.num(L + "card_mono");
-            monogram(ui, module, x + pad, y + pad, mono, ui.theme().radius("button"), "menu_mono", o);
+            moduleTile(ui, module, x + pad, y + pad, mono, ui.theme().radius("button"), o);
             float tx = x + pad + mono + ui.num(L + "card_mono_gap");
             float nameW = x + w - pad - ui.num(L + "toggle_width") - ui.num(L + "card_mono_gap") - tx;
             String title = ui.ellipsize("menu_card_title", name(module), nameW);
@@ -767,13 +765,13 @@ public final class SkirmishScreen extends UiScreen {
         }
         cy += bh + ui.num(L + "topbar_gap");
 
-        // Header: monogram, title + description, module switch on the right.
+        // Header: icon tile, title + description, module switch on the right.
         float tile = ui.num(L + "header_tile");
         float toggleW = ui.num(L + "toggle_width");
         float tileGap = ui.num(L + "header_tile_gap");
         float textX = cx + tile + tileGap;
         float textW = cx + cw - toggleW - ui.num(L + "header_gap") - textX;
-        monogram(ui, selected, cx, cy, tile, ui.theme().radius("tile"), "menu_mono_big", selected.isEnabled() ? 1f : 0f);
+        moduleTile(ui, selected, cx, cy, tile, ui.theme().radius("tile"), selected.isEnabled() ? 1f : 0f);
         ui.text("menu_title", ui.ellipsize("menu_title", name(selected), textW), textX, cy);
         float ty = cy + ui.lineHeight("menu_title") + ui.num(L + "header_text_gap");
         for (String line : ui.wrap("menu_desc", description(selected), textW)) {
