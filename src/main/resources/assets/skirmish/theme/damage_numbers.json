@@ -1,0 +1,23 @@
+{
+  "colors": {
+    "dn_hit": "#F2F2F7",
+    "dn_crit": "#FFD166",
+    "dn_totem": "#FF9F43",
+    "dn_heal": "#3DDC97",
+    "dn_outline": "#06060AC0"
+  },
+  "text": {
+    "dn_number": {"size": 16, "weight": 800, "color": "dn_hit"}
+  },
+  "layout": {
+    "damage_numbers": {
+      "world_scale": 0.016,
+      "lift": 0.25,
+      "spread": 0.6,
+      "rise": 0.7,
+      "fade_start": 0.6,
+      "pop_scale": 1.35,
+      "pop_part": 0.15
+    }
+  }
+}

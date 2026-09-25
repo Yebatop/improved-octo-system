@@ -89,6 +89,13 @@ public final class SkirmishClient implements ClientModInitializer {
         modules.register(new dev.skirmish.module.hwtimers.ItemTimersModule());
         modules.register(new dev.skirmish.module.tnttimer.TntTimerModule());
         modules.register(new dev.skirmish.module.bosscoach.BossCoachModule());
+        modules.register(new dev.skirmish.module.runewindow.RuneWindowModule());
+        modules.register(new dev.skirmish.module.damagenumbers.DamageNumbersModule());
+        modules.register(new dev.skirmish.module.killfx.KillFxModule());
+        modules.register(new dev.skirmish.module.playermenu.PlayerMenuModule());
+        modules.register(new dev.skirmish.module.hwitems.badges.TalismanBadgesModule());
+        modules.register(new dev.skirmish.module.hwitems.tooltips.HwTooltipsModule());
+        modules.register(new dev.skirmish.module.recap.SessionRecapModule());
         InterfaceModule iface = modules.register(new InterfaceModule());
 
         Runnable restoreRemoved = RemovedModules.read(dir.resolve("config.json"));

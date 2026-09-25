@@ -62,7 +62,7 @@ public record HolyGear(@Nullable DonorTier tier, List<CustomEnchant.Found> custo
     }
 
     /** The server-given name, or "" for an item that only has its vanilla name. */
-    static String customName(ItemStack stack) {
+    public static String customName(ItemStack stack) {
         Component custom = stack.get(DataComponents.CUSTOM_NAME);
         if (custom != null) {
             return custom.getString();
@@ -71,7 +71,7 @@ public record HolyGear(@Nullable DonorTier tier, List<CustomEnchant.Found> custo
         return itemName == null ? "" : itemName.getString();
     }
 
-    static List<String> lore(ItemStack stack) {
+    public static List<String> lore(ItemStack stack) {
         ItemLore lore = stack.get(DataComponents.LORE);
         if (lore == null) {
             return List.of();

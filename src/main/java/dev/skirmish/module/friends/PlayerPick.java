@@ -16,11 +16,11 @@ import java.util.Optional;
  * The player under the crosshair for the «добавить/убрать друга» key: a local ray from the camera that stops at the
  * first block (never through walls) and ignores invisible, spectating and dead players.
  */
-final class PlayerPick {
+public final class PlayerPick {
     private PlayerPick() {
     }
 
-    static @Nullable Player find(Minecraft mc, double maxDistance) {
+    public static @Nullable Player find(Minecraft mc, double maxDistance) {
         Entity camera = mc.getCameraEntity();
         ClientLevel level = mc.level;
         Player self = mc.player;

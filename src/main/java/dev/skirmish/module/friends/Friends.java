@@ -35,6 +35,33 @@ public final class Friends {
         return player != null && isFriend(player.getUUID(), player.getGameProfile().name());
     }
 
+    /** Whether the «Друзья» module is on (and not blocked), so the list can be edited. */
+    public static boolean available() {
+        FriendsModule module = FriendsModule.instance();
+        return module != null && module.isEnabled();
+    }
+
+    /**
+     * Adds the player, or removes them when already a friend (a user's click, e.g. in the player menu). Returns
+     * whether they are a friend afterwards; nothing changes while the module is off.
+     */
+    public static boolean toggle(@Nullable UUID uuid, String name) {
+        FriendsModule module = FriendsModule.instance();
+        if (module == null || !module.isEnabled()) {
+            return false;
+        }
+        FriendList current = module.list.get();
+        if (current.contains(uuid, name)) {
+            module.list.set(current.remove(uuid, name));
+            module.log("removed " + name + " (player menu)");
+            return false;
+        }
+        FriendList next = current.add(name, uuid);
+        module.list.set(next);
+        module.log("added " + name + " " + uuid + " (player menu)");
+        return next.contains(uuid, name);
+    }
+
     /** The saved list (empty while the module is off). */
     public static FriendList list() {
         FriendsModule module = FriendsModule.instance();

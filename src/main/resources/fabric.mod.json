@@ -33,6 +33,7 @@
     "skirmish-hwtimers.mixins.json",
     "skirmish-tnttimer.mixins.json",
     "skirmish-bosscoach.mixins.json",
+    "skirmish-hwitems.mixins.json",
     "skirmish-nametag.mixins.json",
     "skirmish-lag.mixins.json"
   ],
