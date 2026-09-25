@@ -16,7 +16,7 @@ class TimerBoardTest {
     private static final TimerTable TABLE = TimerTable.bundled();
     private static final TimerDef STAN = TABLE.byId("stan");
     private static final TimerDef RAID = TABLE.byId("raid_block");
-    private static final TimerDef TRAP = TABLE.byId("trap_box");
+    private static final TimerDef OPEN = TABLE.byId("elements");
 
     @Test
     void startsWithTheTableLength() {
@@ -61,24 +61,24 @@ class TimerBoardTest {
     @Test
     void openEndedTimersCountUpUntilTheirBound() {
         TimerBoard board = new TimerBoard();
-        Chip chip = board.start(TRAP, 0, null, Source.BLOCKS, true, false);
+        Chip chip = board.start(OPEN, 0, null, Source.BOSS_BAR, true, false);
         assertFalse(chip.countsDown());
         assertEquals(1f, chip.fraction(30_000));
         assertEquals(30_000, chip.elapsedMs(30_000));
         board.expire(59_999);
         assertEquals(1, board.active(59_999).size());
         board.expire(60_000);
-        assertNull(board.get("trap_box"));
+        assertNull(board.get("elements"));
     }
 
     @Test
     void activeOrderIsSoonestFirstThenOpenEnded() {
         TimerBoard board = new TimerBoard();
-        board.start(TRAP, 0, null, Source.BLOCKS, true, false);
+        board.start(OPEN, 0, null, Source.BOSS_BAR, true, false);
         board.start(RAID, 0, null, Source.EXPLOSION, true, false);
         board.start(STAN, 0, null, Source.CHAT, true, false);
         List<String> order = board.active(1_000).stream().map(Chip::id).toList();
-        assertEquals(List.of("stan", "raid_block", "trap_box"), order);
+        assertEquals(List.of("stan", "raid_block", "elements"), order);
     }
 
     @Test
@@ -96,7 +96,7 @@ class TimerBoardTest {
     @Test
     void trackedBlocksEndTheChipWhenMostlyGone() {
         TimerBoard board = new TimerBoard();
-        Chip chip = board.start(TRAP, 0, null, Source.BLOCKS, true, false);
+        Chip chip = board.start(OPEN, 0, null, Source.BLOCKS, true, false);
         board.track(chip, List.of(1L, 2L, 3L, 3L, 4L, 5L, 6L));
         assertEquals(6, chip.trackedPositions());
         assertFalse(TimerBoard.mostlyGone(2, 6));

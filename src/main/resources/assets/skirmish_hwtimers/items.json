@@ -46,28 +46,6 @@
       "confirmed": false
     },
     {
-      "id": "trap_box",
-      "tone": "bad",
-      "mode": "lite",
-      "seconds": 0,
-      "max_seconds": 60,
-      "wiki": "lite/items/custom.md: «Трапка — При активации наносит урон в радиусе 3 блоков и создает временную коробку. Не работает на заприваченных территориях.»",
-      "chat": [
-        "(?:(?<![\\p{L}])(?:вы|вас)[^.!?]{0,30}(?:трапк|ловушк))",
-        "(?:(?:трапк|ловушк)[^.!?]{0,30}(?<![\\p{L}])(?:вас|вы)(?![\\p{L}]))"
-      ],
-      "blocks": {
-        "appear": [
-          "*"
-        ],
-        "min": 8,
-        "radius": 4,
-        "window_ms": 1500,
-        "ends_when_gone": true
-      },
-      "confirmed": false
-    },
-    {
       "id": "raid_block",
       "tone": "warn",
       "mode": "lite",

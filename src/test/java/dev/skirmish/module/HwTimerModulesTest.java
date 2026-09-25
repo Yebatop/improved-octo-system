@@ -174,6 +174,6 @@ class HwTimerModulesTest {
         loaded = JsonTables.load(dir, TimerTable.OVERRIDE_NAME, TimerTable.RESOURCE);
         assertNotNull(loaded.problem());
         assertEquals(TimerTable.RESOURCE, loaded.source());
-        assertEquals(8, TimerTable.parse(loaded.root()).timers().size());
+        assertEquals(7, TimerTable.parse(loaded.root()).timers().size());
     }
 }

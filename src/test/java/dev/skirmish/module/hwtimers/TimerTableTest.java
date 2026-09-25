@@ -22,7 +22,7 @@ class TimerTableTest {
     @Test
     void bundledTableReadsCleanly() {
         assertTrue(TABLE.problems().isEmpty(), TABLE.problems().toString());
-        assertEquals(List.of("stan", "ice_wave", "trap_box", "raid_block", "immortality", "jake_lamp", "snow_lump", "elements"),
+        assertEquals(List.of("stan", "ice_wave", "raid_block", "immortality", "jake_lamp", "snow_lump", "elements"),
                 TABLE.timers().stream().map(TimerDef::id).toList());
     }
 
@@ -34,7 +34,6 @@ class TimerTableTest {
         assertEquals(3, TABLE.byId("immortality").seconds());
         assertEquals(15, TABLE.byId("jake_lamp").seconds());
         assertEquals(10, TABLE.byId("snow_lump").seconds());
-        assertFalse(TABLE.byId("trap_box").countsDown(), "the wiki gives no duration for the trap box");
         assertEquals("immortality", TABLE.byId("immortality").totemRune());
         for (TimerDef def : TABLE.timers()) {
             assertFalse(def.wiki().isBlank(), def.id() + " cites the wiki");
@@ -48,7 +47,7 @@ class TimerTableTest {
         assertEquals(List.of("stan"), ids("Эндер-жемчуг сейчас заблокирован"));
         assertEquals(List.of("stan"), ids("Нельзя использовать хорус здесь"));
         assertEquals(List.of("ice_wave"), ids("Ледяная Волна!"));
-        assertEquals(List.of("trap_box"), ids("Вас поймала трапка"));
+        assertEquals(List.of(), ids("Вас поймала трапка"), "the trap timer was removed");
         assertEquals(List.of("raid_block"), ids("Здесь действует рейд-блок, 3:12"));
         assertEquals(List.of("raid_block"), ids("РЕЙД БЛОК"));
         assertEquals(List.of(), ids("Станция метро"));

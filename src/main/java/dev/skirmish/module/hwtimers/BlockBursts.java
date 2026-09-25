@@ -14,7 +14,7 @@ import java.util.function.Predicate;
 
 /**
  * Groups server block updates around the local player into the shapes HolyWorld items leave: an ice sphere
- * (Ледяная волна), a box (Трапка), obsidian broken by an explosion (raid block). Only updates the server sent and
+ * (Ледяная волна) or obsidian broken by an explosion (raid block). Only updates the server sent and
  * that changed the block are fed in; my own placements arrive as confirmations of what the client already shows and
  * are filtered out before this class. Pure Java, covered by tests.
  */

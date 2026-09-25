@@ -47,8 +47,8 @@ import java.util.Map;
 import java.util.OptionalInt;
 
 /**
- * «Item Timers»: chips for HolyWorld items acting on me (Стан and its pearl/chorus ban, Ледяная волна, Трапка, raid
- * block, rune «Бессмертие», …) with a countdown and a short note. Sources, all read-only: my own mob effects, my own
+ * «Item Timers»: chips for HolyWorld items acting on me (Стан and its pearl/chorus ban, Ледяная волна, raid block,
+ * rune «Бессмертие», …) with a countdown and a short note. Sources, all read-only: my own mob effects, my own
  * totem pops, system chat / titles / action bar, server block updates and explosions around me, and boss bars.
  * Only my own state and public world events; other players' cooldowns are never tracked or estimated. The table is
  * {@code assets/skirmish_hwtimers/items.json}; with the debug log on every server line and burst is logged so the

@@ -42,16 +42,6 @@ class BlockBurstsTest {
     }
 
     @Test
-    void boxOfAnyBlockCloseToMeIsATrap() {
-        BlockBursts bursts = new BlockBursts();
-        for (int i = 0; i < 12; i++) {
-            bursts.appear(i, "minecraft:obsidian", 1.8, 500);
-        }
-        List<BlockBursts.Burst> found = evaluate(bursts, 700);
-        assertEquals(List.of("trap_box"), found.stream().map(b -> b.def().id()).toList());
-    }
-
-    @Test
     void fewOrFarOrOldBlocksAreNothing() {
         BlockBursts bursts = new BlockBursts();
         for (int i = 0; i < 5; i++) {
