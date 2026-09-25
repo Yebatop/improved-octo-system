@@ -23,9 +23,15 @@ final class ItemTimersHud extends HudBlock {
     private List<Chip> chips = List.of();
 
     ItemTimersHud(ItemTimersModule module) {
-        super(ItemTimersModule.ID, "skirmish.hud.element.hw_item_timers", new Placement(0.5f, 0.5f, 1f, 0.5f,
-                -Theme.get().num(L + "default_dx"), 0));
+        super(ItemTimersModule.ID, "skirmish.hud.element.hw_item_timers", new Placement(0.5f, 0f, 0.5f, 0f, 0,
+                Theme.get().num("layout.hud.top_column_dy")));
         this.module = module;
+    }
+
+    /** Last in the top-centre alert column (combat tag, banners, kill banner), clear of the crosshair. */
+    @Override
+    public @org.jspecify.annotations.Nullable String stackUnder() {
+        return "kill_fx";
     }
 
     @Override
