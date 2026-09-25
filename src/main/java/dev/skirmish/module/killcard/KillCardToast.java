@@ -39,7 +39,7 @@ final class KillCardToast extends HudBlock {
     /** Client thread: uploads a thumbnail of {@code card} and starts the toast. */
     void show(BufferedImage card, String fileName) {
         dev.skirmish.ui.Theme t = dev.skirmish.ui.Theme.get();
-        float thumbW = t.num(L + "toast_width") - t.num(L + "toast_pad") * 2 - t.num("stroke.width") * 2;
+        float thumbW = t.num(L + "toast_thumb_width");
         texW = Math.round(thumbW);
         texH = Math.round(thumbW * card.getHeight() / card.getWidth());
         BufferedImage scaled = new BufferedImage(texW, texH, BufferedImage.TYPE_INT_ARGB);
@@ -80,39 +80,41 @@ final class KillCardToast extends HudBlock {
     }
 
     private float thumbHeight(Ui ui) {
-        float thumbW = width(ui, false) - ui.num(L + "toast_pad") * 2 - ui.num("stroke.width") * 2;
-        return Math.round(thumbW * ui.num("layout.card.height") / ui.num("layout.card.width"));
+        return Math.round(ui.num(L + "toast_thumb_width") * ui.num("layout.card.height") / ui.num("layout.card.width"));
     }
 
+    /** A compact row: the card thumbnail on the left, «Карточка сохранена» and the file (or key hint) beside it. */
     @Override
     public float height(Ui ui, boolean preview) {
-        return ui.num("stroke.width") * 2 + ui.num(L + "toast_pad") * 2 + thumbHeight(ui) + ui.num(L + "toast_gap")
-                + ui.lineHeight("toast_title") + ui.lineHeight("toast_sub");
+        float text = ui.lineHeight("toast_title") + ui.lineHeight("toast_sub");
+        return ui.num("stroke.width") * 2 + ui.num(L + "toast_pad") * 2 + Math.max(thumbHeight(ui), text);
     }
 
     @Override
     public void render(Ui ui, float x, float y, boolean preview) {
         float w = width(ui, preview);
-        HudStyle.panel(ui, x, y, w, height(ui, preview));
+        float h = height(ui, preview);
+        HudStyle.panel(ui, x, y, w, h);
         float inset = ui.num("stroke.width") + ui.num(L + "toast_pad");
-        float tx = x + inset;
-        float ty = y + inset;
-        float thumbW = w - inset * 2;
+        float thumbW = ui.num(L + "toast_thumb_width");
         float thumbH = thumbHeight(ui);
+        float tx = x + inset;
+        float ty = y + (h - thumbH) / 2f;
         if (shownAt >= 0 && !preview) {
             ui.graphics().blit(RenderPipelines.GUI_TEXTURED, TEXTURE, Math.round(tx), Math.round(ty), 0, 0,
                     Math.round(thumbW), Math.round(thumbH), texW, texH);
         } else {
             ui.rect(tx, ty, thumbW, thumbH, 0, ui.color("card"));
         }
-        ui.cornerMask(Math.round(tx), Math.round(ty), Math.round(thumbW), Math.round(thumbH), ui.theme().radius("button_sm"), ui.color("panel"));
-        ty += thumbH + ui.num(L + "toast_gap");
-        ui.text("toast_title", Ui.tr("skirmish.killcard.toast.title"), tx, ty);
-        ty += ui.lineHeight("toast_title");
+        ui.cornerMask(Math.round(tx), Math.round(ty), Math.round(thumbW), Math.round(thumbH), ui.theme().radius("chip"), ui.color("panel"));
+        float textX = tx + thumbW + ui.num(L + "toast_gap");
+        float textW = x + w - inset - textX;
+        float textY = y + (h - ui.lineHeight("toast_title") - ui.lineHeight("toast_sub")) / 2f;
+        ui.text("toast_title", ui.ellipsize("toast_title", Ui.tr("skirmish.killcard.toast.title"), textW), textX, textY);
         String sub = SkirmishKeys.KILLCARD_OPEN_FOLDER.isUnbound()
-                ? ui.ellipsize("toast_sub", preview ? "killcard_23.09.2026.png" : fileName, thumbW)
+                ? ui.ellipsize("toast_sub", preview ? "killcard_23.09.2026.png" : fileName, textW)
                 : Ui.tr("skirmish.killcard.toast.key", KeyNames.shortName(SkirmishKeys.KILLCARD_OPEN_FOLDER));
-        ui.text("toast_sub", sub, tx, ty);
+        ui.text("toast_sub", ui.ellipsize("toast_sub", sub, textW), textX, textY + ui.lineHeight("toast_title"));
     }
 
 }

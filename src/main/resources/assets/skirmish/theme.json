@@ -754,6 +754,7 @@
       "world_label_stem": 6,
       "stack_gap": 10,
       "toast_width": 240,
+      "toast_thumb_width": 72,
       "toast_pad": 10,
       "toast_gap": 8,
       "toast_ms": 5000,
