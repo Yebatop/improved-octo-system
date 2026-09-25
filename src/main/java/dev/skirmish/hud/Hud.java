@@ -127,10 +127,13 @@ public final class Hud {
         }
         Ui ui = Ui.begin(graphics);
         try {
-            float[] sidebar = SidebarBounds.gui(mc, graphics.guiWidth(), graphics.guiHeight());
-            if (sidebar != null) {
-                for (int i = 0; i < 4; i++) {
-                    sidebar[i] = (float) Ui.toDesign(sidebar[i]);
+            float[] sidebar = ownSidebar(ui);
+            if (sidebar == null) {
+                sidebar = SidebarBounds.gui(mc, graphics.guiWidth(), graphics.guiHeight());
+                if (sidebar != null) {
+                    for (int i = 0; i < 4; i++) {
+                        sidebar[i] = (float) Ui.toDesign(sidebar[i]);
+                    }
                 }
             }
             Map<String, float[]> drawn = new HashMap<>();
@@ -160,6 +163,21 @@ public final class Hud {
         } finally {
             ui.end();
         }
+    }
+
+    /** {x, y, w, h} in design px of a shown block that replaces vanilla's sidebar, or null. */
+    private float @org.jspecify.annotations.Nullable [] ownSidebar(Ui ui) {
+        for (HudBlock block : blocks) {
+            if (block.isSidebar() && block.enabled() && block.shown()) {
+                block.update(false);
+                float scale = scale(block);
+                float w = block.width(ui, false) * scale;
+                float h = block.height(ui, false) * scale;
+                float[] at = position(block, w, h, ui.width(), ui.height());
+                return new float[]{at[0], at[1], w, h};
+            }
+        }
+        return null;
     }
 
     /**
@@ -194,7 +212,7 @@ public final class Hud {
             under = other.stackUnder();
         }
         // w/h are the scaled size, so a scaled element steps out of the sidebar by its real width.
-        if (sidebar != null && x < sidebar[0] + sidebar[2] && x + w > sidebar[0] && y < sidebar[1] + sidebar[3] && y + h > sidebar[1]) {
+        if (sidebar != null && !block.isSidebar() && x < sidebar[0] + sidebar[2] && x + w > sidebar[0] && y < sidebar[1] + sidebar[3] && y + h > sidebar[1]) {
             x = sidebar[0] - gap - w;
         }
         x = Math.max(0f, Math.min(ui.width() - w, x));

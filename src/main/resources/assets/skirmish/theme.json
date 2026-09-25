@@ -16,7 +16,10 @@
     "theme/kill_fx.json",
     "theme/player_menu.json",
     "theme/hwutility.json",
-    "theme/invhighlight.json"
+    "theme/invhighlight.json",
+    "theme/regions.json",
+    "theme/scoreboard.json",
+    "theme/evtimers.json"
   ],
   "colors": {
     "page": "#0B0B12",

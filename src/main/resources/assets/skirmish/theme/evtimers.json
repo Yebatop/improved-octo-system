@@ -1,0 +1,73 @@
+{
+  "colors": {
+    "ev_sun": "#FFB938",
+    "ev_castle": "#9C7CFF",
+    "ev_pandora": "#FF6BD5",
+    "ev_mine": "#4FD8E8",
+    "ev_shulker_common": "#B8BCC8",
+    "ev_shulker_rare": "#58C8FF",
+    "ev_shulker_epic": "#B07CFF"
+  },
+  "text": {
+    "ev_title": {
+      "size": 12,
+      "weight": 700,
+      "color": "text"
+    },
+    "ev_value": {
+      "size": 12,
+      "weight": 700,
+      "color": "text",
+      "mono": true
+    },
+    "ev_note": {
+      "size": 10,
+      "weight": 500,
+      "color": "text_2"
+    },
+    "ev_pandora": {
+      "size": 13,
+      "weight": 700,
+      "color": "text",
+      "mono": true
+    }
+  },
+  "layout": {
+    "evtimers": {
+      "chip_width": 196,
+      "chip_pad_x": 10,
+      "chip_pad_y": 7,
+      "chip_gap": 6,
+      "chip_line_gap": 2,
+      "chip_accent": 3,
+      "chip_accent_gap": 8,
+      "chip_bar_gap": 5,
+      "chip_bar": 3,
+      "core_search": 32,
+      "core_zone": 12,
+      "core_drop_radius": 1.5,
+      "core_drop_height": 2.5,
+      "core_prime_ms": 3000,
+      "ring_segments": 96,
+      "ring_width": 3.0,
+      "ring_alpha": 220,
+      "ring_fill_alpha": 40,
+      "ring_fill_inner": 0.82,
+      "ring_lift": 0.03,
+      "castle_near": 160,
+      "castle_radius": 96,
+      "pandora_lift": 1.35,
+      "pandora_grace_ms": 1500,
+      "pandora_pad_x": 8,
+      "pandora_pad_y": 5,
+      "pandora_bar": 3,
+      "pandora_bar_gap": 3,
+      "pandora_min_width": 52,
+      "mine_burst_min": 300,
+      "mine_burst_xz": 40,
+      "mine_burst_y": 24,
+      "mine_near": 96,
+      "mine_keep_ms": 180000
+    }
+  }
+}

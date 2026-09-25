@@ -1,0 +1,17 @@
+{
+  "layout": {
+    "scoreboard": {
+      "edge": 6,
+      "min_width": 120,
+      "pad_x": 12,
+      "pad_y": 10,
+      "title_gap": 5,
+      "underline": 2,
+      "underline_min": 36,
+      "rule_gap": 8,
+      "row_gap": 2,
+      "divider": 12,
+      "score_gap": 12
+    }
+  }
+}

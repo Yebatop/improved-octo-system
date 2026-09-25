@@ -1,0 +1,15 @@
+{
+  "skirmish.module.scoreboard.name": "Scoreboard",
+  "skirmish.module.scoreboard.description": "The server's sidebar (HolyWorld's board) in a Skirmish panel instead of vanilla's grey box: a title with an accent underline, even padding, blank lines as thin dividers and the red numbers hidden. It is a HUD element, so move and scale it in the HUD editor. The server's text, colours and icons stay.",
+  "skirmish.module.scoreboard.setting.title": "Title",
+  "skirmish.module.scoreboard.setting.title.tooltip": "The board's name on top with an accent underline",
+  "skirmish.module.scoreboard.setting.numbers": "Numbers",
+  "skirmish.module.scoreboard.setting.numbers.tooltip": "Show the numbers on the right (red in vanilla)",
+  "skirmish.module.scoreboard.setting.dividers": "Dividers",
+  "skirmish.module.scoreboard.setting.dividers.tooltip": "Blank lines become a thin line; blank lines at the top and bottom are dropped",
+  "skirmish.module.scoreboard.setting.shadow": "Text shadow",
+  "skirmish.module.scoreboard.setting.shadow.tooltip": "A shadow under the lines' text, like chat",
+  "skirmish.module.scoreboard.setting.opacity": "Opacity",
+  "skirmish.module.scoreboard.setting.opacity.tooltip": "How solid the panel's background is",
+  "skirmish.hud.element.scoreboard": "Scoreboard"
+}

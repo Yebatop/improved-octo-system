@@ -305,6 +305,27 @@ public final class EventsModule extends Module {
         };
     }
 
+    /**
+     * A Prime event of that plugin ("pandora_box", ...) runs on the player's own Prime server now, per the last
+     * {@code /v2/prime/events/current} poll (false while the server or the data is unknown, or the module is off).
+     */
+    public boolean primeEventRunning(String plugin) {
+        if (!isEnabled() || current == null || !current.isPrime()) {
+            return false;
+        }
+        for (EventsJson.PrimeEvent e : primeCurrent) {
+            if (e.running() && plugin.equals(e.plugin()) && current.apiId().equals(e.server())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Lite or Prime as detected from the sidebar, tab list or join lines; UNKNOWN while not known or the module is off. */
+    public ServerParser.Mode serverMode() {
+        return isEnabled() ? detectedMode() : ServerParser.Mode.UNKNOWN;
+    }
+
     private ServerParser.Mode detectedMode() {
         if (current != null) {
             return current.mode();

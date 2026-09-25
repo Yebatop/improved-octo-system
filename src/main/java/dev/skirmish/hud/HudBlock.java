@@ -56,6 +56,14 @@ public abstract class HudBlock {
         return null;
     }
 
+    /**
+     * This block draws the scoreboard sidebar in place of vanilla's: while it is shown, the other blocks left at their
+     * default place step out of it instead of vanilla's sidebar.
+     */
+    public boolean isSidebar() {
+        return false;
+    }
+
     /** Called once per frame before measuring, e.g. to refresh cached data. */
     public void update(boolean preview) {
     }

@@ -279,6 +279,31 @@ public final class ModuleIcons {
                 p(ui, x, y, s, c, 6f, 2f, 18f, 12f);
             }
             case "waypoints" -> CategoryIcons.pin(ui, x, y, size, c);
+            case "region_bounds" -> { // corner brackets of an area around a block
+                p(ui, x, y, s, c, 3f, 8f, 3f, 3f, 8f, 3f);
+                p(ui, x, y, s, c, 16f, 3f, 21f, 3f, 21f, 8f);
+                p(ui, x, y, s, c, 21f, 16f, 21f, 21f, 16f, 21f);
+                p(ui, x, y, s, c, 8f, 21f, 3f, 21f, 3f, 16f);
+                ui.border(x + 9f * s, y + 9f * s, 6f * s, 6f * s, 1f * s, STROKE * s, c);
+            }
+            case "scoreboard" -> { // sidebar panel: title bar and lines with scores
+                ui.border(x + 4f * s, y + 2.5f * s, 16f * s, 19f * s, 2.5f * s, STROKE * s, c);
+                p(ui, x, y, s, c, 4f, 7.5f, 20f, 7.5f);
+                p(ui, x, y, s, c, 7.5f, 11.5f, 13f, 11.5f);
+                p(ui, x, y, s, c, 7.5f, 15f, 13f, 15f);
+                p(ui, x, y, s, c, 7.5f, 18.5f, 11f, 18.5f);
+                p(ui, x, y, s, c, 16f, 11.5f, 16.5f, 11.5f);
+                p(ui, x, y, s, c, 16f, 15f, 16.5f, 15f);
+            }
+            case "event_timers" -> { // alarm clock
+                ui.ring(x + 12f * s, y + 13f * s, 16f * s + STROKE * s, STROKE * s, c);
+                p(ui, x, y, s, c, 12f, 13f, 12f, 9f);
+                p(ui, x, y, s, c, 12f, 13f, 14.5f, 15f);
+                p(ui, x, y, s, c, 2.5f, 6f, 6f, 2.5f);
+                p(ui, x, y, s, c, 18f, 2.5f, 21.5f, 6f);
+                p(ui, x, y, s, c, 6.5f, 20f, 5f, 22f);
+                p(ui, x, y, s, c, 17.5f, 20f, 19f, 22f);
+            }
             default -> {
                 return false;
             }

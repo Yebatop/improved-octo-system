@@ -36,7 +36,8 @@
     "skirmish-bosscoach.mixins.json",
     "skirmish-hwitems.mixins.json",
     "skirmish-nametag.mixins.json",
-    "skirmish-lag.mixins.json"
+    "skirmish-lag.mixins.json",
+    "skirmish-evtimers.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_min_version}",

@@ -15,22 +15,29 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Where vanilla draws the scoreboard sidebar this frame, in GUI px, with the same objective choice, order, 15-line
- * limit and width rule as {@code Gui.displayScoreboardSidebar}. HUD elements left at their default place move out
- * of it (HolyWorld keeps its sidebar on screen all the time).
+ * The scoreboard sidebar the server shows now, read with the same objective choice, order and 15-line limit as
+ * {@code Gui.displayScoreboardSidebar}, and where vanilla draws it this frame in GUI px (same width rule). HUD
+ * elements left at their default place move out of it (HolyWorld keeps its sidebar on screen all the time).
  */
-final class SidebarBounds {
+public final class SidebarBounds {
     private static final Comparator<PlayerScoreEntry> ORDER = Comparator.comparing(PlayerScoreEntry::value)
             .reversed()
             .thenComparing(PlayerScoreEntry::owner, String.CASE_INSENSITIVE_ORDER);
     private static final int LINE = 9;
 
+    /** One line: the holder's name formatted for its team (prefix + name + suffix) and the formatted score. */
+    public record Row(Component name, Component score) {
+    }
+
+    public record Sidebar(Component title, List<Row> rows) {
+    }
+
     private SidebarBounds() {
     }
 
-    /** {x, y, w, h} in GUI px, or null when no sidebar is shown. */
-    static float @Nullable [] gui(Minecraft mc, int guiWidth, int guiHeight) {
-        if (mc.level == null || mc.player == null || mc.options.hideGui) {
+    /** The sidebar vanilla would draw now, or null (no objective in the team's or the sidebar slot). */
+    public static @Nullable Sidebar read(Minecraft mc) {
+        if (mc.level == null || mc.player == null) {
             return null;
         }
         Scoreboard scoreboard = mc.level.getScoreboard();
@@ -49,20 +56,33 @@ final class SidebarBounds {
             return null;
         }
         NumberFormat format = objective.numberFormatOrDefault(StyledFormat.SIDEBAR_DEFAULT);
-        List<PlayerScoreEntry> entries = scoreboard.listPlayerScores(objective).stream()
+        List<Row> rows = scoreboard.listPlayerScores(objective).stream()
                 .filter(entry -> !entry.isHidden())
                 .sorted(ORDER)
                 .limit(15)
+                .map(entry -> new Row(PlayerTeam.formatNameForTeam(scoreboard.getPlayersTeam(entry.owner()), entry.ownerName()),
+                        entry.formatValue(format)))
                 .toList();
-        var font = mc.font;
-        int width = font.width(objective.getDisplayName());
-        int colon = font.width(": ");
-        for (PlayerScoreEntry entry : entries) {
-            Component name = PlayerTeam.formatNameForTeam(scoreboard.getPlayersTeam(entry.owner()), entry.ownerName());
-            int score = font.width(entry.formatValue(format));
-            width = Math.max(width, font.width(name) + (score > 0 ? colon + score : 0));
+        return new Sidebar(objective.getDisplayName(), rows);
+    }
+
+    /** {x, y, w, h} in GUI px of the vanilla sidebar, or null when none is shown. */
+    static float @Nullable [] gui(Minecraft mc, int guiWidth, int guiHeight) {
+        if (mc.options.hideGui) {
+            return null;
         }
-        int lines = entries.size();
+        Sidebar sidebar = read(mc);
+        if (sidebar == null) {
+            return null;
+        }
+        var font = mc.font;
+        int width = font.width(sidebar.title());
+        int colon = font.width(": ");
+        for (Row row : sidebar.rows()) {
+            int score = font.width(row.score());
+            width = Math.max(width, font.width(row.name()) + (score > 0 ? colon + score : 0));
+        }
+        int lines = sidebar.rows().size();
         int bottom = guiHeight / 2 + lines * LINE / 3;
         int top = bottom - lines * LINE - LINE - 1;
         int left = guiWidth - width - 3 - 2;

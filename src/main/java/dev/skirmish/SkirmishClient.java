@@ -79,6 +79,8 @@ public final class SkirmishClient implements ClientModInitializer {
         modules.register(new LowFireModule());
         modules.register(new CoordsHudModule());
         modules.register(new DeathWaypointModule());
+        modules.register(new dev.skirmish.module.regions.RegionBoundsModule());
+        modules.register(new dev.skirmish.module.evtimers.EventTimersModule());
         modules.register(new NametagHpModule());
         modules.register(new FriendsModule());
         modules.register(new SurvivalAlertsModule());
@@ -98,6 +100,7 @@ public final class SkirmishClient implements ClientModInitializer {
         modules.register(new dev.skirmish.module.hwitems.badges.TalismanBadgesModule());
         modules.register(new dev.skirmish.module.hwitems.tooltips.HwTooltipsModule());
         modules.register(new dev.skirmish.module.recap.SessionRecapModule());
+        modules.register(new dev.skirmish.module.scoreboard.ScoreboardModule());
         InterfaceModule iface = modules.register(new InterfaceModule());
 
         Runnable restoreRemoved = RemovedModules.read(dir.resolve("config.json"));
