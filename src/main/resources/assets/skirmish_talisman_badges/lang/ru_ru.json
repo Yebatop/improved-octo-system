@@ -1,0 +1,18 @@
+{
+  "skirmish.module.talisman_badges.name": "Item Badges",
+  "skirmish.module.talisman_badges.description": "Значки на слотах инвентаря и хотбара для предметов HolyWorld: эффекты сфер и талисманов («У3 Б2»), руна, уровень рюкзака, тип динамита (A, B, C4, РВ, Б2…). Берётся из названия и описания самого предмета.",
+  "skirmish.module.talisman_badges.setting.holyworld_only": "Только на HolyWorld",
+  "skirmish.module.talisman_badges.setting.holyworld_only.tooltip": "На других серверах значки не рисуются",
+  "skirmish.module.talisman_badges.setting.stats": "Сферы и талисманы",
+  "skirmish.module.talisman_badges.setting.stats.tooltip": "Эффекты кратко: У — урон, Б — броня, С — скорость, СА — скорость атаки, ЗД — здоровье, СП — спешка",
+  "skirmish.module.talisman_badges.setting.runes": "Руны",
+  "skirmish.module.talisman_badges.setting.runes.tooltip": "В правом углу: БС — «Бессмертие», ВС — «Восстановление»",
+  "skirmish.module.talisman_badges.setting.backpacks": "Рюкзаки",
+  "skirmish.module.talisman_badges.setting.backpacks.tooltip": "Уровень рюкзака (1–4 или Infinity)",
+  "skirmish.module.talisman_badges.setting.tnt": "Динамит",
+  "skirmish.module.talisman_badges.setting.tnt.tooltip": "Тип: A, B, C4, РВ — разрывная волна, Б2, Ст — стиллер, НСт — надёжный стиллер, ЛВ — ледяная волна",
+  "skirmish.module.talisman_badges.setting.hotbar": "В хотбаре",
+  "skirmish.module.talisman_badges.setting.hotbar.tooltip": "Значки и на панели быстрого доступа, не только в инвентаре",
+  "skirmish.module.talisman_badges.setting.text_scale": "Размер текста",
+  "skirmish.module.talisman_badges.setting.text_scale.tooltip": "Во сколько раз крупнее обычного значка"
+}

@@ -9,7 +9,8 @@
     "theme/market.json",
     "theme/qol.json",
     "theme/awareness.json",
-    "theme/analytics.json"
+    "theme/analytics.json",
+    "theme/hwutility.json"
   ],
   "colors": {
     "page": "#0B0B12",

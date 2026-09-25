@@ -208,6 +208,23 @@ public final class ModuleIcons {
                 p(ui, x, y, s, c, 15f, 20f, 15f, 8f);
                 p(ui, x, y, s, c, 20f, 20f, 20f, 4f);
             }
+            case "talisman_badges" -> { // price tag
+                p(ui, x, y, s, c, 3f, 3f, 11.5f, 3f, 21f, 12.5f, 12.5f, 21f, 3f, 11.5f, 3f, 3f);
+                ui.circle(x + 7.5f * s, y + 7.5f * s, 3.2f * s, c);
+            }
+            case "hw_tooltips" -> { // info bubble
+                ui.border(x + 2.5f * s, y + 3f * s, 19f * s, 14f * s, 3f * s, STROKE * s, c);
+                p(ui, x, y, s, c, 8f, 17f, 7f, 21.5f, 12.5f, 17f);
+                ui.circle(x + 12f * s, y + 6.8f * s, 2.4f * s, c);
+                p(ui, x, y, s, c, 12f, 10f, 12f, 14f);
+            }
+            case "session_recap" -> { // trophy
+                p(ui, x, y, s, c, 7f, 3f, 17f, 3f, 17f, 9f, 16f, 12f, 14f, 13.5f, 12f, 14f, 10f, 13.5f, 8f, 12f, 7f, 9f, 7f, 3f);
+                p(ui, x, y, s, c, 7f, 5f, 3.5f, 5f, 3.5f, 7f, 5f, 9.5f, 7.3f, 10.2f);
+                p(ui, x, y, s, c, 17f, 5f, 20.5f, 5f, 20.5f, 7f, 19f, 9.5f, 16.7f, 10.2f);
+                p(ui, x, y, s, c, 12f, 14f, 12f, 18f);
+                p(ui, x, y, s, c, 8f, 21f, 16f, 21f, 15f, 18f, 9f, 18f, 8f, 21f);
+            }
             case "waypoints" -> CategoryIcons.pin(ui, x, y, size, c);
             default -> {
                 return false;
