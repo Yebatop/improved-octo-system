@@ -9,7 +9,11 @@
     "theme/market.json",
     "theme/qol.json",
     "theme/awareness.json",
-    "theme/analytics.json"
+    "theme/analytics.json",
+    "theme/rune_window.json",
+    "theme/damage_numbers.json",
+    "theme/kill_fx.json",
+    "theme/player_menu.json"
   ],
   "colors": {
     "page": "#0B0B12",

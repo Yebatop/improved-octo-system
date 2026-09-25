@@ -1,0 +1,19 @@
+{
+  "skirmish.module.rune_window.name": "Rune Window",
+  "skirmish.module.rune_window.description": "Когда у вашего противника срабатывает тотем с руной «Бессмертие», рядом с прицелом идёт отсчёт неуязвимости (3 с по вики), чтобы не тратить удары. Руна читается с тотема в руке противника; невидимые игроки не показываются.",
+  "skirmish.module.rune_window.setting.use_fallback": "Если предмет не виден",
+  "skirmish.module.rune_window.setting.use_fallback.tooltip": "Показывать отсчёт, даже если тотем противника не удалось рассмотреть до срабатывания (с пометкой «?»)",
+  "skirmish.module.rune_window.setting.fallback": "Длительность по умолчанию",
+  "skirmish.module.rune_window.setting.fallback.tooltip": "Сколько секунд считать, когда руна неизвестна",
+  "skirmish.module.rune_window.setting.restored": "Руна «Восстановление»",
+  "skirmish.module.rune_window.setting.restored.tooltip": "Коротко показать «ПОЛНОЕ HP», когда у противника сработала руна восстановления",
+  "skirmish.module.rune_window.setting.self": "Мой тотем",
+  "skirmish.module.rune_window.setting.self.tooltip": "Показывать отсчёт и для собственной руны «Бессмертие»",
+  "skirmish.module.rune_window.setting.end_sound": "Звук в конце",
+  "skirmish.module.rune_window.setting.end_sound.tooltip": "Короткий звук (слышите только вы), когда неуязвимость закончилась",
+  "skirmish.module.rune_window.setting.volume": "Громкость",
+  "skirmish.module.rune_window.setting.volume.tooltip": "Громкость звука окончания",
+  "skirmish.hud.element.rune_window": "Rune Window",
+  "skirmish.rune_window.invulnerable": "НЕУЯЗВИМ",
+  "skirmish.rune_window.restored": "ПОЛНОЕ HP"
+}

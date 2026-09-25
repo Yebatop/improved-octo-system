@@ -208,6 +208,28 @@ public final class ModuleIcons {
                 p(ui, x, y, s, c, 15f, 20f, 15f, 8f);
                 p(ui, x, y, s, c, 20f, 20f, 20f, 4f);
             }
+            case "rune_window" -> { // hourglass
+                p(ui, x, y, s, c, 5.5f, 3f, 18.5f, 3f);
+                p(ui, x, y, s, c, 5.5f, 21f, 18.5f, 21f);
+                p(ui, x, y, s, c, 7f, 3f, 7f, 7f, 12f, 12f, 17f, 17f, 17f, 21f);
+                p(ui, x, y, s, c, 17f, 3f, 17f, 7f, 12f, 12f, 7f, 17f, 7f, 21f);
+            }
+            case "damage_numbers" -> { // floating "12"
+                p(ui, x, y, s, c, 3.5f, 8f, 7f, 5f, 7f, 19f);
+                p(ui, x, y, s, c, 11f, 8.5f, 12.5f, 5.8f, 15.5f, 5f, 18.5f, 6.5f, 18.5f, 10f, 11f, 19f, 20f, 19f);
+            }
+            case "kill_fx" -> { // sparkle
+                p(ui, x, y, s, c, 11f, 3f, 13f, 10f, 20f, 12f, 13f, 14f, 11f, 21f, 9f, 14f, 2f, 12f, 9f, 10f, 11f, 3f);
+                p(ui, x, y, s, c, 19f, 2.5f, 19f, 7.5f);
+                p(ui, x, y, s, c, 16.5f, 5f, 21.5f, 5f);
+            }
+            case "player_menu" -> { // person with a list
+                ui.ring(x + 8f * s, y + 8f * s, 7f * s + STROKE * s, STROKE * s, c);
+                p(ui, x, y, s, c, arc(8f, 21f, 6.5f, 180, 0));
+                p(ui, x, y, s, c, 16f, 9f, 22f, 9f);
+                p(ui, x, y, s, c, 16f, 13.5f, 22f, 13.5f);
+                p(ui, x, y, s, c, 17.5f, 18f, 22f, 18f);
+            }
             case "waypoints" -> CategoryIcons.pin(ui, x, y, size, c);
             default -> {
                 return false;
