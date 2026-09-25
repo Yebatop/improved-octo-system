@@ -1,0 +1,20 @@
+{
+  "layout": {
+    "commander": {
+      "chip_width": 220,
+      "chip_pad_x": 10,
+      "chip_pad_y": 7,
+      "chip_gap": 6,
+      "chip_line_gap": 2,
+      "chip_accent": 3,
+      "chip_accent_gap": 8,
+      "chip_bar_gap": 5,
+      "chip_bar": 3,
+      "max_marks": 3,
+      "started_show_ms": 60000,
+      "site_radius": 64,
+      "walk_speed": 5.6,
+      "gone_grace_ms": 120000
+    }
+  }
+}

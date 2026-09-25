@@ -94,6 +94,17 @@ public final class EventsModule extends Module {
     private @Nullable String anchoredVoting;
     private int detectCountdown;
 
+    /** Hears event coordinates as they are seen in chat (Event Commander turns them into waypoints). */
+    public interface CoordsListener {
+        void onEventCoords(String eventName, int x, @Nullable Integer y, int z, String dimension);
+    }
+
+    private static final List<CoordsListener> COORDS_LISTENERS = new java.util.concurrent.CopyOnWriteArrayList<>();
+
+    public static void listenForCoords(CoordsListener listener) {
+        COORDS_LISTENERS.add(listener);
+    }
+
     @Override
     public Category category() {
         return Category.WORLD;
@@ -270,6 +281,10 @@ public final class EventsModule extends Module {
         if (name != null) {
             coords.put(name, found.getFirst(), dimension, System.currentTimeMillis());
             log("coordinates of '%s' from chat: %s (line: %s)", name, found.getFirst().text(), plain);
+            ChatCoords.Coords c = found.getFirst();
+            for (CoordsListener listener : COORDS_LISTENERS) {
+                listener.onEventCoords(name, c.x(), c.y(), c.z(), dimension);
+            }
         }
     }
 
@@ -336,6 +351,46 @@ public final class EventsModule extends Module {
 
     boolean hasLiteData() {
         return rawEvents != null;
+    }
+
+    // ---- for Event Commander and HolyWorld OS ----
+
+    /** Whether the Lite event list has been fetched at least once (so a missing event really ended). */
+    public boolean liteDataLoaded() {
+        return isEnabled() && rawEvents != null;
+    }
+
+    /** Names of the live events on my Lite server, rarest first. */
+    public List<String> myLiteEventNames() {
+        return myLiteEvents().stream().map(EventsJson.LiteEvent::name).toList();
+    }
+
+    /** Whether I am on Prime (per detection). */
+    public boolean onPrime() {
+        return current != null && current.isPrime();
+    }
+
+    /** Prime events of my Prime server: display name, state, scheduled and started times. */
+    public List<EventsJson.PrimeEvent> myPrimeEvents() {
+        if (current == null || !current.isPrime()) {
+            return List.of();
+        }
+        return primeCurrent.stream().filter(e -> current.apiId().equals(e.server())).toList();
+    }
+
+    /** The Prime timetable (all servers share it). */
+    public List<EventsJson.PrimeSlot> primeSlots() {
+        return primeTimetable;
+    }
+
+    /** The next vote on my Lite server, when a cycle is anchored. */
+    public @Nullable Instant nextVote(Instant now) {
+        return EventSchedule.nextVote(now, voteAnchor);
+    }
+
+    /** Shown name of a Prime event plugin or timetable key. */
+    public static String primeDisplayName(String key) {
+        return primeName(key);
     }
 
     boolean hasPrimeData() {

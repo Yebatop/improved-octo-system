@@ -28,7 +28,8 @@
     "theme/invtheme.json",
     "theme/worldmap.json",
     "theme/navigator.json",
-    "theme/base.json"
+    "theme/base.json",
+    "theme/commander.json"
   ],
   "colors": {
     "page": "#0B0B12",

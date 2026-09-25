@@ -163,6 +163,31 @@ public final class NavigatorModule extends Module {
         return Math.max(Theme.get().num(L + "walk_speed"), v);
     }
 
+    /**
+     * The way from me to a point: {blocks along the best route (through known portals), seconds at my recent
+     * speed}; null when no way is known (another dimension without a portal) or there is no player.
+     */
+    public double @Nullable [] estimate(String dim, double x, double z) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) {
+            return null;
+        }
+        RoutePlanner.Route r = RoutePlanner.plan(new RoutePlanner.Point(ServerContext.dimension(), player.getX(), player.getZ()),
+                new RoutePlanner.Point(dim, x, z), portals.links(ServerContext.serverKey()), Theme.get().num(L + "portal_cost"));
+        if (r == null) {
+            return null;
+        }
+        double walk = 0;
+        int portalsCount = 0;
+        for (RoutePlanner.Leg leg : r.legs()) {
+            walk += leg.length();
+            if (leg.portal()) {
+                portalsCount++;
+            }
+        }
+        return new double[]{walk, walk / speed() + portalsCount * Theme.get().num(L + "portal_seconds")};
+    }
+
     /** ETA in seconds for the current route, or -1. */
     long etaSeconds() {
         RoutePlanner.Route r = route;

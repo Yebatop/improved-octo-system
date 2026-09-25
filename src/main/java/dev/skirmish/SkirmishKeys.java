@@ -49,6 +49,9 @@ public final class SkirmishKeys {
     /** «Base OS»: the base screen. B is free in vanilla. */
     public static final KeyMapping BASE_OS = key("key.skirmish.base_os.open", GLFW.GLFW_KEY_B);
 
+    /** «Event Commander»: select the nearest event with a waypoint. G is free in vanilla. */
+    public static final KeyMapping COMMANDER_GO = key("key.skirmish.commander.go", GLFW.GLFW_KEY_G);
+
     private SkirmishKeys() {
     }
 
@@ -57,7 +60,7 @@ public final class SkirmishKeys {
     }
 
     static void register() {
-        for (KeyMapping mapping : new KeyMapping[]{OPEN_MENU, WAYPOINT_ADD, WAYPOINT_CYCLE, KILLCAM_REPLAY, KILLCAM_CLIP, KILLCAM_LIBRARY, WORLD_MAP, NAVIGATOR_HOME, BASE_OS,
+        for (KeyMapping mapping : new KeyMapping[]{OPEN_MENU, WAYPOINT_ADD, WAYPOINT_CYCLE, KILLCAM_REPLAY, KILLCAM_CLIP, KILLCAM_LIBRARY, WORLD_MAP, NAVIGATOR_HOME, BASE_OS, COMMANDER_GO,
                 CLANSHARE_SHARE, GEARINSPECTOR_LOCK, ANVILCALC_CALCULATE, KILLCARD_OPEN_FOLDER, DETAILS, ZOOM, FULLBRIGHT_TOGGLE, AUTO_SPRINT_TOGGLE,
                 FRIEND_TOGGLE, FIGHT_REVIEW, PLAYER_MENU}) {
             KeyBindingHelper.registerKeyBinding(mapping);

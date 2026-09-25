@@ -367,6 +367,11 @@ public final class ModuleIcons {
                 p(ui, x, y, s, c, 9f, 21f, 9f, 14f, 15f, 14f, 15f, 21f);
                 p(ui, x, y, s, c, 9f, 17.5f, 15f, 17.5f);
             }
+            case "event_commander" -> { // flag on a pole with a target ring
+                p(ui, x, y, s, c, 6f, 21f, 6f, 3f);
+                p(ui, x, y, s, c, 6f, 4f, 18f, 7.5f, 6f, 11f);
+                ui.ring(x + 14f * s, y + 18f * s, 8f * s + STROKE * s, STROKE * s, c);
+            }
             case "event_timers" -> { // alarm clock
                 ui.ring(x + 12f * s, y + 13f * s, 16f * s + STROKE * s, STROKE * s, c);
                 p(ui, x, y, s, c, 12f, 13f, 12f, 9f);
