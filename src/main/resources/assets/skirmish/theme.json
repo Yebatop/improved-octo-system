@@ -8,7 +8,8 @@
     "theme/holyprofile.json",
     "theme/market.json",
     "theme/qol.json",
-    "theme/awareness.json"
+    "theme/awareness.json",
+    "theme/analytics.json"
   ],
   "colors": {
     "page": "#0B0B12",

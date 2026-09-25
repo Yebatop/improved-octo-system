@@ -33,6 +33,8 @@ public final class SkirmishKeys {
     public static final KeyMapping FULLBRIGHT_TOGGLE = key("key.skirmish.fullbright.toggle", InputConstants.UNKNOWN.getValue());
     /** «Друзья»: add or remove the player under the crosshair. Unbound by default. */
     public static final KeyMapping FRIEND_TOGGLE = key("key.skirmish.friends.toggle", InputConstants.UNKNOWN.getValue());
+    /** «Разбор боя»: review of the last fight (N is free in vanilla). */
+    public static final KeyMapping FIGHT_REVIEW = key("key.skirmish.fight_review.open", GLFW.GLFW_KEY_N);
 
     private SkirmishKeys() {
     }
@@ -44,7 +46,7 @@ public final class SkirmishKeys {
     static void register() {
         for (KeyMapping mapping : new KeyMapping[]{OPEN_MENU, WAYPOINT_ADD, WAYPOINT_CYCLE, KILLCAM_REPLAY, KILLCAM_CLIP, KILLCAM_LIBRARY,
                 CLANSHARE_SHARE, GEARINSPECTOR_LOCK, ANVILCALC_CALCULATE, KILLCARD_OPEN_FOLDER, DETAILS, ZOOM, FULLBRIGHT_TOGGLE,
-                FRIEND_TOGGLE}) {
+                FRIEND_TOGGLE, FIGHT_REVIEW}) {
             KeyBindingHelper.registerKeyBinding(mapping);
         }
     }

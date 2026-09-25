@@ -82,6 +82,10 @@ public final class SkirmishClient implements ClientModInitializer {
         modules.register(new SurvivalAlertsModule());
         modules.register(new ItemCounterModule());
         modules.register(new LagMeterModule());
+        modules.register(new dev.skirmish.module.analytics.review.FightReviewModule());
+        modules.register(new dev.skirmish.module.analytics.combo.ComboHudModule());
+        modules.register(new dev.skirmish.module.analytics.feed.KillFeedModule());
+        modules.register(new dev.skirmish.module.analytics.dossier.DossierModule());
         InterfaceModule iface = modules.register(new InterfaceModule());
 
         Runnable restoreRemoved = RemovedModules.read(dir.resolve("config.json"));

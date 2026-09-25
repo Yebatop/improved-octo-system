@@ -79,6 +79,7 @@ public final class CombatTracker {
         for (Fight fight : logic.activeFights()) {
             fight.attackAttempts++;
         }
+        logic.dispatch(l -> l.onAttackAttempt(targetId));
     }
 
     /** The attempt that opened a fight happened before the fight existed; count it. */
