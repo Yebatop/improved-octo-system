@@ -1,0 +1,72 @@
+{
+  "colors": {
+    "tnt_ring": "#FFB547CC"
+  },
+  "text": {
+    "hwt_title": {
+      "size": 12,
+      "weight": 700,
+      "color": "text"
+    },
+    "hwt_time": {
+      "size": 12,
+      "weight": 600,
+      "color": "text",
+      "mono": true
+    },
+    "hwt_note": {
+      "size": 10,
+      "weight": 500,
+      "color": "text_2"
+    },
+    "bc_line": {
+      "size": 11,
+      "weight": 600,
+      "color": "text_2",
+      "mono": true
+    },
+    "bc_phase": {
+      "size": 11,
+      "weight": 800,
+      "color": "accent"
+    },
+    "bc_text": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_2"
+    },
+    "bc_tip": {
+      "size": 11,
+      "weight": 600,
+      "color": "text"
+    },
+    "bc_meter": {
+      "size": 11,
+      "weight": 600,
+      "color": "text",
+      "mono": true
+    }
+  },
+  "layout": {
+    "hwtimers": {
+      "default_dx": 150,
+      "max_chips": 5,
+      "chip_width": 196,
+      "chip_pad_x": 10,
+      "chip_pad_y": 7,
+      "chip_gap": 6,
+      "chip_line_gap": 2,
+      "chip_accent": 3,
+      "chip_accent_gap": 8,
+      "chip_bar": 2,
+      "chip_bar_gap": 5
+    },
+    "bosscoach": {
+      "default_y": 120,
+      "width": 264,
+      "row_gap": 3,
+      "section_gap": 8,
+      "max_lines": 4
+    }
+  }
+}

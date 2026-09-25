@@ -208,6 +208,25 @@ public final class ModuleIcons {
                 p(ui, x, y, s, c, 15f, 20f, 15f, 8f);
                 p(ui, x, y, s, c, 20f, 20f, 20f, 4f);
             }
+            case "hw_item_timers" -> { // hourglass
+                p(ui, x, y, s, c, 5f, 2.5f, 19f, 2.5f);
+                p(ui, x, y, s, c, 5f, 21.5f, 19f, 21.5f);
+                p(ui, x, y, s, c, 7f, 2.5f, 7f, 7f, 12f, 12f, 7f, 17f, 7f, 21.5f);
+                p(ui, x, y, s, c, 17f, 2.5f, 17f, 7f, 12f, 12f, 17f, 17f, 17f, 21.5f);
+                p(ui, x, y, s, c, 9.5f, 19f, 14.5f, 19f);
+            }
+            case "tnt_timer" -> { // dynamite stick with a lit fuse
+                ui.border(x + 4f * s, y + 9f * s, 11f * s, 12.5f * s, 2f * s, STROKE * s, c);
+                p(ui, x, y, s, c, 4f, 15.25f, 15f, 15.25f);
+                p(ui, x, y, s, c, 9.5f, 9f, 9.5f, 6.5f, 12f, 4.5f, 15.5f, 4.5f);
+                p(ui, x, y, s, c, 18f, 1.5f, 18f, 2.5f);
+                p(ui, x, y, s, c, 20.5f, 4.5f, 21.5f, 4.5f);
+                p(ui, x, y, s, c, 19.5f, 7f, 20.3f, 7.8f);
+            }
+            case "boss_coach" -> { // crown
+                p(ui, x, y, s, c, 3f, 18f, 3f, 7f, 8f, 12f, 12f, 4.5f, 16f, 12f, 21f, 7f, 21f, 18f, 3f, 18f);
+                p(ui, x, y, s, c, 3f, 21.5f, 21f, 21.5f);
+            }
             case "waypoints" -> CategoryIcons.pin(ui, x, y, size, c);
             default -> {
                 return false;

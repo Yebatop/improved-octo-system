@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.skirmish.module.hwtimers.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ClientLevelBlockMixin",
+    "ExplosionMixin",
+    "GuiServerTextMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
