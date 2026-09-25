@@ -1,6 +1,6 @@
 {
   "key.skirmish.friends.toggle": "Друзья: добавить/убрать игрока под прицелом",
-  "skirmish.module.friends.name": "Друзья",
+  "skirmish.module.friends.name": "Friends",
   "skirmish.module.friends.description": "Список друзей: команда /skirmish friend add|remove|list <ник> или клавиша на игрока под прицелом. Ники друзей подсвечиваются цветом.",
   "skirmish.module.friends.setting.list": "Список друзей",
   "skirmish.module.friends.setting.list.tooltip": "Редактируется командой /skirmish friend и клавишей",

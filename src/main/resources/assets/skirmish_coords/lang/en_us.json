@@ -7,7 +7,7 @@
   "skirmish.module.coords_hud.setting.show_converted.tooltip": "In the Overworld the Nether coordinates (÷8), in the Nether the Overworld ones (×8)",
   "skirmish.module.coords_hud.setting.streamer": "Streamer",
   "skirmish.module.coords_hud.setting.streamer.tooltip": "Hide all coordinates for recording and streaming (facing stays)",
-  "skirmish.module.death_waypoint.name": "Death waypoint",
+  "skirmish.module.death_waypoint.name": "Death Waypoint",
   "skirmish.module.death_waypoint.description": "When you die, a waypoint appears where it happened. Only the latest are kept.",
   "skirmish.module.death_waypoint.setting.keep": "Keep",
   "skirmish.module.death_waypoint.setting.keep.tooltip": "How many recent death waypoints to keep per server",

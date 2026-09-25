@@ -1,5 +1,5 @@
 {
-  "skirmish.module.lag_meter.name": "Лаг-детектор",
+  "skirmish.module.lag_meter.name": "Lag Detector",
   "skirmish.module.lag_meter.description": "TPS сервера (по пакетам времени мира), ваш пинг и сколько прошло с последнего пакета. Если сервер замолчал — крупное предупреждение: не двигайтесь, пока он не ответит.",
   "skirmish.module.lag_meter.setting.hud": "Панель",
   "skirmish.module.lag_meter.setting.hud.tooltip": "Плашка «TPS · пинг · тишина» в правом нижнем углу",
@@ -19,6 +19,6 @@
   "skirmish.lag.banner.title": "Сервер не отвечает %s с — не двигайся",
   "skirmish.lag.banner.body": "Движения во время зависания сервер потом отклонит или кикнет за них",
   "skirmish.lag.banner.meta": "Последний пакет %s с назад · TPS %s",
-  "skirmish.hud.element.lag_meter": "Лаг-детектор",
-  "skirmish.hud.element.lag_warning": "Сервер не отвечает"
+  "skirmish.hud.element.lag_meter": "Lag Detector",
+  "skirmish.hud.element.lag_warning": "Server Not Responding"
 }

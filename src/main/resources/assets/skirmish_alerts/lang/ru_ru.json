@@ -1,5 +1,5 @@
 {
-  "skirmish.module.alerts.name": "Предупреждения",
+  "skirmish.module.alerts.name": "Alerts",
   "skirmish.module.alerts.description": "HolyWorld: что выпадет при выходе (шалкеры, рюкзаки, Элементы), подтверждение «Отключиться» и оповещения о вторжении в регион.",
   "skirmish.module.alerts.setting.logout_warning": "Предупреждать о потере при выходе",
   "skirmish.module.alerts.setting.logout_warning.tooltip": "На HolyWorld показывать плашку, когда при выходе выпадут вещи: от 2 шалкеров или рюкзаков («Режим шалкера») или хотя бы один Элемент (Прайм).",
@@ -13,8 +13,8 @@
   "skirmish.module.alerts.setting.region_sound.tooltip": "Колокольчик при вторжении (в дополнение к звуку сервера). Выключите, чтобы оставить только уведомление.",
   "skirmish.module.alerts.setting.region_history": "История вторжений",
   "skirmish.module.alerts.setting.region_history.tooltip": "Сколько прошлых вторжений показывать под последним.",
-  "skirmish.hud.element.alerts_logout": "Потеря при выходе",
-  "skirmish.hud.element.alerts_region": "Вторжение в регион",
+  "skirmish.hud.element.alerts_logout": "Logout Losses",
+  "skirmish.hud.element.alerts_region": "Region Intrusion",
   "skirmish.alerts.count.shulker.one": "шалкер",
   "skirmish.alerts.count.shulker.few": "шалкера",
   "skirmish.alerts.count.shulker.many": "шалкеров",

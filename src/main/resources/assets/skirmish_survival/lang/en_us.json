@@ -1,5 +1,5 @@
 {
-  "skirmish.module.survival_alerts.name": "Survival warnings",
+  "skirmish.module.survival_alerts.name": "Survival Alerts",
   "skirmish.module.survival_alerts.description": "A big centered warning and a sound: low health, no totem in the off hand in PvP, armor about to break, low food, pearls or apples running out. Only reads your inventory, never moves anything.",
   "skirmish.module.survival_alerts.setting.low_hp": "Low health",
   "skirmish.module.survival_alerts.setting.low_hp.tooltip": "Warn when health drops to the threshold",
@@ -37,8 +37,8 @@
   "skirmish.survival.alert.food": "Low food: %s",
   "skirmish.survival.alert.pearls": "Pearls: %s",
   "skirmish.survival.alert.gapples": "Apples: %s",
-  "skirmish.hud.element.survival_alerts": "Survival warnings",
-  "skirmish.module.item_counter.name": "Item counter",
+  "skirmish.hud.element.survival_alerts": "Survival Alerts",
+  "skirmish.module.item_counter.name": "Item Counter",
   "skirmish.module.item_counter.description": "How many totems, golden and enchanted apples, pearls, experience bottles and custom items you carry, off hand included. Items you ran out of are dimmed.",
   "skirmish.module.item_counter.setting.totems": "Totems",
   "skirmish.module.item_counter.setting.totems.tooltip": "Totems of undying",
@@ -58,5 +58,5 @@
   "skirmish.module.item_counter.setting.layout.tooltip": "One row or one column",
   "skirmish.module.item_counter.setting.layout.row": "Row",
   "skirmish.module.item_counter.setting.layout.column": "Column",
-  "skirmish.hud.element.item_counter": "Item counter"
+  "skirmish.hud.element.item_counter": "Item Counter"
 }
