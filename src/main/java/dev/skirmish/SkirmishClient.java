@@ -20,6 +20,11 @@ import dev.skirmish.module.coords.DeathWaypointModule;
 import dev.skirmish.module.effects.ArmorHudModule;
 import dev.skirmish.module.effects.EffectHudModule;
 import dev.skirmish.module.fullbright.FullbrightModule;
+import dev.skirmish.module.friends.FriendsModule;
+import dev.skirmish.module.lag.LagMeterModule;
+import dev.skirmish.module.nametag.NametagHpModule;
+import dev.skirmish.module.survival.ItemCounterModule;
+import dev.skirmish.module.survival.SurvivalAlertsModule;
 import dev.skirmish.module.zoom.ZoomModule;
 import dev.skirmish.module.clanshare.ClanShareModule;
 import dev.skirmish.module.events.EventsModule;
@@ -72,6 +77,11 @@ public final class SkirmishClient implements ClientModInitializer {
         modules.register(new LowFireModule());
         modules.register(new CoordsHudModule());
         modules.register(new DeathWaypointModule());
+        modules.register(new NametagHpModule());
+        modules.register(new FriendsModule());
+        modules.register(new SurvivalAlertsModule());
+        modules.register(new ItemCounterModule());
+        modules.register(new LagMeterModule());
         InterfaceModule iface = modules.register(new InterfaceModule());
 
         Runnable restoreRemoved = RemovedModules.read(dir.resolve("config.json"));

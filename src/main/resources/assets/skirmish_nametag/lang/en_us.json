@@ -1,0 +1,22 @@
+{
+  "skirmish.module.nametag_hp.name": "Nametag HP",
+  "skirmish.module.nametag_hp.description": "Other players' health and absorption next to their nick, colored by percent. Shown only where the game itself shows the nametag; never for invisible players.",
+  "skirmish.module.nametag_hp.setting.show": "When to show",
+  "skirmish.module.nametag_hp.setting.show.tooltip": "Always, only while you are in PvP (combat tag or an active fight), or only for players you are fighting",
+  "skirmish.module.nametag_hp.setting.show.always": "Always",
+  "skirmish.module.nametag_hp.setting.show.combat": "In combat",
+  "skirmish.module.nametag_hp.setting.show.opponents": "Opponents",
+  "skirmish.module.nametag_hp.setting.units": "Units",
+  "skirmish.module.nametag_hp.setting.units.tooltip": "Health points (20 = full) or hearts (10 = full, like the health bar)",
+  "skirmish.module.nametag_hp.setting.units.hp": "Points",
+  "skirmish.module.nametag_hp.setting.units.hearts": "Hearts",
+  "skirmish.module.nametag_hp.setting.position": "Position",
+  "skirmish.module.nametag_hp.setting.position.tooltip": "A line above the nick, below it, or on the same line after the nick",
+  "skirmish.module.nametag_hp.setting.position.above": "Above",
+  "skirmish.module.nametag_hp.setting.position.below": "Below",
+  "skirmish.module.nametag_hp.setting.position.inline": "Inline",
+  "skirmish.module.nametag_hp.setting.absorption": "Absorption",
+  "skirmish.module.nametag_hp.setting.absorption.tooltip": "Show golden absorption hearts as \"+4\"",
+  "skirmish.module.nametag_hp.setting.bar": "Bar",
+  "skirmish.module.nametag_hp.setting.bar.tooltip": "A small health bar next to the number"
+}

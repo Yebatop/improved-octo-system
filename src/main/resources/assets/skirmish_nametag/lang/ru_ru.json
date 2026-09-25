@@ -1,0 +1,22 @@
+{
+  "skirmish.module.nametag_hp.name": "ХП над головой",
+  "skirmish.module.nametag_hp.description": "Здоровье и поглощение других игроков рядом с их ником, цветом по проценту. Видно только там, где игра сама показывает ник; невидимых игроков не показывает.",
+  "skirmish.module.nametag_hp.setting.show": "Когда показывать",
+  "skirmish.module.nametag_hp.setting.show.tooltip": "Всегда, только пока вы в бою (КТ или активный бой) или только у тех, с кем вы сейчас деретесь",
+  "skirmish.module.nametag_hp.setting.show.always": "Всегда",
+  "skirmish.module.nametag_hp.setting.show.combat": "В бою",
+  "skirmish.module.nametag_hp.setting.show.opponents": "Противники",
+  "skirmish.module.nametag_hp.setting.units": "Единицы",
+  "skirmish.module.nametag_hp.setting.units.tooltip": "Очки здоровья (20 — полное) или сердца (10 — полное, как на полоске здоровья)",
+  "skirmish.module.nametag_hp.setting.units.hp": "Очки",
+  "skirmish.module.nametag_hp.setting.units.hearts": "Сердца",
+  "skirmish.module.nametag_hp.setting.position": "Где",
+  "skirmish.module.nametag_hp.setting.position.tooltip": "Строкой над ником, под ником или в той же строке после ника",
+  "skirmish.module.nametag_hp.setting.position.above": "Над ником",
+  "skirmish.module.nametag_hp.setting.position.below": "Под ником",
+  "skirmish.module.nametag_hp.setting.position.inline": "В строке",
+  "skirmish.module.nametag_hp.setting.absorption": "Поглощение",
+  "skirmish.module.nametag_hp.setting.absorption.tooltip": "Показывать золотые сердца поглощения как «+4»",
+  "skirmish.module.nametag_hp.setting.bar": "Полоска",
+  "skirmish.module.nametag_hp.setting.bar.tooltip": "Маленькая полоска здоровья рядом с числом"
+}
