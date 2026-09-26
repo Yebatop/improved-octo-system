@@ -51,7 +51,7 @@ public final class PauseMenuModule extends Module {
     }
 
     /** Milliseconds since joining this server/world, or -1. */
-    static long playedMs() {
+    public static long playedMs() {
         PauseMenuModule m = instance;
         return m == null || m.joinedAt < 0 ? -1 : Util.getMillis() - m.joinedAt;
     }

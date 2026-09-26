@@ -101,6 +101,16 @@ public final class MarketModule extends Module {
         return m.history().median(itemKey, System.currentTimeMillis(), AuctionOverlay.MEDIAN_MAX_AGE_MS, AuctionOverlay.MEDIAN_MIN_SAMPLES);
     }
 
+    /** Item keys with a price history (empty when the market module is off). */
+    public static List<String> historyKeys() {
+        return dev.skirmish.module.ModuleManager.get().byId(ID) instanceof MarketModule m && m.isEnabled() ? m.history().keys() : List.of();
+    }
+
+    /** Price samples of an item, oldest first. */
+    public static List<PriceHistory.Sample> samples(String itemKey) {
+        return dev.skirmish.module.ModuleManager.get().byId(ID) instanceof MarketModule m ? m.history().samples(itemKey) : List.of();
+    }
+
     /** The key prices are kept under for a stack: registry id, plus the cleaned custom name for renamed items. */
     public static String itemKey(ItemStack stack) {
         return LotInfo.itemKey(stack);

@@ -134,6 +134,11 @@ public final class NavigatorModule extends Module {
         return out;
     }
 
+    /** How many portals of this server are known. */
+    public int portalCount() {
+        return portals.forServer(ServerContext.serverKey()).size();
+    }
+
     /** Known portals of this server as {x, z} in the given dimension. */
     public List<double[]> portalsIn(String dim) {
         boolean nether = RoutePlanner.NETHER.equals(dim);

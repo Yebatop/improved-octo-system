@@ -372,6 +372,12 @@ public final class ModuleIcons {
                 p(ui, x, y, s, c, 6f, 4f, 18f, 7.5f, 6f, 11f);
                 ui.ring(x + 14f * s, y + 18f * s, 8f * s + STROKE * s, STROKE * s, c);
             }
+            case "holyworld_os" -> { // app grid
+                ui.border(x + 3f * s, y + 3f * s, 8f * s, 8f * s, 2f * s, STROKE * s, c);
+                ui.border(x + 13f * s, y + 3f * s, 8f * s, 8f * s, 2f * s, STROKE * s, c);
+                ui.border(x + 3f * s, y + 13f * s, 8f * s, 8f * s, 2f * s, STROKE * s, c);
+                ui.rect(x + 13f * s, y + 13f * s, 8f * s, 8f * s, 2f * s, c);
+            }
             case "event_timers" -> { // alarm clock
                 ui.ring(x + 12f * s, y + 13f * s, 16f * s + STROKE * s, STROKE * s, c);
                 p(ui, x, y, s, c, 12f, 13f, 12f, 9f);

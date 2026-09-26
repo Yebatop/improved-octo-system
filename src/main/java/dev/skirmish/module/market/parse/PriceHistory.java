@@ -42,6 +42,11 @@ public final class PriceHistory {
         this.maxItems = Math.max(1, maxItems);
     }
 
+    /** Item keys with history, least recently used first. */
+    public List<String> keys() {
+        return List.copyOf(items.keySet());
+    }
+
     public int size() {
         return items.size();
     }

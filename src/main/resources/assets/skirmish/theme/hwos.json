@@ -1,0 +1,71 @@
+{
+  "text": {
+    "hwos_brand": {
+      "size": 16,
+      "weight": 800,
+      "color": "text",
+      "tracking": -0.2
+    },
+    "hwos_brand_os": {
+      "size": 12,
+      "weight": 700,
+      "color": "accent",
+      "mono": true
+    },
+    "hwos_rail": {
+      "size": 13,
+      "weight": 600,
+      "color": "text_2"
+    },
+    "hwos_row": {
+      "size": 12,
+      "weight": 600,
+      "color": "text"
+    },
+    "hwos_value": {
+      "size": 12,
+      "weight": 600,
+      "color": "text",
+      "mono": true
+    },
+    "hwos_axis": {
+      "size": 9,
+      "weight": 500,
+      "color": "text_4",
+      "mono": true
+    },
+    "hwos_nick": {
+      "size": 20,
+      "weight": 800,
+      "color": "text"
+    }
+  },
+  "layout": {
+    "hwos": {
+      "width": 900,
+      "height": 580,
+      "min_width": 720,
+      "min_height": 440,
+      "rail_width": 176,
+      "rail_gap": 18,
+      "rail_item": 36,
+      "rail_icon": 18,
+      "pad": 20,
+      "title_gap": 14,
+      "section_gap": 8,
+      "col_gap": 20,
+      "row_gap": 2,
+      "tile_height": 60,
+      "tile_pad": 10,
+      "tile_gap": 10,
+      "server_tile_min": 190,
+      "item_row": 38,
+      "icon": 22,
+      "chart_height": 150,
+      "chart_pad": 12,
+      "deal_ratio": 0.75,
+      "deal_fresh_ms": 7200000,
+      "face": 40
+    }
+  }
+}

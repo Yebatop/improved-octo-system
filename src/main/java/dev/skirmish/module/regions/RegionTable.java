@@ -52,6 +52,11 @@ public final class RegionTable {
         return (server == Server.PRIME ? PRIME : LITE).get(blockId);
     }
 
+    /** Every region block of a server and what it makes (for the guide). */
+    public static Map<String, Type> table(Server server) {
+        return java.util.Collections.unmodifiableMap(server == Server.PRIME ? PRIME : LITE);
+    }
+
     /** Whether the block is a region block on either server (worth looking for a hologram above). */
     public static boolean anyServer(String blockId) {
         return LITE.containsKey(blockId) || PRIME.containsKey(blockId);

@@ -29,7 +29,8 @@
     "theme/worldmap.json",
     "theme/navigator.json",
     "theme/base.json",
-    "theme/commander.json"
+    "theme/commander.json",
+    "theme/hwos.json"
   ],
   "colors": {
     "page": "#0B0B12",

@@ -115,6 +115,7 @@ public final class SkirmishClient implements ClientModInitializer {
         modules.register(new dev.skirmish.module.navigator.NavigatorModule());
         modules.register(new dev.skirmish.module.base.BaseModule());
         modules.register(new dev.skirmish.module.commander.CommanderModule());
+        modules.register(new dev.skirmish.module.hwos.HwOsModule());
         InterfaceModule iface = modules.register(new InterfaceModule());
 
         Runnable restoreRemoved = RemovedModules.read(dir.resolve("config.json"));

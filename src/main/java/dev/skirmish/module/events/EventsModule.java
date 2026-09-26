@@ -388,6 +388,38 @@ public final class EventsModule extends Module {
         return EventSchedule.nextVote(now, voteAnchor);
     }
 
+    /** An event live on a Lite server now. */
+    public record LiveEvent(String name, Rarity rarity) {
+    }
+
+    /** One Lite anarchy: API id, shown name, whether I am on it, its live events (rarest first), vote candidates. */
+    public record Anarchy(String id, String name, boolean mine, List<LiveEvent> events, List<String> vote) {
+    }
+
+    /** Every Lite anarchy the API knows, with its events and running vote. */
+    public List<Anarchy> anarchies() {
+        Map<String, List<LiveEvent>> byServer = new java.util.HashMap<>();
+        for (EventsJson.LiteEvent e : liteEvents) {
+            byServer.computeIfAbsent(e.serverId(), k -> new ArrayList<>()).add(new LiveEvent(e.name(), e.rarity()));
+        }
+        Map<String, List<String>> votes = new java.util.HashMap<>();
+        for (EventsJson.Voting v : votings) {
+            List<String> names = new ArrayList<>();
+            for (EventsJson.Candidate c : v.candidates()) {
+                names.add(c.name() + " · " + c.votes());
+            }
+            votes.put(v.serverId(), names);
+        }
+        List<Anarchy> out = new ArrayList<>();
+        for (Map.Entry<String, String> s : servers.entrySet()) {
+            List<LiveEvent> events = new ArrayList<>(byServer.getOrDefault(s.getKey(), List.of()));
+            events.sort(Comparator.comparing(LiveEvent::rarity).reversed());
+            boolean mine = current != null && !current.isPrime() && current.apiId().equals(s.getKey());
+            out.add(new Anarchy(s.getKey(), s.getValue(), mine, events, votes.getOrDefault(s.getKey(), List.of())));
+        }
+        return out;
+    }
+
     /** Shown name of a Prime event plugin or timetable key. */
     public static String primeDisplayName(String key) {
         return primeName(key);
@@ -467,7 +499,7 @@ public final class EventsModule extends Module {
     }
 
     /** Header text for the detected server. */
-    @Nullable String currentServerName() {
+    public @Nullable String currentServerName() {
         if (current == null) {
             return null;
         }

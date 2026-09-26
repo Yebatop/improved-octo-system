@@ -137,6 +137,31 @@ public final class BaseModule extends Module {
         return instance;
     }
 
+    /** The base for other screens: region name, chests, items, value at auction prices (0 without prices), top items. */
+    public record Summary(String region, int chests, long items, double value, int priced, List<TopItem> top) {
+    }
+
+    /** An item of the storage: registry id, shown name, count and its value (NaN without a price). */
+    public record TopItem(String id, String name, long count, double value) {
+    }
+
+    /** Null while the module is off or no base is known. */
+    public static @Nullable Summary summary() {
+        BaseModule m = instance;
+        if (m == null || !m.isEnabled() || m.region() == null) {
+            return null;
+        }
+        List<TopItem> top = new ArrayList<>();
+        for (StorageIndex.Total t : m.totalsNow) {
+            var price = MarketModule.usualPrice(t.key());
+            top.add(new TopItem(t.id(), t.name(), t.count(), price.isPresent() ? price.getAsDouble() * t.count() : Double.NaN));
+        }
+        top.sort((a, b) -> Double.compare(Double.isNaN(b.value()) ? -1 : b.value(), Double.isNaN(a.value()) ? -1 : a.value()));
+        long items = m.totalsNow.stream().mapToLong(StorageIndex.Total::count).sum();
+        return new Summary(regionName(m.region()), m.indexedChests().size(), items, m.valueNow, m.pricedKinds,
+                top.subList(0, Math.min(5, top.size())));
+    }
+
     @Override
     public Category category() {
         return Category.WORLD;
