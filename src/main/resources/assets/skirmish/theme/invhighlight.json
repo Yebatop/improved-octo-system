@@ -1,0 +1,20 @@
+{
+  "colors": {
+    "ih_violet": "#9C7CFF",
+    "ih_red": "#FF5C6C",
+    "ih_aqua": "#4FD8E8",
+    "ih_gold": "#FFC83D",
+    "ih_white": "#FFFFFF"
+  },
+  "layout": {
+    "invhighlight": {
+      "keep_ms": 1200,
+      "pulse_ms": 1600,
+      "line_alpha": 230,
+      "fill_alpha": 95,
+      "lift": 0.012,
+      "inset": 0.02,
+      "line_width": 3.0
+    }
+  }
+}

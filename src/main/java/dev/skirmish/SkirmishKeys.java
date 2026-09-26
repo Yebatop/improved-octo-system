@@ -19,10 +19,41 @@ public final class SkirmishKeys {
     public static final KeyMapping WAYPOINT_CYCLE = key("key.skirmish.waypoint_cycle", InputConstants.UNKNOWN.getValue());
 
     public static final KeyMapping KILLCAM_REPLAY = key("key.skirmish.killcam.replay", GLFW.GLFW_KEY_K);
+    /** «Сохранить момент»: the last seconds into the replay library. J is free in vanilla and sits next to K. */
+    public static final KeyMapping KILLCAM_CLIP = key("key.skirmish.killcam.clip", GLFW.GLFW_KEY_J);
+    public static final KeyMapping KILLCAM_LIBRARY = key("key.skirmish.killcam.library", InputConstants.UNKNOWN.getValue());
     public static final KeyMapping CLANSHARE_SHARE = key("key.skirmish.clanshare.share", InputConstants.UNKNOWN.getValue());
     public static final KeyMapping GEARINSPECTOR_LOCK = key("key.skirmish.gearinspector.lock", InputConstants.UNKNOWN.getValue());
     public static final KeyMapping ANVILCALC_CALCULATE = key("key.skirmish.anvilcalc.calculate", InputConstants.UNKNOWN.getValue());
     public static final KeyMapping KILLCARD_OPEN_FOLDER = key("key.skirmish.killcard.open_folder", InputConstants.UNKNOWN.getValue());
+    /** Held, not pressed: panels in the «По клавише» detail mode (target card, events) show their full version. */
+    public static final KeyMapping DETAILS = key("key.skirmish.details", GLFW.GLFW_KEY_LEFT_ALT);
+    /** Hold to zoom. C like most zoom mods; vanilla uses C only for the creative "Save Hotbar Activator". */
+    public static final KeyMapping ZOOM = key("key.skirmish.zoom", GLFW.GLFW_KEY_C);
+    public static final KeyMapping FULLBRIGHT_TOGGLE = key("key.skirmish.fullbright.toggle", InputConstants.UNKNOWN.getValue());
+    /** «Auto Sprint» on/off. Unbound by default. */
+    public static final KeyMapping AUTO_SPRINT_TOGGLE = key("key.skirmish.auto_sprint.toggle", InputConstants.UNKNOWN.getValue());
+    /** «Друзья»: add or remove the player under the crosshair. Unbound by default. */
+    public static final KeyMapping FRIEND_TOGGLE = key("key.skirmish.friends.toggle", InputConstants.UNKNOWN.getValue());
+    /** «Разбор боя»: review of the last fight (N is free in vanilla). */
+    public static final KeyMapping FIGHT_REVIEW = key("key.skirmish.fight_review.open", GLFW.GLFW_KEY_N);
+    /** «Меню игрока»: actions for the player under the crosshair (or a pick from the tab list). Unbound by default. */
+    public static final KeyMapping PLAYER_MENU = key("key.skirmish.player_menu.open", InputConstants.UNKNOWN.getValue());
+
+    /** «World Map»: full-screen map of the places you have been. M is free in vanilla. */
+    public static final KeyMapping WORLD_MAP = key("key.skirmish.world_map", GLFW.GLFW_KEY_M);
+
+    /** «Navigator»: route to the home waypoint (created here if missing). H is free in vanilla. */
+    public static final KeyMapping NAVIGATOR_HOME = key("key.skirmish.navigator.home", GLFW.GLFW_KEY_H);
+
+    /** «Base OS»: the base screen. B is free in vanilla. */
+    public static final KeyMapping BASE_OS = key("key.skirmish.base_os.open", GLFW.GLFW_KEY_B);
+
+    /** «Event Commander»: select the nearest event with a waypoint. G is free in vanilla. */
+    public static final KeyMapping COMMANDER_GO = key("key.skirmish.commander.go", GLFW.GLFW_KEY_G);
+
+    /** «HolyWorld OS»: the app window. O is free in vanilla. */
+    public static final KeyMapping HWOS_OPEN = key("key.skirmish.hwos.open", GLFW.GLFW_KEY_O);
 
     private SkirmishKeys() {
     }
@@ -32,8 +63,9 @@ public final class SkirmishKeys {
     }
 
     static void register() {
-        for (KeyMapping mapping : new KeyMapping[]{OPEN_MENU, WAYPOINT_ADD, WAYPOINT_CYCLE, KILLCAM_REPLAY,
-                CLANSHARE_SHARE, GEARINSPECTOR_LOCK, ANVILCALC_CALCULATE, KILLCARD_OPEN_FOLDER}) {
+        for (KeyMapping mapping : new KeyMapping[]{OPEN_MENU, WAYPOINT_ADD, WAYPOINT_CYCLE, KILLCAM_REPLAY, KILLCAM_CLIP, KILLCAM_LIBRARY, WORLD_MAP, NAVIGATOR_HOME, BASE_OS, COMMANDER_GO, HWOS_OPEN,
+                CLANSHARE_SHARE, GEARINSPECTOR_LOCK, ANVILCALC_CALCULATE, KILLCARD_OPEN_FOLDER, DETAILS, ZOOM, FULLBRIGHT_TOGGLE, AUTO_SPRINT_TOGGLE,
+                FRIEND_TOGGLE, FIGHT_REVIEW, PLAYER_MENU}) {
             KeyBindingHelper.registerKeyBinding(mapping);
         }
     }

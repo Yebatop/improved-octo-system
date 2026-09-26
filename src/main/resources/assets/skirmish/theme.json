@@ -1,6 +1,37 @@
 {
   "version": 1,
   "unit": "Sizes are design px: 1 px of the 1280x720 mockup = 1 screen pixel at GUI scale 2 = 0.5 GUI px.",
+  "include": [
+    "theme/pvp.json",
+    "theme/replays.json",
+    "theme/events.json",
+    "theme/holyprofile.json",
+    "theme/market.json",
+    "theme/qol.json",
+    "theme/awareness.json",
+    "theme/analytics.json",
+    "theme/hwtimers.json",
+    "theme/rune_window.json",
+    "theme/damage_numbers.json",
+    "theme/kill_fx.json",
+    "theme/player_menu.json",
+    "theme/hwutility.json",
+    "theme/invhighlight.json",
+    "theme/regions.json",
+    "theme/scoreboard.json",
+    "theme/evtimers.json",
+    "theme/food.json",
+    "theme/toolsaver.json",
+    "theme/elytra.json",
+    "theme/enemycd.json",
+    "theme/menus.json",
+    "theme/invtheme.json",
+    "theme/worldmap.json",
+    "theme/navigator.json",
+    "theme/base.json",
+    "theme/commander.json",
+    "theme/hwos.json"
+  ],
   "colors": {
     "page": "#0B0B12",
     "panel": "#0D0D14EB",
@@ -50,7 +81,9 @@
     "accent_10": "#7C5CFF1A",
     "hud_edit_backdrop": "#06060A66",
     "fill_10": "#FFFFFF1A",
-    "play_hover": "#E4E4EC"
+    "play_hover": "#E4E4EC",
+    "logo_slash": "#FFFFFFAA",
+    "logo_slash": "#FFFFFFAA"
   },
   "accents": {
     "violet": "#7C5CFF",
@@ -77,7 +110,8 @@
     "card_gear": 5,
     "marker": 2,
     "totem_marker": 3,
-    "pill": 999
+    "pill": 999,
+    "hud_handle": 3
   },
   "stroke": {
     "width": 1
@@ -87,8 +121,10 @@
     "easing": "ease-out",
     "hp_smooth_ms": 120,
     "toggle_ms": 160,
+    "expand_ms": 160,
     "hover_ms": 160,
-    "hover_lighten": 0.1
+    "hover_lighten": 0.1,
+    "page_ms": 220
   },
   "font": {
     "sans": "manrope",
@@ -108,7 +144,9 @@
       16,
       20,
       22,
-      24
+      24,
+      36,
+      48
     ],
     "weights": [
       500,
@@ -142,6 +180,11 @@
       "size": 11,
       "weight": 700,
       "color": "text"
+    },
+    "target_badge": {
+      "size": 10,
+      "weight": 600,
+      "color": "text_3"
     },
     "menu_brand": {
       "size": 15,
@@ -200,6 +243,47 @@
     },
     "menu_row_desc": {
       "size": 11,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "menu_tab": {
+      "size": 13,
+      "weight": 600,
+      "color": "text_2"
+    },
+    "menu_tab_count": {
+      "size": 10,
+      "weight": 700,
+      "color": "text_3"
+    },
+    "menu_shortcut": {
+      "size": 12,
+      "weight": 600,
+      "color": "text_3"
+    },
+    "menu_card_title": {
+      "size": 13,
+      "weight": 700,
+      "color": "text"
+    },
+    "menu_card_desc": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_3",
+      "line_height": 1.4
+    },
+    "menu_card_meta": {
+      "size": 10,
+      "weight": 600,
+      "color": "text_3"
+    },
+    "menu_back": {
+      "size": 12,
+      "weight": 600,
+      "color": "text_2"
+    },
+    "menu_empty": {
+      "size": 13,
       "weight": 500,
       "color": "text_3"
     },
@@ -320,11 +404,17 @@
       "color": "text_3"
     },
     "world_label": {
-      "size": 12,
+      "size": 13,
       "weight": 700,
       "color": "text"
     },
     "world_label_dist": {
+      "size": 12,
+      "weight": 500,
+      "color": "text_2",
+      "mono": true
+    },
+    "world_label_coords": {
       "size": 11,
       "weight": 500,
       "color": "text_2",
@@ -519,6 +609,8 @@
   "layout": {
     "design_scale": 0.5,
     "screen_edge": 18,
+    "window_grip": 14,
+    "window_grip_inset": 4,
     "panel_pad_y": 12,
     "panel_pad_x": 14,
     "panel_gap": 10,
@@ -530,7 +622,17 @@
     "menu": {
       "width": 860,
       "height": 520,
-      "sidebar_width": 224,
+      "sidebar_width": 216,
+      "min_width": 720,
+      "min_height": 380,
+      "category_height": 26,
+      "category_chevron": 8,
+      "category_gap": 8,
+      "group_indent": 18,
+      "group_guide_x": 4,
+      "group_chip_height": 22,
+      "group_chip_pad_x": 8,
+      "group_chip_gap": 6,
       "sidebar_pad_y": 18,
       "sidebar_pad_x": 12,
       "sidebar_gap": 4,
@@ -588,7 +690,46 @@
       "input_icon_gap": 8,
       "small_button_height": 30,
       "small_ghost_pad_x": 12,
-      "small_primary_pad_x": 12
+      "small_primary_pad_x": 12,
+      "tab_height": 36,
+      "tab_gap": 4,
+      "tab_pad_x": 12,
+      "tab_icon": 16,
+      "tab_icon_gap": 10,
+      "tab_bar": 3,
+      "tab_count_pad_x": 7,
+      "tab_count_height": 18,
+      "rail_divider_gap": 12,
+      "shortcut_height": 34,
+      "header_tile": 40,
+      "header_icon": 20,
+      "header_tile_gap": 14,
+      "search_width": 220,
+      "search_icon": 14,
+      "card_min_width": 200,
+      "tile_icon_ratio": 0.56,
+      "log_switch_width": 28,
+      "log_switch_height": 16,
+      "log_switch_pad": 2,
+      "tile_icon_ratio": 0.56,
+      "card_height": 132,
+      "card_gap": 12,
+      "card_pad": 14,
+      "card_mono": 30,
+      "card_mono_gap": 10,
+      "card_desc_gap": 10,
+      "card_meta_gap": 8,
+      "card_chevron": 14,
+      "card_key_pad_x": 5,
+      "card_key_pad_y": 1,
+      "page_slide": 28,
+      "back_height": 30,
+      "back_pad_x": 10,
+      "back_icon": 14,
+      "back_gap": 4,
+      "step_gap": 10,
+      "topbar_gap": 16,
+      "empty_pad": 48
     },
     "hud": {
       "pill_pad_top": 8,
@@ -604,12 +745,18 @@
       "combat_default_y": 150,
       "target_width": 200,
       "target_default_dy": 44,
+      "top_column_dy": 62,
+      "target_side_dx": 150,
+      "target_side_dy": -70,
+      "review_hint_bottom": 176,
       "target_pad": 10,
       "target_gap": 9,
       "target_header_gap": 10,
       "face": 34,
       "hp_bar": 5,
       "target_stack_gap": 6,
+      "target_value_gap": 8,
+      "target_badge_gap": 5,
       "hp_text_gap": 2,
       "ping_pad_x": 6,
       "ping_pad_y": 3,
@@ -631,7 +778,9 @@
       "world_label_pad_x": 9,
       "world_label_gap": 6,
       "world_label_stem": 6,
+      "stack_gap": 10,
       "toast_width": 240,
+      "toast_thumb_width": 72,
       "toast_pad": 10,
       "toast_gap": 8,
       "toast_ms": 5000,
@@ -640,9 +789,27 @@
       "edit_pad": 4,
       "edit_label_gap": 4,
       "edit_gap": 10,
+      "edit_handle": 9,
+      "edit_handle_hit": 18,
       "pill_name_max": 200,
       "world_label_max": 160,
-      "world_label_dot": 6
+      "world_label_dot": 6,
+      "wp_marker": 14,
+      "wp_marker_outline": 2,
+      "wp_stem": 10,
+      "wp_focus_radius": 120,
+      "wp_pill_pad_x": 8,
+      "wp_pill_pad_y": 5,
+      "wp_pill_strip": 3,
+      "wp_pill_radius": 8,
+      "wp_near": 16,
+      "wp_far": 256,
+      "wp_min_scale": 0.7,
+      "wp_pulse_ms": 1400,
+      "wp_arrow": 26,
+      "wp_arrow_icon": 14,
+      "wp_arrow_radius": 0.36,
+      "wp_coords_gap": 2
     },
     "replay": {
       "top_bar": 64,
@@ -743,6 +910,10 @@
     "waypoints": {
       "width": 640,
       "height": 520,
+      "min_width": 480,
+      "min_height": 340,
+      "coord_min_width": 64,
+      "error_gap": 2,
       "delete_size": 30,
       "delete_icon": 14
     }

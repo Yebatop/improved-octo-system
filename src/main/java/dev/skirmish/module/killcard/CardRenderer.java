@@ -11,7 +11,6 @@ import java.awt.TexturePaint;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
@@ -103,8 +102,7 @@ public final class CardRenderer {
         float headerH = Math.max(logo, badgeH);
         float ly = y + (headerH - logo) / 2f;
         fill(round(x, ly, logo, logo, theme.radius("card_logo")), "accent");
-        float icon = theme.num(L + "logo_icon");
-        sword(x + (logo - icon) / 2f, ly + (logo - icon) / 2f, icon, 2.6f, color("white"));
+        logo(x, ly, logo, color("white"));
         text("card_brand", "Skirmish", x + logo + theme.num(L + "header_gap"), y + (headerH - lineHeight("card_brand")) / 2f, null);
         float badgeW = width("card_badge", badge) + bpx * 2;
         float by = y + (headerH - badgeH) / 2f;
@@ -213,18 +211,26 @@ public final class CardRenderer {
     }
 
     /** SVG sword {@code M14.5 17.5L3 6V3h3l11.5 11.5 M13 19l6-6} with round caps and joins. */
-    private void sword(float x, float y, float size, float stroke, Color color) {
+    /** The Skirmish logo emblem (same geometry as ModuleIcons.logo): an angular «S» cut by a slash. */
+    private void logo(float x, float y, float size, Color color) {
         float s = size / 24f;
         g.setColor(color);
-        g.setStroke(new BasicStroke(stroke * s, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        Path2D.Float blade = new Path2D.Float();
-        blade.moveTo(x + 14.5f * s, y + 17.5f * s);
-        blade.lineTo(x + 3f * s, y + 6f * s);
-        blade.lineTo(x + 3f * s, y + 3f * s);
-        blade.lineTo(x + 6f * s, y + 3f * s);
-        blade.lineTo(x + 17.5f * s, y + 14.5f * s);
-        g.draw(blade);
-        g.draw(new Line2D.Float(x + 13f * s, y + 19f * s, x + 19f * s, y + 13f * s));
+        g.setStroke(new BasicStroke(2.4f * s, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.draw(path(x, y, s, 17f, 4.825f, 8f, 4.825f, 5.5f, 7.325f, 5.5f, 9.825f, 10.6f, 11.525f));
+        g.draw(path(x, y, s, 13.4f, 12.475f, 18.5f, 14.175f, 18.5f, 16.675f, 16f, 19.175f, 7f, 19.175f));
+        g.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 170));
+        g.setStroke(new BasicStroke(0.9f * s, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.draw(path(x, y, s, 4.2f, 19.8f, 8.3f, 15.7f));
+        g.draw(path(x, y, s, 15.7f, 8.3f, 19.8f, 4.2f));
+    }
+
+    private static Path2D.Float path(float x, float y, float s, float... points) {
+        Path2D.Float p = new Path2D.Float();
+        p.moveTo(x + points[0] * s, y + points[1] * s);
+        for (int i = 2; i < points.length; i += 2) {
+            p.lineTo(x + points[i] * s, y + points[i + 1] * s);
+        }
+        return p;
     }
 
     // ---- text: CSS line boxes from theme.json, like the in-game UI ----

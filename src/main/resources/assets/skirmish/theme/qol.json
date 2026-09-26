@@ -1,0 +1,60 @@
+{
+  "colors": {},
+  "text": {
+    "qol_pill": {
+      "size": 12,
+      "weight": 700,
+      "color": "text"
+    },
+    "qol_effect_name": {
+      "size": 11,
+      "weight": 700,
+      "color": "text"
+    },
+    "qol_effect_time": {
+      "size": 11,
+      "weight": 600,
+      "color": "text_2",
+      "mono": true
+    },
+    "qol_durability": {
+      "size": 10,
+      "weight": 600,
+      "color": "text",
+      "mono": true
+    },
+    "qol_label": {
+      "size": 11,
+      "weight": 600,
+      "color": "text_3"
+    },
+    "qol_value": {
+      "size": 12,
+      "weight": 600,
+      "color": "text",
+      "mono": true
+    }
+  },
+  "layout": {
+    "qol": {
+      "pill_height": 26,
+      "pill_pad_x": 12,
+      "dot": 6,
+      "dot_gap": 8,
+      "effect_icon": 24,
+      "effect_icon_gap": 8,
+      "effect_time_gap": 16,
+      "effect_row_gap": 4,
+      "effect_min_width": 140,
+      "armor_tile": 32,
+      "armor_icon": 28,
+      "armor_gap": 6,
+      "armor_bar": 3,
+      "armor_bar_width": 24,
+      "armor_bar_gap": 3,
+      "armor_label_gap": 2,
+      "coords_label_gap": 12,
+      "coords_row_gap": 3
+    }
+  }
+}

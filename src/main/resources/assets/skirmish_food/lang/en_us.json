@@ -1,0 +1,13 @@
+{
+  "skirmish.module.food_hud.name": "Food HUD",
+  "skirmish.module.food_hud.description": "Like AppleSkin: saturation as golden frames on the hunger icons, and while you hold food the hunger and saturation it would bring pulse on the bar. Food tooltips get the same line.",
+  "skirmish.module.food_hud.setting.saturation": "Saturation",
+  "skirmish.module.food_hud.setting.saturation.tooltip": "Golden frames on the hunger icons: how much saturation is left",
+  "skirmish.module.food_hud.setting.preview": "Food preview",
+  "skirmish.module.food_hud.setting.preview.tooltip": "While you hold food, what it would restore pulses on the bar",
+  "skirmish.module.food_hud.setting.label": "Numbers",
+  "skirmish.module.food_hud.setting.label.tooltip": "\"+3 · +3.6\" right of the bar while you hold food",
+  "skirmish.module.food_hud.setting.tooltip": "In tooltip",
+  "skirmish.module.food_hud.setting.tooltip.tooltip": "A hunger and saturation line in food tooltips",
+  "skirmish.food.tooltip": "🍗 +%s · saturation +%s"
+}

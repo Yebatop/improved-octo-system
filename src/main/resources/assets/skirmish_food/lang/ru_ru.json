@@ -1,0 +1,13 @@
+{
+  "skirmish.module.food_hud.name": "Food HUD",
+  "skirmish.module.food_hud.description": "Как AppleSkin: насыщение золотыми рамками на иконках голода, а когда держишь еду — сколько голода и насыщения она даст, мигает прямо на полоске. В подсказке еды та же строка.",
+  "skirmish.module.food_hud.setting.saturation": "Насыщение",
+  "skirmish.module.food_hud.setting.saturation.tooltip": "Золотые рамки на иконках голода: сколько насыщения осталось",
+  "skirmish.module.food_hud.setting.preview": "Превью еды",
+  "skirmish.module.food_hud.setting.preview.tooltip": "Когда держишь еду, на полоске мигает, сколько она восстановит",
+  "skirmish.module.food_hud.setting.label": "Цифры",
+  "skirmish.module.food_hud.setting.label.tooltip": "«+3 · +3,6» справа от полоски, пока держишь еду",
+  "skirmish.module.food_hud.setting.tooltip": "В подсказке",
+  "skirmish.module.food_hud.setting.tooltip.tooltip": "Строка с голодом и насыщением в подсказке еды",
+  "skirmish.food.tooltip": "🍗 +%s · насыщение +%s"
+}

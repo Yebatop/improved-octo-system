@@ -74,12 +74,20 @@ final class ReplayScreen extends UiScreen {
                 () -> speeds.stream().map(s -> Texts.localizeDecimal(trimZeros(s.value)) + "×").toList(),
                 () -> speeds.indexOf(ReplaySpeed.nearest(session.speed())),
                 i -> session.setSpeed(speeds.get(i).value));
-        List<CameraMode> modes = Arrays.asList(CameraMode.values());
         this.camera = new Segmented(Segmented.Spec.REPLAY,
-                () -> modes.stream().map(m -> Ui.tr("skirmish.killcam.camera_short." + m.name().toLowerCase(Locale.ROOT))).toList(),
-                () -> modes.indexOf(session.mode()),
-                i -> session.setMode(modes.get(i)));
+                () -> session.allowedModes().stream().map(ReplayScreen.this::cameraLabel).toList(),
+                () -> session.allowedModes().indexOf(session.mode()),
+                i -> session.setMode(session.allowedModes().get(i)));
         this.title = weaponText(session.killerWeapon());
+    }
+
+    /** «От убийцы», or «Мои глаза» when the killer camera is my own view (my kills and clips from the library). */
+    private String cameraLabel(CameraMode mode) {
+        String id = mode.name().toLowerCase(Locale.ROOT);
+        if (mode == CameraMode.KILLER && session.killerIsSelf()) {
+            id = "killer_self";
+        }
+        return Ui.tr("skirmish.killcam.camera_short." + id);
     }
 
     private static String trimZeros(double v) {
@@ -123,7 +131,7 @@ final class ReplayScreen extends UiScreen {
         // Top bar: badge + "Вас убил NAME · weapon", close button.
         float edge = ui.num(L + "edge_x");
         float top = ui.num(L + "top_y");
-        String badge = Ui.tr("skirmish.killcam.badge");
+        String badge = Ui.tr(session.saved != null ? "skirmish.killcam.badge_saved" : "skirmish.killcam.badge");
         float bpx = ui.num(L + "badge_pad_x");
         float bpy = ui.num(L + "badge_pad_y");
         float dot = ui.num(L + "badge_dot");
@@ -137,7 +145,10 @@ final class ReplayScreen extends UiScreen {
         ui.text("replay_badge", badge, edge + bpx + dot + bgap, by + bpy);
         float tx = edge + bw + ui.num(L + "top_gap");
         float ty = top + (rowH - ui.lineHeight("replay_title")) / 2f;
-        if (session.killerName.isEmpty()) {
+        float titleMax = w - edge - ui.num(L + "close_size") - ui.num(L + "close_right");
+        if (session.saved != null) {
+            savedTitle(ui, session.saved.header(), tx, ty, titleMax);
+        } else if (session.killerName.isEmpty()) {
             Component message = session.deathMessage;
             ui.text("replay_title", message == null ? Ui.tr("skirmish.killcam.died") : message.getString(), tx, ty);
         } else {
@@ -162,6 +173,10 @@ final class ReplayScreen extends UiScreen {
         }
         if (session.mode() == CameraMode.FREE) {
             ui.text("replay_note", Ui.tr("skirmish.killcam.help_free"), edge, noteY);
+            noteY += ui.lineHeight("replay_note");
+        }
+        if (session.saved != null && session.saved.elsewhere()) {
+            ui.text("replay_note", Ui.tr("skirmish.killcam.saved_note.elsewhere"), edge, noteY);
         }
 
         // Bottom: timeline row, then controls row.
@@ -206,6 +221,36 @@ final class ReplayScreen extends UiScreen {
         speed.at(camera.x - gap - spW, cy + (controlsH - segH) / 2f);
         widget(ui, speed, mx, my);
         widget(ui, camera, mx, my);
+    }
+
+    /** Top bar of a saved replay: «Вы убили Notch · меч», «Вас убил Notch · меч» or «Клип · бой с Notch · 24.09 14:05». */
+    private void savedTitle(Ui ui, dev.skirmish.module.killcam.library.ReplayHeader header, float tx, float ty, float maxRight) {
+        String rest = title.isEmpty() ? "" : " · " + title;
+        switch (header.kind) {
+            case KILL -> {
+                float nx = ui.text("replay_title", Ui.tr("skirmish.killcam.saved_title.kill") + " ", tx, ty);
+                nx = ui.text("replay_name", ui.ellipsize("replay_name", header.opponent, Math.max(0, maxRight - nx)), nx, ty);
+                ui.text("replay_title", ui.ellipsize("replay_title", rest, Math.max(0, maxRight - nx)), nx, ty);
+            }
+            case DEATH -> {
+                if (session.killerName.isEmpty()) {
+                    ui.text("replay_title", Ui.tr("skirmish.killcam.died"), tx, ty);
+                } else {
+                    float nx = ui.text("replay_title", Ui.tr("skirmish.killcam.killed_by") + " ", tx, ty);
+                    nx = ui.text("replay_name", session.killerName, nx, ty);
+                    ui.text("replay_title", ui.ellipsize("replay_title", rest, Math.max(0, maxRight - nx)), nx, ty);
+                }
+            }
+            case CLIP -> {
+                float nx = ui.text("replay_title", Ui.tr("skirmish.killcam.saved_title.clip"), tx, ty);
+                if (!header.opponent.isEmpty()) {
+                    nx = ui.text("replay_title", " · " + Ui.tr("skirmish.killcam.saved_title.clip_with") + " ", nx, ty);
+                    nx = ui.text("replay_name", ui.ellipsize("replay_name", header.opponent, Math.max(0, maxRight - nx)), nx, ty);
+                }
+                String date = " · " + ReplayTexts.date(header.createdMs);
+                ui.text("replay_title", ui.ellipsize("replay_title", date, Math.max(0, maxRight - nx)), nx, ty);
+            }
+        }
     }
 
     private static float legend(Ui ui, float x, float y, float h, String color, boolean diamond, String label) {
@@ -323,7 +368,10 @@ final class ReplayScreen extends UiScreen {
             case GLFW.GLFW_KEY_RIGHT -> session.seekSeconds(event.hasShiftDown() ? 0.05 : 1.0);
             case GLFW.GLFW_KEY_UP -> session.changeSpeed(1);
             case GLFW.GLFW_KEY_DOWN -> session.changeSpeed(-1);
-            case GLFW.GLFW_KEY_C -> session.setMode(session.mode().next());
+            case GLFW.GLFW_KEY_C -> {
+                List<CameraMode> allowed = session.allowedModes();
+                session.setMode(allowed.get((allowed.indexOf(session.mode()) + 1) % allowed.size()));
+            }
             case GLFW.GLFW_KEY_1 -> session.setMode(CameraMode.FREE);
             case GLFW.GLFW_KEY_2 -> session.setMode(CameraMode.KILLER);
             case GLFW.GLFW_KEY_3 -> session.setMode(CameraMode.ORBIT);
@@ -366,6 +414,10 @@ final class ReplayScreen extends UiScreen {
 
     @Override
     public void tick() {
+        if (session.saved != null) {
+            // Saved replays also run while the module is switched off, when its tick does not call this.
+            session.tick();
+        }
         if (ReplaySession.current() != session) {
             session.leaveScreen();
         }

@@ -1,0 +1,33 @@
+{
+  "colors": {
+    "holy_chip_bg": "#FFFFFF0F",
+    "holy_tier_low": "#A3A3B5",
+    "holy_tier_mid": "#5CC8FF",
+    "holy_tier_high": "#FFB547",
+    "holy_tier_top": "#FF6B78"
+  },
+  "text": {
+    "holy_chip": {
+      "size": 9,
+      "weight": 700,
+      "color": "text"
+    },
+    "holy_line": {
+      "size": 11,
+      "weight": 600,
+      "color": "accent"
+    },
+    "holy_note": {
+      "size": 10,
+      "weight": 500,
+      "color": "text_3"
+    }
+  },
+  "layout": {
+    "hud": {
+      "holy_chip_pad_x": 6,
+      "holy_chip_pad_y": 3,
+      "holy_chip_gap": 6
+    }
+  }
+}

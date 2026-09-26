@@ -48,6 +48,22 @@ public abstract class HudBlock {
 
     public abstract void render(Ui ui, float x, float y, boolean preview);
 
+    /**
+     * Id of a block to sit right under while this one keeps its default place (the schedule under the events list);
+     * it takes the other block's place while that one is hidden. Null: own default placement.
+     */
+    public @org.jspecify.annotations.Nullable String stackUnder() {
+        return null;
+    }
+
+    /**
+     * This block draws the scoreboard sidebar in place of vanilla's: while it is shown, the other blocks left at their
+     * default place step out of it instead of vanilla's sidebar.
+     */
+    public boolean isSidebar() {
+        return false;
+    }
+
     /** Called once per frame before measuring, e.g. to refresh cached data. */
     public void update(boolean preview) {
     }

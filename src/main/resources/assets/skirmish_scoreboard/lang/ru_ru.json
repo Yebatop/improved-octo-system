@@ -1,0 +1,15 @@
+{
+  "skirmish.module.scoreboard.name": "Scoreboard",
+  "skirmish.module.scoreboard.description": "Сайдбар сервера (борд HolyWorld) в панели Skirmish вместо серого ванильного: заголовок с акцентной чертой, ровные отступы, пустые строки превращаются в тонкие разделители, красные числа скрыты. Это элемент HUD — двигается и масштабируется в редакторе HUD. Текст, цвета и значки сервера сохраняются.",
+  "skirmish.module.scoreboard.setting.title": "Заголовок",
+  "skirmish.module.scoreboard.setting.title.tooltip": "Название борда сверху с акцентной чертой",
+  "skirmish.module.scoreboard.setting.numbers": "Числа",
+  "skirmish.module.scoreboard.setting.numbers.tooltip": "Показывать числа справа (в ванилле красные)",
+  "skirmish.module.scoreboard.setting.dividers": "Разделители",
+  "skirmish.module.scoreboard.setting.dividers.tooltip": "Пустые строки становятся тонкой линией, пустые строки сверху и снизу убираются",
+  "skirmish.module.scoreboard.setting.shadow": "Тень текста",
+  "skirmish.module.scoreboard.setting.shadow.tooltip": "Тень под текстом строк, как у чата",
+  "skirmish.module.scoreboard.setting.opacity": "Непрозрачность",
+  "skirmish.module.scoreboard.setting.opacity.tooltip": "Насколько плотный фон панели",
+  "skirmish.hud.element.scoreboard": "Scoreboard"
+}

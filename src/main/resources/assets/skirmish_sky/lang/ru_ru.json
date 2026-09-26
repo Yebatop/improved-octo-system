@@ -1,0 +1,14 @@
+{
+  "skirmish.module.custom_sky.name": "Custom Sky",
+  "skirmish.module.custom_sky.description": "Небо только на твоём экране: звёзды с полосой галактики, северное сияние, золотой закат или квазар с диском и джетами. Рисуется за ландшафтом, в основном ночью (появляется в сумерках), в дождь слабее; только в обычном мире.",
+  "skirmish.module.custom_sky.setting.preset": "Небо",
+  "skirmish.module.custom_sky.setting.preset.tooltip": "Что будет на небе",
+  "skirmish.module.custom_sky.setting.preset.galaxy": "Галактика",
+  "skirmish.module.custom_sky.setting.preset.aurora": "Сияние",
+  "skirmish.module.custom_sky.setting.preset.quasar": "Квазар",
+  "skirmish.module.custom_sky.setting.preset.sunset": "Закат",
+  "skirmish.module.custom_sky.setting.by_day": "И днём",
+  "skirmish.module.custom_sky.setting.by_day.tooltip": "Показывать и днём, в полную силу",
+  "skirmish.module.custom_sky.setting.intensity": "Яркость",
+  "skirmish.module.custom_sky.setting.intensity.tooltip": "Насколько ярко светится небо"
+}

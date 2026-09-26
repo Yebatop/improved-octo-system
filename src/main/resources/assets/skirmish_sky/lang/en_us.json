@@ -1,0 +1,14 @@
+{
+  "skirmish.module.custom_sky.name": "Custom Sky",
+  "skirmish.module.custom_sky.description": "A sky only on your screen: stars with the galaxy band, northern lights, a golden sunset or a quasar with its disk and jets. Drawn behind the terrain, mostly at night (fading in at dusk), weaker in rain; the overworld only.",
+  "skirmish.module.custom_sky.setting.preset": "Sky",
+  "skirmish.module.custom_sky.setting.preset.tooltip": "What the sky shows",
+  "skirmish.module.custom_sky.setting.preset.galaxy": "Galaxy",
+  "skirmish.module.custom_sky.setting.preset.aurora": "Aurora",
+  "skirmish.module.custom_sky.setting.preset.quasar": "Quasar",
+  "skirmish.module.custom_sky.setting.preset.sunset": "Sunset",
+  "skirmish.module.custom_sky.setting.by_day": "By day too",
+  "skirmish.module.custom_sky.setting.by_day.tooltip": "Also show it in daytime, at full strength",
+  "skirmish.module.custom_sky.setting.intensity": "Brightness",
+  "skirmish.module.custom_sky.setting.intensity.tooltip": "How bright the sky glows"
+}

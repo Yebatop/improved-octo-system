@@ -13,8 +13,16 @@ import org.jspecify.annotations.Nullable;
  * @param damageSent            {@code damage} is part of the stack's component patch, i.e. the server sent a value.
  *                              Vanilla never puts {@code damage=0} into the patch (it equals the item default), so an
  *                              undamaged item and an item whose damage the server hid look the same here.
+ * @param placeholder           the stack count is above the item's stack limit (a sword "x64"): the server sent a
+ *                              stand-in instead of the real item. HolyWorld does this for every other player's
+ *                              equipment, with a constant damage of 123, so the damage value means nothing.
  */
 public record DamageFacts(boolean empty, boolean unbreakable, boolean prototypeHasMaxDamage,
-                          @Nullable Integer maxDamage, @Nullable Integer damage, boolean damageSent) {
-    public static final DamageFacts EMPTY = new DamageFacts(true, false, false, null, null, false);
+                          @Nullable Integer maxDamage, @Nullable Integer damage, boolean damageSent, boolean placeholder) {
+    public static final DamageFacts EMPTY = new DamageFacts(true, false, false, null, null, false, false);
+
+    public DamageFacts(boolean empty, boolean unbreakable, boolean prototypeHasMaxDamage,
+                       @Nullable Integer maxDamage, @Nullable Integer damage, boolean damageSent) {
+        this(empty, unbreakable, prototypeHasMaxDamage, maxDamage, damage, damageSent, false);
+    }
 }

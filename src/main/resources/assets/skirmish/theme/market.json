@@ -1,0 +1,81 @@
+{
+  "colors": {
+    "market_chip": "#0D0D14D9",
+    "market_chip_cheap": "#123A2BE6",
+    "market_chip_dear": "#3D1A20E6",
+    "market_best": "#3DDC97",
+    "market_best_fill": "#3DDC9726",
+    "alert_warn_stroke": "#FFB54766",
+    "alert_bad_stroke": "#FF6B7866"
+  },
+  "text": {
+    "market_chip": {
+      "size": 9,
+      "weight": 800,
+      "color": "text"
+    },
+    "market_chip_cheap": {
+      "size": 9,
+      "weight": 800,
+      "color": "good"
+    },
+    "market_chip_dear": {
+      "size": 9,
+      "weight": 800,
+      "color": "bad"
+    },
+    "alert_title": {
+      "size": 12,
+      "weight": 800,
+      "color": "warn"
+    },
+    "alert_body": {
+      "size": 11,
+      "weight": 600,
+      "color": "text"
+    },
+    "alert_meta": {
+      "size": 10,
+      "weight": 500,
+      "color": "text_3",
+      "mono": true
+    },
+    "alert_history": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_2"
+    },
+    "alert_icon": {
+      "size": 11,
+      "weight": 800,
+      "color": "card"
+    },
+    "confirm_line": {
+      "size": 12,
+      "weight": 600,
+      "color": "text"
+    }
+  },
+  "layout": {
+    "market": {
+      "chip_pad_x": 3,
+      "chip_height": 12,
+      "chip_offset": 1,
+      "best_pad": 1,
+      "best_width": 2
+    },
+    "alerts": {
+      "banner_width": 250,
+      "toast_width": 240,
+      "icon": 15,
+      "icon_gap": 8,
+      "line_gap": 3,
+      "history_gap": 8,
+      "history_row_gap": 3,
+      "toast_ms": 8000,
+      "confirm_width": 440,
+      "confirm_line_gap": 6,
+      "confirm_icon": 36
+    }
+  }
+}

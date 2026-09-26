@@ -1,0 +1,13 @@
+{
+  "skirmish.module.world_map.name": "World Map",
+  "skirmish.module.world_map.description": "Полноэкранная карта мест, где ты побывал (клавиша M): поверхность как на ванильной карте, твои метки и ты сам. Сохраняется для каждого сервера и измерения. Только поверхность — без пещер, игроков и мобов; Ад с крышей не рисуется.",
+  "skirmish.module.world_map.setting.key": "Клавиша",
+  "skirmish.module.world_map.setting.key.tooltip": "Открыть карту",
+  "key.skirmish.world_map": "Карта мира",
+  "skirmish.worldmap.title": "Карта",
+  "skirmish.worldmap.no_roof": "Это измерение с крышей — карта не рисуется",
+  "skirmish.worldmap.center": "К себе",
+  "skirmish.worldmap.hint": "ЛКМ — тащить · колесо — масштаб · ПКМ — поставить метку",
+  "skirmish.worldmap.scale": "Масштаб %s",
+  "skirmish.worldmap.waypoint": "Метка %s %s"
+}

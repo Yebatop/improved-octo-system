@@ -1,0 +1,25 @@
+{
+  "colors": {
+    "rw_invulnerable": "#FFD166",
+    "rw_guess": "#A3A3B5"
+  },
+  "text": {
+    "rw_title": {"size": 10, "weight": 800, "color": "rw_invulnerable", "tracking": 0.6},
+    "rw_name": {"size": 11, "weight": 600, "color": "text_2"},
+    "rw_value": {"size": 20, "weight": 800, "color": "text"}
+  },
+  "layout": {
+    "rune_window": {
+      "default_dx": 36,
+      "min_width": 132,
+      "pad_y": 7,
+      "stripe": 3,
+      "stripe_gap": 8,
+      "value_gap": 14,
+      "bar": 2,
+      "bar_gap": 6,
+      "row_gap": 6,
+      "restored_ms": 1500
+    }
+  }
+}

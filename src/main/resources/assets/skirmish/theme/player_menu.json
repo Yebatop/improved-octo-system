@@ -1,0 +1,25 @@
+{
+  "text": {
+    "pm_title": {"size": 20, "weight": 800, "color": "text", "tracking": -0.3},
+    "pm_sub": {"size": 11, "weight": 500, "color": "text_2"},
+    "pm_row": {"size": 13, "weight": 600, "color": "text_2"},
+    "pm_row_hint": {"size": 11, "weight": 500, "color": "text_3", "mono": true},
+    "pm_badge": {"size": 10, "weight": 600, "color": "text_3", "mono": true},
+    "pm_hint": {"size": 11, "weight": 500, "color": "text_3"}
+  },
+  "layout": {
+    "player_menu": {
+      "width": 360,
+      "pad_x": 20,
+      "pad_y": 18,
+      "header_gap": 12,
+      "row_height": 34,
+      "row_gap": 2,
+      "row_pad_x": 10,
+      "badge": 18,
+      "badge_gap": 10,
+      "field_height": 32,
+      "picker_rows": 8
+    }
+  }
+}

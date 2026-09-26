@@ -1,0 +1,17 @@
+{
+  "skirmish.module.tool_saver.name": "Tool Saver",
+  "skirmish.module.tool_saver.description": "Keeps an almost broken tool alive: a pickaxe, axe or shovel under the threshold stops mining (optionally a weapon stops hitting). Press again right away to use it anyway. A pill warns beforehand.",
+  "skirmish.module.tool_saver.setting.threshold": "Threshold",
+  "skirmish.module.tool_saver.setting.threshold.tooltip": "Uses left at which the tool stops working",
+  "skirmish.module.tool_saver.setting.weapons": "Weapons too",
+  "skirmish.module.tool_saver.setting.weapons.tooltip": "Don't hit players and mobs with an almost broken sword or axe (careful in fights)",
+  "skirmish.module.tool_saver.setting.warn_percent": "Warn from",
+  "skirmish.module.tool_saver.setting.warn_percent.tooltip": "The pill appears below this durability percentage",
+  "skirmish.module.tool_saver.setting.sound": "Sound",
+  "skirmish.module.tool_saver.setting.sound.tooltip": "A short sound when a hit is held back",
+  "skirmish.hud.element.tool_saver": "Tool Saver",
+  "skirmish.tool_saver.blocked": "%s: %s uses left — press again to use it anyway",
+  "skirmish.tool_saver.left": "%s left",
+  "skirmish.tool_saver.guard": "guarded · %s",
+  "skirmish.tool_saver.sample": "Diamond Pickaxe"
+}

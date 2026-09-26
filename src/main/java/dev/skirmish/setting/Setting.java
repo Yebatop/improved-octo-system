@@ -20,6 +20,8 @@ public abstract class Setting<T> {
     private BooleanSupplier visible = () -> true;
     private String translationKey;
     private Runnable saveHook = () -> {};
+    private String featureId;
+    private Setting<?> parent;
 
     protected Setting(String id, T defaultValue) {
         this.id = Objects.requireNonNull(id);
@@ -83,8 +85,40 @@ public abstract class Setting<T> {
         return this;
     }
 
+    /**
+     * Groups this setting under {@code parent} (e.g. the sub-options of a switch): the menu lists it in a collapsible
+     * group below the parent. Visibility still comes from {@link #visibleWhen}.
+     */
+    public Setting<T> under(Setting<?> parent) {
+        this.parent = parent;
+        return this;
+    }
+
+    /** The setting this one is grouped under, or null. */
+    public Setting<?> parent() {
+        return parent;
+    }
+
     public boolean isVisible() {
-        return visible.getAsBoolean();
+        return !isBlocked() && visible.getAsBoolean();
+    }
+
+    /**
+     * Ties this setting to a feature id reported to the server's Feature Control (e.g. {@code through_walls}).
+     * While the feature is blocked the setting is hidden and, for switches, reads as off.
+     */
+    public Setting<T> feature(String id) {
+        this.featureId = id;
+        FeatureGate.declare(id);
+        return this;
+    }
+
+    public String featureId() {
+        return featureId;
+    }
+
+    public boolean isBlocked() {
+        return FeatureGate.isBlocked(featureId);
     }
 
     /** Whether the value is written to config.json. */

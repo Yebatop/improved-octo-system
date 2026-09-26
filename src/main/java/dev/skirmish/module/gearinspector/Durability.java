@@ -31,7 +31,9 @@ public record Durability(Kind kind, Reason reason, int remaining, int max) {
         /** The server put no damage value into the stack (vanilla does this for undamaged items, so do servers hiding durability). */
         DAMAGE_NOT_SENT,
         /** max_damage is zero or negative, which vanilla never sends. */
-        INVALID_MAX_DAMAGE
+        INVALID_MAX_DAMAGE,
+        /** The server sent a stand-in stack (count above the stack limit) with a fake damage value. */
+        PLACEHOLDER
     }
 
     public static Durability classify(DamageFacts facts, boolean assumeUndamaged) {
@@ -40,6 +42,9 @@ public record Durability(Kind kind, Reason reason, int remaining, int max) {
         }
         if (facts.unbreakable()) {
             return new Durability(Kind.UNBREAKABLE, Reason.NONE, 0, 0);
+        }
+        if (facts.placeholder() && facts.maxDamage() != null) {
+            return noData(Reason.PLACEHOLDER);
         }
         Integer max = facts.maxDamage();
         if (max == null) {
@@ -109,6 +114,7 @@ public record Durability(Kind kind, Reason reason, int remaining, int max) {
                 case DAMAGE_NOT_SENT -> "damage not in the stack's component patch (vanilla omits it for undamaged items;"
                         + " servers hiding durability omit it too)";
                 case INVALID_MAX_DAMAGE -> "max_damage <= 0";
+                case PLACEHOLDER -> "stand-in stack (count above the stack limit), the server's damage value is fake";
                 case NONE -> "unknown";
             };
         };

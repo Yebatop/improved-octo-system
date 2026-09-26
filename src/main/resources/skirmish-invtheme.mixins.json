@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.skirmish.module.invtheme.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ContainerLabelsMixin",
+    "ContainerThemeMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "colors": {
+    "base_tone": "#3DDC84"
+  },
+  "text": {
+    "base_title": {
+      "size": 12,
+      "weight": 700,
+      "color": "text"
+    },
+    "base_value": {
+      "size": 12,
+      "weight": 700,
+      "color": "text",
+      "mono": true
+    },
+    "base_row": {
+      "size": 10,
+      "weight": 600,
+      "color": "text_2"
+    },
+    "base_list": {
+      "size": 12,
+      "weight": 500,
+      "color": "text"
+    },
+    "base_list_value": {
+      "size": 12,
+      "weight": 600,
+      "color": "text",
+      "mono": true
+    },
+    "base_count": {
+      "size": 13,
+      "weight": 700,
+      "color": "text",
+      "mono": true
+    }
+  },
+  "layout": {
+    "base": {
+      "width": 760,
+      "height": 560,
+      "min_width": 600,
+      "min_height": 420,
+      "holo_scan": 48,
+      "column_below": 12,
+      "column_above": 28,
+      "manual_size": 31,
+      "scan_per_tick": 4096,
+      "farm_window_ms": 1200000,
+      "intruder_show_ms": 30000,
+      "intruder_repeat_ms": 300000,
+      "timer_warn_ms": 3600000,
+      "highlight_ms": 90000,
+      "outline_width": 3.0,
+      "log_max": 300,
+      "hud_width": 220,
+      "hud_rows": 4,
+      "hud_pad_x": 10,
+      "hud_pad_y": 7,
+      "hud_row_gap": 2,
+      "hud_accent": 3,
+      "hud_accent_gap": 8,
+      "tile_gap": 10,
+      "tile_height": 64,
+      "tile_pad": 10,
+      "col_gap": 20,
+      "bar": 4,
+      "row_height": 40,
+      "icon": 24,
+      "icon_gap": 12,
+      "log_time_width": 76,
+      "model_side": 200,
+      "slider_height": 24
+    }
+  }
+}

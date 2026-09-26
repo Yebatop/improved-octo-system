@@ -1,0 +1,22 @@
+{
+  "skirmish.module.camera_comfort.name": "Camera Comfort",
+  "skirmish.module.camera_comfort.description": "Ванильные настройки камеры в одном месте: покачивание, наклон при уроне, эффекты поля зрения и искажения, вспышки молний. Пока модуль включён, он меняет эти настройки игры; при выключении ваши прежние значения возвращаются.",
+  "skirmish.module.camera_comfort.setting.view_bobbing": "Покачивание камеры",
+  "skirmish.module.camera_comfort.setting.view_bobbing.tooltip": "Ванильное «Покачивание камеры» при ходьбе",
+  "skirmish.module.camera_comfort.setting.damage_tilt": "Наклон при уроне",
+  "skirmish.module.camera_comfort.setting.damage_tilt.tooltip": "Ванильный «Наклон при уроне»: насколько камера дёргается от удара",
+  "skirmish.module.camera_comfort.setting.fov_effects": "Эффекты поля зрения",
+  "skirmish.module.camera_comfort.setting.fov_effects.tooltip": "Ванильные «Эффекты поля зрения»: изменение обзора от бега, скорости и замедления",
+  "skirmish.module.camera_comfort.setting.distortion": "Эффекты искажения",
+  "skirmish.module.camera_comfort.setting.distortion.tooltip": "Ванильные «Эффекты искажения»: тошнота и портал",
+  "skirmish.module.camera_comfort.setting.hide_lightning": "Скрыть вспышки молний",
+  "skirmish.module.camera_comfort.setting.hide_lightning.tooltip": "Ванильная настройка: небо не вспыхивает от молний (сами молнии видны)",
+  "skirmish.module.low_fire.name": "Low Fire",
+  "skirmish.module.low_fire.description": "Огонь на экране ниже и прозрачнее, как в ресурспаке «низкий огонь». Что вы горите, по-прежнему видно.",
+  "skirmish.module.low_fire.setting.lower_by": "Опустить на",
+  "skirmish.module.low_fire.setting.lower_by.tooltip": "Насколько опустить пламя по сравнению с ванильным",
+  "skirmish.module.low_fire.setting.opacity": "Непрозрачность",
+  "skirmish.module.low_fire.setting.opacity.tooltip": "Насколько плотное пламя (100 % — как в ванили)",
+  "skirmish.module.low_fire.setting.hide_when_resistant": "Скрывать с огнестойкостью",
+  "skirmish.module.low_fire.setting.hide_when_resistant.tooltip": "Не рисовать пламя на экране, пока действует эффект «Огнестойкость»"
+}

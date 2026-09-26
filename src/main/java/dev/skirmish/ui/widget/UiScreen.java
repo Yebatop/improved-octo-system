@@ -103,6 +103,11 @@ public abstract class UiScreen extends Screen {
         ui.graphics().enableScissor((int) Math.floor(x0), (int) Math.floor(y0), (int) Math.ceil(x1), (int) Math.ceil(y1));
     }
 
+    /** The innermost clip (x0, y0, x1, y1) or null. */
+    protected float[] currentClip() {
+        return clips.peek();
+    }
+
     protected void popClip(Ui ui) {
         clips.pop();
         ui.graphics().disableScissor();
@@ -120,6 +125,10 @@ public abstract class UiScreen extends Screen {
             }
         }
         return null;
+    }
+
+    protected @Nullable Widget focusedWidget() {
+        return focused;
     }
 
     protected void focus(@Nullable Widget widget) {

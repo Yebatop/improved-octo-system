@@ -1,0 +1,15 @@
+{
+  "skirmish.module.weapon_stats.name": "Weapon Stats",
+  "skirmish.module.weapon_stats.description": "Weapon tooltips get the real numbers: damage with Sharpness (and your Strength), a crit, swings and damage per second, the Smite, Bane of Arthropods and Sweeping Edge bonus, and a comparison with the weapon in your hand.",
+  "skirmish.module.weapon_stats.setting.compare": "Compare",
+  "skirmish.module.weapon_stats.setting.compare.tooltip": "A «better/worse than your weapon» line by damage per second",
+  "skirmish.module.weapon_stats.setting.effects": "Count effects",
+  "skirmish.module.weapon_stats.setting.effects.tooltip": "Add your current Strength and subtract Weakness",
+  "skirmish.weapon_stats.damage": "⚔ Damage %s · crit %s",
+  "skirmish.weapon_stats.speed": "⏱ %s hits/s · a swing every %s s · %s damage/s",
+  "skirmish.weapon_stats.smite": "✝ Against undead +%s",
+  "skirmish.weapon_stats.bane": "✝ Against arthropods +%s",
+  "skirmish.weapon_stats.sweep": "〰 Sweep to the side %s",
+  "skirmish.weapon_stats.better": "▲ +%s damage/s over your weapon",
+  "skirmish.weapon_stats.worse": "▼ −%s damage/s below your weapon"
+}

@@ -1,5 +1,6 @@
 package dev.skirmish.module.clanshare;
 
+import dev.skirmish.module.Category;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -60,6 +61,11 @@ public final class ClanShareModule extends Module {
     private long pendingSinceMs;
     private @Nullable String outgoingLine;
     private boolean sendingOwnLine;
+
+    @Override
+    public Category category() {
+        return Category.WORLD;
+    }
 
     public ClanShareModule() {
         super(ID, true);

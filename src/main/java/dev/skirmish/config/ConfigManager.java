@@ -109,7 +109,7 @@ public final class ConfigManager {
         JsonObject modulesJson = new JsonObject();
         for (Module module : modules.get()) {
             JsonObject json = new JsonObject();
-            json.addProperty("enabled", module.isEnabled());
+            json.addProperty("enabled", module.isSwitchedOn());
             json.add("debug_log", module.debugLog.toJson());
             JsonObject settings = new JsonObject();
             for (Setting<?> setting : module.settings()) {

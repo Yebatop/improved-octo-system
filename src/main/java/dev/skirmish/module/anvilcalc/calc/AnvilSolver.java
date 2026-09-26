@@ -79,12 +79,16 @@ public final class AnvilSolver {
 
     public static AnvilPlan solve(AnvilInput input) {
         long started = System.nanoTime();
-        AnvilRules rules = new AnvilRules(input.catalog(), input.creative());
+        AnvilRules rules = new AnvilRules(input.catalog(), input.creative(), input.profile(), input.baseArmor());
         Piece base = input.base();
 
         List<Skipped> skipped = new ArrayList<>();
         List<Integer> candidates = new ArrayList<>();
         for (int i = 0; i < input.books().size(); i++) {
+            if (input.dubious().contains(i)) {
+                skipped.add(new Skipped(i, Reason.DUBIOUS, null));
+                continue;
+            }
             Skipped reason = classify(rules, base, i, input.books().get(i), base, true);
             if (reason == null) {
                 candidates.add(i);

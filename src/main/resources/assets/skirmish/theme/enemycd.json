@@ -1,0 +1,27 @@
+{
+  "text": {
+    "ecd_value": {
+      "size": 11,
+      "weight": 700,
+      "color": "text",
+      "mono": true
+    }
+  },
+  "layout": {
+    "enemycd": {
+      "default_pearl": 120,
+      "default_gapple": 100,
+      "default_egapple": 0,
+      "default_shield": 100,
+      "eat_ms": 1400,
+      "unknown_keep_ms": 20000,
+      "lift": 0.55,
+      "plate_gap": 4,
+      "chip_h": 20,
+      "chip_pad": 4,
+      "chip_icon": 14,
+      "chip_gap": 4,
+      "chip_inner_gap": 3
+    }
+  }
+}
