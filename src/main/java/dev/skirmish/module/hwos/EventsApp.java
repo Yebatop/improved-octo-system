@@ -3,6 +3,7 @@ package dev.skirmish.module.hwos;
 import dev.skirmish.module.ModuleManager;
 import dev.skirmish.module.commander.CommanderModule;
 import dev.skirmish.module.commander.HeadsUp;
+import dev.skirmish.module.events.EventClock;
 import dev.skirmish.module.events.EventSchedule;
 import dev.skirmish.module.events.EventsJson;
 import dev.skirmish.module.events.EventsModule;
@@ -84,6 +85,10 @@ final class EventsApp implements HwOsScreen.OsApp {
             String note = m.onSite() ? Ui.tr("skirmish.hwos.events.on_site")
                     : m.seconds() < 0 ? Ui.tr("skirmish.commander.no_way_note")
                     : Ui.tr("skirmish.hwos.events.eta", EventSchedule.clock(Math.round(m.seconds() * 1000)));
+            EventClock.Estimate lasts = commander.lasts(m.event());
+            if (lasts != null) {
+                note += " · " + EventsModule.lastsText(lasts);
+            }
             row(ui, x, ly, colW, m.event(), note, value, m.onSite() ? "good" : "accent");
             ly += rowH * 2;
         }
@@ -112,8 +117,9 @@ final class EventsApp implements HwOsScreen.OsApp {
                     : a.events().getFirst().rarity()).reversed());
             for (EventsModule.Anarchy a : all) {
                 for (EventsModule.LiveEvent e : a.events()) {
-                    live.add(new String[]{e.name(), a.name() + (a.mine() ? " · " + Ui.tr("skirmish.hwos.you_here") : ""),
-                            Ui.tr("skirmish.events.rarity." + e.rarity().key()), HwOsScreen.rarityTone(e.rarity())});
+                    String note = a.name() + (a.mine() ? " · " + Ui.tr("skirmish.hwos.you_here") : "")
+                            + (e.lasts() == null ? "" : " · " + EventsModule.lastsText(e.lasts()));
+                    live.add(new String[]{e.name(), note, Ui.tr("skirmish.events.rarity." + e.rarity().key()), HwOsScreen.rarityTone(e.rarity())});
                 }
             }
         }

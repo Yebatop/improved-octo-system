@@ -2,7 +2,9 @@ package dev.skirmish.module.commander;
 
 import dev.skirmish.hud.HudBlock;
 import dev.skirmish.hud.Placement;
+import dev.skirmish.module.events.EventClock;
 import dev.skirmish.module.events.EventSchedule;
+import dev.skirmish.module.events.EventsModule;
 import dev.skirmish.ui.Theme;
 import dev.skirmish.ui.Ui;
 import org.jspecify.annotations.Nullable;
@@ -70,16 +72,21 @@ final class CommanderHud extends HudBlock {
             if (out.size() >= max + (soon != null ? 1 : 0)) {
                 break;
             }
+            EventClock.Estimate lasts = module.lasts(m.event());
+            String left = lasts == null ? "" : " · " + EventsModule.lastsText(lasts);
             if (m.onSite()) {
                 out.add(new Chip("good", m.event(), Ui.tr("skirmish.commander.here"),
                         Ui.tr("skirmish.commander.here_for", EventSchedule.clock(nowMs - m.siteSince()),
-                                EventSchedule.clock(nowMs - m.waypoint().createdAt())), "good", -1f));
+                                EventSchedule.clock(nowMs - m.waypoint().createdAt())) + left, "good", -1f));
             } else if (m.blocks() < 0) {
-                out.add(new Chip("accent", m.event(), "—", Ui.tr("skirmish.commander.no_way_note"), "text_3", -1f));
+                out.add(new Chip("accent", m.event(), "—", Ui.tr("skirmish.commander.no_way_note") + left, "text_3", -1f));
             } else {
+                long eta = Math.round(m.seconds() * 1000);
+                // Getting there takes longer than the event usually has left: say so in the note's colour.
+                boolean late = lasts != null && lasts.typical() >= 0 && eta > lasts.remaining();
                 String note = Ui.tr(m.viaPortal() ? "skirmish.commander.eta_portal" : "skirmish.commander.eta",
-                        EventSchedule.clock(Math.round(m.seconds() * 1000)), EventSchedule.clock(nowMs - m.waypoint().createdAt()));
-                out.add(new Chip("accent", m.event(), CommanderModule.distance(m.blocks()), note, "text_2", -1f));
+                        EventSchedule.clock(eta), EventSchedule.clock(nowMs - m.waypoint().createdAt())) + left;
+                out.add(new Chip(late ? "warn" : "accent", m.event(), CommanderModule.distance(m.blocks()), note, late ? "warn" : "text_2", -1f));
             }
         }
         if (preview && out.isEmpty()) {

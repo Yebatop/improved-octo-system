@@ -120,8 +120,13 @@ final class EventsPanel extends HudBlock {
             }
             for (EventsJson.LiteEvent e : mine.subList(0, Math.min(max, mine.size()))) {
                 KnownCoords.Entry at = module.coordsOf(e.name());
-                String sub = at == null ? null : at.coords().text() + dimensionSuffix(at.dimension());
-                out.add(new EventRows.Row(e.name(), e.rarity(), EventRows.chipText(e.rarity(), e.rareRaw()), "", "text", sub, true));
+                String where = at == null ? null : at.coords().text() + dimensionSuffix(at.dimension());
+                // Under the name: where it is (when chat said) and how long it goes on.
+                EventClock.Estimate lasts = module.liteLasts(e);
+                String time = lasts == null ? null : EventsModule.lastsText(lasts);
+                String sub = where == null ? time : time == null ? where : where + " · " + time;
+                String tone = lasts != null && "warn".equals(EventsModule.lastsTone(lasts)) ? "warn" : null;
+                out.add(new EventRows.Row(e.name(), e.rarity(), EventRows.chipText(e.rarity(), e.rareRaw()), "", "text", sub, where != null, tone));
             }
             return;
         }
@@ -132,8 +137,9 @@ final class EventsPanel extends HudBlock {
         }
         int shown = Math.min(max, all.size());
         for (EventsJson.LiteEvent e : all.subList(0, shown)) {
+            EventClock.Estimate lasts = module.liteLasts(e);
             out.add(new EventRows.Row(e.name(), e.rarity(), EventRows.chipText(e.rarity(), e.rareRaw()),
-                    module.serverName(e.serverId()), "text_3", null, false));
+                    module.serverName(e.serverId()), "text_3", lasts == null ? null : EventsModule.lastsText(lasts), false));
         }
         if (all.size() > shown) {
             out.add(new EventRows.Note(Ui.tr("skirmish.events.more", all.size() - shown)));
@@ -155,12 +161,17 @@ final class EventsPanel extends HudBlock {
         // Running / pending now: on my server, or grouped by event type with the servers listed.
         Map<String, TreeSet<String>> running = new LinkedHashMap<>();
         Map<String, Boolean> started = new LinkedHashMap<>();
+        Map<String, EventClock.Estimate> lasts = new LinkedHashMap<>();
         for (EventsJson.PrimeEvent e : module.primeCurrent()) {
             if (mine && !e.server().equals(server.apiId())) {
                 continue;
             }
             running.computeIfAbsent(e.plugin(), k -> new TreeSet<>()).add(e.server());
             started.merge(e.plugin(), e.running(), Boolean::logicalOr);
+            EventClock.Estimate est = e.running() ? module.primeLasts(e) : null;
+            if (est != null) {
+                lasts.merge(e.plugin(), est, (a, b) -> a.elapsed() >= b.elapsed() ? a : b);
+            }
         }
         for (Map.Entry<String, TreeSet<String>> e : running.entrySet()) {
             if (rows++ >= max) {
@@ -168,6 +179,13 @@ final class EventsPanel extends HudBlock {
             }
             boolean isRunning = started.getOrDefault(e.getKey(), false);
             String sub = mine ? null : Ui.tr("skirmish.events.prime.servers", String.join(", ", e.getValue()));
+            EventClock.Estimate est = lasts.get(e.getKey());
+            if (isRunning && est != null) {
+                // Running: how much is left (or how long it has been on) instead of the bare state.
+                out.add(new EventRows.Row(EventsModule.primeName(e.getKey()), null, "", EventsModule.lastsText(est),
+                        est.typical() < 0 ? Theme.get().string("events.state.running") : EventsModule.lastsTone(est), sub, false));
+                continue;
+            }
             out.add(new EventRows.Row(EventsModule.primeName(e.getKey()), null, "",
                     Ui.tr(isRunning ? "skirmish.events.state.running" : "skirmish.events.state.pending"),
                     Theme.get().string("events.state." + (isRunning ? "running" : "pending")), sub, false));
@@ -191,8 +209,10 @@ final class EventsPanel extends HudBlock {
     private static List<EventRows.Item> sample() {
         long in = 754_000;
         return List.of(
-                new EventRows.Row("Контейнер", Rarity.LEGENDARY, EventRows.chipText(Rarity.LEGENDARY, ""), "", "text", "-1520 71 830", true),
-                new EventRows.Row("Опытный Тыпо", Rarity.EPIC, EventRows.chipText(Rarity.EPIC, ""), "", "text", null, false),
+                new EventRows.Row("Контейнер", Rarity.LEGENDARY, EventRows.chipText(Rarity.LEGENDARY, ""), "", "text",
+                        "-1520 71 830 · " + EventsModule.lastsText(new EventClock.Estimate(300_000, true, 1_020_000, 720_000)), true),
+                new EventRows.Row("Опытный Тыпо", Rarity.EPIC, EventRows.chipText(Rarity.EPIC, ""), "", "text",
+                        EventsModule.lastsText(new EventClock.Estimate(240_000, true, -1, -1)), false),
                 new EventRows.Row(EventsModule.primeName("golden_bob"), null, "", EventRows.countdown(in), "text",
                         Ui.tr("skirmish.events.at", "21:00"), false));
     }

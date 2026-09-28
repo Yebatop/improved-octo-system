@@ -82,5 +82,13 @@
   "skirmish.events.toast.title": "Новый ивент",
   "skirmish.events.chat.add": "[+метка]",
   "skirmish.events.chat.hover": "Добавить метку «%s» на %s (%s)",
-  "skirmish.events.waypoint.default": "Из чата"
+  "skirmish.events.waypoint.default": "Из чата",
+  "skirmish.events.lasts.left": "ещё ~%s",
+  "skirmish.events.lasts.left_max": "ещё ≤ %s",
+  "skirmish.events.lasts.ending": "вот-вот конец",
+  "skirmish.events.lasts.on": "идёт %s",
+  "skirmish.events.lasts.on_min": "идёт %s+",
+  "skirmish.events.lasts.min": "%s мин",
+  "skirmish.events.lasts.h": "%s ч",
+  "skirmish.events.lasts.h_min": "%s ч %s мин"
 }

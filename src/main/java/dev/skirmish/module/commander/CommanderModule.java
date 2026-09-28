@@ -5,6 +5,7 @@ import dev.skirmish.hud.Hud;
 import dev.skirmish.module.Category;
 import dev.skirmish.module.Module;
 import dev.skirmish.module.ModuleManager;
+import dev.skirmish.module.events.EventClock;
 import dev.skirmish.module.events.EventSchedule;
 import dev.skirmish.module.events.EventsJson;
 import dev.skirmish.module.events.EventsModule;
@@ -107,6 +108,12 @@ public final class CommanderModule extends Module {
     }
 
     // ---- for the HUD and HolyWorld OS ----
+
+    /** How long an event of my server goes on (from the events clock), or null. */
+    public EventClock.@Nullable Estimate lasts(String event) {
+        EventsModule ev = events();
+        return ev == null ? null : ev.lastsOf(event);
+    }
 
     /** Upcoming starts, soonest first (whatever kinds are switched on). */
     public List<HeadsUp.Item> upcoming() {

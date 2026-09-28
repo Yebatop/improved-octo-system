@@ -82,5 +82,13 @@
   "skirmish.events.toast.title": "New event",
   "skirmish.events.chat.add": "[+waypoint]",
   "skirmish.events.chat.hover": "Add waypoint \"%s\" at %s (%s)",
-  "skirmish.events.waypoint.default": "From chat"
+  "skirmish.events.waypoint.default": "From chat",
+  "skirmish.events.lasts.left": "~%s left",
+  "skirmish.events.lasts.left_max": "≤ %s left",
+  "skirmish.events.lasts.ending": "ending now",
+  "skirmish.events.lasts.on": "on for %s",
+  "skirmish.events.lasts.on_min": "on for %s+",
+  "skirmish.events.lasts.min": "%s min",
+  "skirmish.events.lasts.h": "%s h",
+  "skirmish.events.lasts.h_min": "%s h %s min"
 }

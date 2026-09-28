@@ -27,10 +27,13 @@ final class EventRows {
 
     /**
      * One event: name (+ chip), a right-aligned value in color token {@code rightColor}, and an optional second
-     * line ({@code subMono}: coordinates in the mono face).
+     * line ({@code subMono}: coordinates in the mono face; {@code subTone}: its colour token, null for the style's).
      */
     record Row(String name, @Nullable Rarity rarity, String chip, String right, String rightColor,
-               @Nullable String sub, boolean subMono) implements Item {
+               @Nullable String sub, boolean subMono, @Nullable String subTone) implements Item {
+        Row(String name, @Nullable Rarity rarity, String chip, String right, String rightColor, @Nullable String sub, boolean subMono) {
+            this(name, rarity, chip, right, rightColor, sub, subMono, null);
+        }
     }
 
     /** Muted single line (no data, nothing running). */
@@ -163,7 +166,12 @@ final class EventRows {
         }
         if (r.sub() != null) {
             String style = r.subMono() ? "event_coords" : "event_sub";
-            ui.text(style, ui.ellipsize(style, r.sub(), w), x, y + lineH + ui.num(L + "sub_gap"));
+            float sy = y + lineH + ui.num(L + "sub_gap");
+            if (r.subTone() != null) {
+                ui.text(style, ui.ellipsize(style, r.sub(), w), x, sy, ui.color(r.subTone()));
+            } else {
+                ui.text(style, ui.ellipsize(style, r.sub(), w), x, sy);
+            }
         }
     }
 

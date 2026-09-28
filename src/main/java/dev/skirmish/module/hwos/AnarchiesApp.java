@@ -66,7 +66,9 @@ final class AnarchiesApp implements HwOsScreen.OsApp {
                 for (int k = 0; k < Math.min(3, a.events().size()); k++) {
                     EventsModule.LiveEvent e = a.events().get(k);
                     ui.circle(tx + pad + 3, ly + lh / 2f, 6, ui.color(HwOsScreen.rarityTone(e.rarity())));
-                    ui.text("menu_row_desc", ui.ellipsize("menu_row_desc", e.name() + " · " + Ui.tr("skirmish.events.rarity." + e.rarity().key()),
+                    // The rarity is the dot's colour; the time left says more when it is known.
+                    String info = e.lasts() != null ? EventsModule.lastsText(e.lasts()) : Ui.tr("skirmish.events.rarity." + e.rarity().key());
+                    ui.text("menu_row_desc", ui.ellipsize("menu_row_desc", e.name() + " · " + info,
                             tw - pad * 2 - 12), tx + pad + 12, ly, ui.color(HwOsScreen.rarityTone(e.rarity())));
                     ly += lh;
                 }

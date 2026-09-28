@@ -93,6 +93,8 @@ public final class EventsModule extends Module {
     private @Nullable Instant voteAnchor;
     private @Nullable String anchoredVoting;
     private int detectCountdown;
+    /** Event lengths: Lite from when events appear and vanish, Prime from their start times. */
+    private final ClockStore clocks = new ClockStore();
 
     /** Hears event coordinates as they are seen in chat (Event Commander turns them into waypoints). */
     public interface CoordsListener {
@@ -130,7 +132,12 @@ public final class EventsModule extends Module {
         Hud.get().register(toast);
         ClientReceiveMessageEvents.MODIFY_GAME.register(chat::modify);
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> client.execute(this::resetSession));
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> client.execute(this::resetSession));
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> client.execute(() -> {
+            resetSession();
+            clocks.save();
+        }));
+        net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents.CLIENT_STOPPING.register(client -> clocks.save());
+        clocks.load(dev.skirmish.SkirmishClient.configDir().resolve("event_clock.json"));
     }
 
     @Override
@@ -177,6 +184,11 @@ public final class EventsModule extends Module {
                 rawEvents = json;
                 liteEvents = EventsJson.liteEvents(json, "");
                 onNewLite(liteDiff.update(liteEvents));
+                List<EventClock.Seen> seen = new ArrayList<>();
+                for (EventsJson.LiteEvent e : liteEvents) {
+                    seen.add(new EventClock.Seen(e.instanceId(), e.id(), null));
+                }
+                clocks.lite(seen, System.currentTimeMillis());
             }
         }
         if (schedule.get() && wantLite) {
@@ -204,6 +216,13 @@ public final class EventsModule extends Module {
                 rawCurrent = now;
                 primeCurrent = EventsJson.primeCurrent(now);
                 onNewPrime(primeDiff.update(primeCurrent));
+                List<EventClock.Seen> seen = new ArrayList<>();
+                for (EventsJson.PrimeEvent e : primeCurrent) {
+                    if (e.running() && e.startedAt() != null) {
+                        seen.add(new EventClock.Seen(e.uuid(), e.plugin(), e.startedAt().toEpochMilli()));
+                    }
+                }
+                clocks.prime(seen, System.currentTimeMillis());
             }
         }
     }
@@ -388,8 +407,8 @@ public final class EventsModule extends Module {
         return EventSchedule.nextVote(now, voteAnchor);
     }
 
-    /** An event live on a Lite server now. */
-    public record LiveEvent(String name, Rarity rarity) {
+    /** An event live on a Lite server now and how long it goes on (null while unknown). */
+    public record LiveEvent(String name, Rarity rarity, EventClock.@Nullable Estimate lasts) {
     }
 
     /** One Lite anarchy: API id, shown name, whether I am on it, its live events (rarest first), vote candidates. */
@@ -400,7 +419,7 @@ public final class EventsModule extends Module {
     public List<Anarchy> anarchies() {
         Map<String, List<LiveEvent>> byServer = new java.util.HashMap<>();
         for (EventsJson.LiteEvent e : liteEvents) {
-            byServer.computeIfAbsent(e.serverId(), k -> new ArrayList<>()).add(new LiveEvent(e.name(), e.rarity()));
+            byServer.computeIfAbsent(e.serverId(), k -> new ArrayList<>()).add(new LiveEvent(e.name(), e.rarity(), liteLasts(e)));
         }
         Map<String, List<String>> votes = new java.util.HashMap<>();
         for (EventsJson.Voting v : votings) {
@@ -418,6 +437,58 @@ public final class EventsModule extends Module {
             out.add(new Anarchy(s.getKey(), s.getValue(), mine, events, votes.getOrDefault(s.getKey(), List.of())));
         }
         return out;
+    }
+
+    /** How long a Lite event goes on, or null while unknown. */
+    public EventClock.@Nullable Estimate liteLasts(EventsJson.LiteEvent e) {
+        return clocks.lite().estimate(e.instanceId(), System.currentTimeMillis());
+    }
+
+    /** How long the event of that name on my Lite server goes on, or null (not live here, or not known). */
+    public EventClock.@Nullable Estimate lastsOf(String eventName) {
+        for (EventsJson.LiteEvent e : myLiteEvents()) {
+            if (e.name().equalsIgnoreCase(eventName)) {
+                return liteLasts(e);
+            }
+        }
+        return null;
+    }
+
+    /** How long a running Prime event goes on, or null while unknown. */
+    public EventClock.@Nullable Estimate primeLasts(EventsJson.PrimeEvent e) {
+        return clocks.prime().estimate(e.uuid(), System.currentTimeMillis());
+    }
+
+    /**
+     * «ещё ~12 мин» when the kind's usual length is known (≤ when the start is not), «вот-вот конец» past it,
+     * otherwise how long it has been on: «идёт 5 мин» («5+» when it was already on at the first look).
+     */
+    public static String lastsText(EventClock.Estimate e) {
+        if (e.typical() >= 0) {
+            if (e.remaining() < 60_000) {
+                return dev.skirmish.ui.Ui.tr("skirmish.events.lasts.ending");
+            }
+            return dev.skirmish.ui.Ui.tr(e.startKnown() ? "skirmish.events.lasts.left" : "skirmish.events.lasts.left_max", minutes(e.remaining()));
+        }
+        return dev.skirmish.ui.Ui.tr(e.startKnown() ? "skirmish.events.lasts.on" : "skirmish.events.lasts.on_min", minutes(e.elapsed()));
+    }
+
+    /** Theme colour token for {@link #lastsText}: warn in the last minutes, muted while only the time on is known. */
+    public static String lastsTone(EventClock.Estimate e) {
+        if (e.typical() < 0) {
+            return "text_3";
+        }
+        return e.remaining() < 180_000 ? "warn" : "text_2";
+    }
+
+    /** "12 мин", "1 ч 5 мин" (minutes rounded up, at least 1). */
+    static String minutes(long ms) {
+        long m = Math.max(1, (ms + 59_999) / 60_000);
+        if (m < 60) {
+            return dev.skirmish.ui.Ui.tr("skirmish.events.lasts.min", m);
+        }
+        return m % 60 == 0 ? dev.skirmish.ui.Ui.tr("skirmish.events.lasts.h", m / 60)
+                : dev.skirmish.ui.Ui.tr("skirmish.events.lasts.h_min", m / 60, m % 60);
     }
 
     /** Shown name of a Prime event plugin or timetable key. */
