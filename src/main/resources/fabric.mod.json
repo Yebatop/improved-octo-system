@@ -42,8 +42,7 @@
     "skirmish-enemycd.mixins.json",
     "skirmish-menus.mixins.json",
     "skirmish-invtheme.mixins.json",
-    "skirmish-sky.mixins.json",
-    "skirmish-base.mixins.json"
+    "skirmish-sky.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_min_version}",

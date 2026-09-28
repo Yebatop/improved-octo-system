@@ -29,8 +29,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * «World Map»: a full-screen map (key M) of the surface you have loaded, coloured and shaded like vanilla map items,
- * with your waypoints and your own position. It is saved per server and dimension. Only the top surface is drawn —
+ * «World Map»: a full-screen map (key M) of the surface you have loaded, in the colours of the blocks' own textures
+ * with smooth relief and see-through shallow water (or flat like vanilla map items), with your waypoints and your own
+ * position. It is saved per server and dimension. Only the top surface is drawn —
  * no caves, no players or mobs — and dimensions with a roof (the Nether) are not mapped. Read-only; Feature Control
  * id {@code world_map}.
  */
@@ -39,7 +40,15 @@ public final class WorldMapModule extends Module {
     static final String L = "layout.worldmap.";
     private static volatile @Nullable WorldMapModule instance;
 
+    /** How the ground is coloured: block textures with smooth relief, or the flat colours of vanilla map items. */
+    public enum Look {
+        TEXTURES, VANILLA
+    }
+
     final KeySetting key = add(new KeySetting("key", "key.skirmish.world_map"));
+    final dev.skirmish.setting.EnumSetting<Look> look = add(new dev.skirmish.setting.EnumSetting<>("look", Look.TEXTURES));
+    private final TopColors colors = new TopColors();
+    private Look scanned = Look.TEXTURES;
 
     private @Nullable MapStore store;
     private final ArrayDeque<ChunkPos> queue = new ArrayDeque<>();
@@ -143,6 +152,18 @@ public final class WorldMapModule extends Module {
         }
         ticks++;
         Theme t = Theme.get();
+        if (look.get() != scanned) {
+            // The other look: redraw everything around (farther tiles change as you pass them again).
+            scanned = look.get();
+            colors.clear();
+            ChunkPos here = mc.player.chunkPosition();
+            int r = mc.options.getEffectiveRenderDistance();
+            for (int dx = -r; dx <= r; dx++) {
+                for (int dz = -r; dz <= r; dz++) {
+                    enqueue(new ChunkPos(here.x + dx, here.z + dz));
+                }
+            }
+        }
         if (ticks % t.integer(L + "rescan_ticks") == 0) {
             ChunkPos here = mc.player.chunkPosition();
             int r = t.integer(L + "rescan_radius");
@@ -159,7 +180,11 @@ public final class WorldMapModule extends Module {
             queued.remove(pos.toLong());
             LevelChunk chunk = mc.level.getChunkSource().getChunk(pos.x, pos.z, ChunkStatus.FULL, false);
             if (chunk != null) {
-                scan(mc.level, chunk, s, now);
+                if (look.get() == Look.VANILLA) {
+                    scan(mc.level, chunk, s, now);
+                } else {
+                    scanTextures(mc.level, chunk, s, now, colors);
+                }
             }
         }
         if (now - lastSave > t.num(L + "save_ms")) {
@@ -167,6 +192,80 @@ public final class WorldMapModule extends Module {
             s.flush();
             s.trim(t.integer(L + "max_tiles"));
         }
+    }
+
+    /**
+     * Colours one chunk's 16×16 columns into its tile from the blocks' own textures (biome-tinted), lit from the
+     * north-west by the height steps to the neighbours, water letting its floor show where it is shallow.
+     */
+    static void scanTextures(ClientLevel level, LevelChunk chunk, MapStore store, long now, TopColors colors) {
+        ChunkPos cp = chunk.getPos();
+        MapTile tile = store.tile(MapShade.tileOf(cp.x), MapShade.tileOf(cp.z), true, now);
+        if (tile == null) {
+            return;
+        }
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        int minY = level.getMinY();
+        boolean northLoaded = level.getChunkSource().getChunk(cp.x, cp.z - 1, ChunkStatus.FULL, false) != null;
+        boolean westLoaded = level.getChunkSource().getChunk(cp.x - 1, cp.z, ChunkStatus.FULL, false) != null;
+        int[] west = new int[16];
+        for (int z = 0; z < 16; z++) {
+            west[z] = westLoaded ? surface(level, chunk, cp.getMinBlockX() - 1, cp.getMinBlockZ() + z, pos, minY, false) : Integer.MIN_VALUE;
+        }
+        for (int x = 0; x < 16; x++) {
+            int wx = cp.getMinBlockX() + x;
+            int north = northLoaded ? surface(level, chunk, wx, cp.getMinBlockZ() - 1, pos, minY, false) : Integer.MIN_VALUE;
+            for (int z = 0; z < 16; z++) {
+                int wz = cp.getMinBlockZ() + z;
+                int height = surface(level, chunk, wx, wz, pos, minY, true);
+                int argb = 0;
+                if (height >= minY) {
+                    pos.set(wx, height, wz);
+                    BlockState state = chunk.getBlockState(pos);
+                    FluidState fluid = state.getFluidState();
+                    if (!fluid.isEmpty() && fluid.getType().isSame(Fluids.WATER)) {
+                        int waterColor = colors.color(state, level, pos);
+                        int depth = 1;
+                        while (depth < 24 && height - depth > minY) {
+                            pos.set(wx, height - depth, wz);
+                            if (!chunk.getBlockState(pos).getFluidState().getType().isSame(Fluids.WATER)) {
+                                break;
+                            }
+                            depth++;
+                        }
+                        BlockState floor = chunk.getBlockState(pos);
+                        int floorColor = floor.isAir() ? waterColor : colors.color(floor, level, pos);
+                        argb = MapShade.seeThrough(waterColor, floorColor, depth);
+                    } else {
+                        float light = MapShade.relief(height, north == Integer.MIN_VALUE ? height : north,
+                                west[z] == Integer.MIN_VALUE ? height : west[z]);
+                        argb = MapShade.scale(colors.color(state, level, pos), light);
+                    }
+                }
+                tile.set(MapShade.pixelOf(wx), MapShade.pixelOf(wz), argb);
+                north = height;
+                west[z] = height;
+            }
+        }
+    }
+
+    /**
+     * The y of the block seen from above at a column (skipping up to 8 blocks the map does not show, like glass),
+     * or below {@code minY} when there is none. Columns outside {@code chunk} are read from the level.
+     */
+    private static int surface(ClientLevel level, LevelChunk chunk, int wx, int wz, BlockPos.MutableBlockPos pos, int minY, boolean inChunk) {
+        int y = inChunk ? chunk.getHeight(Heightmap.Types.WORLD_SURFACE, wx & 15, wz & 15)
+                : level.getHeight(Heightmap.Types.WORLD_SURFACE, wx, wz) - 1;
+        int down = 0;
+        while (y - down >= minY && down <= 8) {
+            pos.set(wx, y - down, wz);
+            BlockState state = inChunk ? chunk.getBlockState(pos) : level.getBlockState(pos);
+            if (state.getMapColor(level, pos) != MapColor.NONE) {
+                return y - down;
+            }
+            down++;
+        }
+        return minY - 1;
     }
 
     /** Colours one chunk's 16×16 columns into its tile, like a vanilla map. */

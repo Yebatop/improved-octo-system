@@ -1,7 +1,6 @@
 package dev.skirmish.module.base;
 
 import com.mojang.blaze3d.platform.NativeImage;
-import dev.skirmish.module.base.mixin.SpriteContentsAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.client.renderer.BiomeColors;
@@ -32,7 +31,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -335,17 +333,7 @@ final class ModelCapture {
         }
         int w = Math.max(1, contents.width());
         int h = Math.max(1, contents.height());
-        int[] px = new int[w * h];
-        try {
-            NativeImage img = ((SpriteContentsAccessor) contents).skirmish$originalImage();
-            for (int y = 0; y < h; y++) {
-                for (int x = 0; x < w; x++) {
-                    px[y * w + x] = img.getPixel(x, y);
-                }
-            }
-        } catch (RuntimeException e) {
-            Arrays.fill(px, 0xFF7F7F7F);
-        }
+        int[] px = dev.skirmish.util.SpritePixels.firstFrame(contents);
         int id = add(ModelRaster.Tex.of(w, h, px));
         texIds.put(name, id);
         return id;
