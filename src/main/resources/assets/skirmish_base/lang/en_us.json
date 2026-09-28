@@ -19,7 +19,6 @@
   "skirmish.module.base_os.setting.open_key.tooltip": "Key for the Base OS screen",
   "key.skirmish.base_os.open": "Base OS",
   "skirmish.hud.element.base_os": "Base OS",
-
   "skirmish.base.title": "Base OS",
   "skirmish.base.title_short": "Base",
   "skirmish.base.none": "No base yet. Walk up to your region block (its hologram shows your nick), or stand in your base and press «Base here».",
@@ -81,7 +80,7 @@
   "skirmish.base.model.cut": "Cut",
   "skirmish.base.model.cut_value": "up to Y %s",
   "skirmish.base.model.refresh": "Refresh",
-  "skirmish.base.model.hint": "Drag to turn, wheel to zoom. The cut removes the top layers to look inside.",
+  "skirmish.base.model.hint": "Left-drag to turn, right-drag to move, wheel to zoom. The cut removes the top layers to look inside.",
   "skirmish.base.model.no_base": "The model is built for your base. Walk up to your region or press «Base here».",
   "skirmish.base.model.far": "You are not in the base's dimension",
   "skirmish.base.farm.wheat": "Wheat",
@@ -93,5 +92,17 @@
   "skirmish.base.farm.sweet_berry_bush": "Sweet berries",
   "skirmish.base.farm.sugar_cane": "Sugar cane",
   "skirmish.base.farm.melon_stem": "Melons",
-  "skirmish.base.farm.pumpkin_stem": "Pumpkins"
+  "skirmish.base.farm.pumpkin_stem": "Pumpkins",
+  "skirmish.base.model.view": "View",
+  "skirmish.base.model.view_iso": "3D",
+  "skirmish.base.model.view_top": "Top",
+  "skirmish.base.model.view_side": "Side",
+  "skirmish.base.model.chests": "Chests",
+  "skirmish.base.model.chests_info": "Markers on the model: %s. Hover one to see what is inside, click for a route.",
+  "skirmish.base.model.search": "Search «%s» — chests: %s.",
+  "skirmish.base.model.more": "and %s more kinds",
+  "skirmish.base.model.route_hint": "Click for a route to the chest",
+  "skirmish.base.model.empty_chest": "Empty",
+  "skirmish.base.model.north": "N",
+  "skirmish.base.model.drawing": "Drawing the model…"
 }

@@ -19,7 +19,6 @@
   "skirmish.module.base_os.setting.open_key.tooltip": "Клавиша экрана Base OS",
   "key.skirmish.base_os.open": "Base OS",
   "skirmish.hud.element.base_os": "Base OS",
-
   "skirmish.base.title": "Base OS",
   "skirmish.base.title_short": "База",
   "skirmish.base.none": "База не найдена. Подойди к блоку своего привата — над ним голограмма с твоим ником, — или встань на базе и нажми «База здесь».",
@@ -81,7 +80,7 @@
   "skirmish.base.model.cut": "Срез",
   "skirmish.base.model.cut_value": "до высоты Y %s",
   "skirmish.base.model.refresh": "Обновить",
-  "skirmish.base.model.hint": "Тяни мышью — повернуть, колесо — приблизить. Срез убирает верхние слои, чтобы заглянуть внутрь.",
+  "skirmish.base.model.hint": "ЛКМ — повернуть, ПКМ — сдвинуть, колесо — приблизить. Срез убирает верхние слои, чтобы заглянуть внутрь.",
   "skirmish.base.model.no_base": "Модель строится для твоей базы. Подойди к своему привату или нажми «База здесь».",
   "skirmish.base.model.far": "Ты не в том измерении, где база",
   "skirmish.base.farm.wheat": "Пшеница",
@@ -93,5 +92,17 @@
   "skirmish.base.farm.sweet_berry_bush": "Сладкие ягоды",
   "skirmish.base.farm.sugar_cane": "Тростник",
   "skirmish.base.farm.melon_stem": "Дыни",
-  "skirmish.base.farm.pumpkin_stem": "Тыквы"
+  "skirmish.base.farm.pumpkin_stem": "Тыквы",
+  "skirmish.base.model.view": "Вид",
+  "skirmish.base.model.view_iso": "3D",
+  "skirmish.base.model.view_top": "Сверху",
+  "skirmish.base.model.view_side": "Сбоку",
+  "skirmish.base.model.chests": "Сундуки",
+  "skirmish.base.model.chests_info": "Меток на модели: %s. Наведи на метку — что внутри, клик — маршрут к сундуку.",
+  "skirmish.base.model.search": "Поиск «%s» — сундуков: %s.",
+  "skirmish.base.model.more": "и ещё видов: %s",
+  "skirmish.base.model.route_hint": "Клик — маршрут к сундуку",
+  "skirmish.base.model.empty_chest": "Пусто",
+  "skirmish.base.model.north": "С",
+  "skirmish.base.model.drawing": "Рисую модель…"
 }

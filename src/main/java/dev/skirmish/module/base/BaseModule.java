@@ -356,18 +356,23 @@ public final class BaseModule extends Module {
             if (chest == null || ENDER.equals(chest.dim)) {
                 continue;
             }
-            WaypointManager wm = WaypointManager.get();
-            for (Waypoint w : List.copyOf(wm.currentServer())) {
-                if (ROUTE_SOURCE.equals(w.source())) {
-                    wm.remove(w.id());
-                }
-            }
-            Waypoint wp = wm.add(Ui.tr("skirmish.base.route_name", total.name()), chest.x + 0.5, chest.y + 1, chest.z + 0.5, chest.dim, ROUTE_SOURCE);
-            wm.select(wp.id());
-            highlight = chest;
-            highlightUntil = System.currentTimeMillis() + (long) Theme.get().num(L + "highlight_ms");
+            routeToChest(chest, total.name());
             return;
         }
+    }
+
+    /** Selects a waypoint at a chest (named after {@code what}) and outlines the chest for a while. */
+    void routeToChest(BaseData.Chest chest, String what) {
+        WaypointManager wm = WaypointManager.get();
+        for (Waypoint w : List.copyOf(wm.currentServer())) {
+            if (ROUTE_SOURCE.equals(w.source())) {
+                wm.remove(w.id());
+            }
+        }
+        Waypoint wp = wm.add(Ui.tr("skirmish.base.route_name", what), chest.x + 0.5, chest.y + 1, chest.z + 0.5, chest.dim, ROUTE_SOURCE);
+        wm.select(wp.id());
+        highlight = chest;
+        highlightUntil = System.currentTimeMillis() + (long) Theme.get().num(L + "highlight_ms");
     }
 
     void forgetChest(String key) {

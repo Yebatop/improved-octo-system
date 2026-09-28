@@ -53,4 +53,17 @@ final class BaseText {
         return path.endsWith("chest") || path.endsWith("shulker_box") || path.equals("barrel") || path.equals("hopper")
                 || path.equals("dispenser") || path.equals("dropper");
     }
+
+    /** {@code chest} → normal, {@code trapped_chest} → trapped, {@code exposed_copper_chest} → copper_exposed … */
+    static String chestTexture(String block) {
+        String path = block.startsWith("waxed_") ? block.substring(6) : block;
+        if (path.endsWith("copper_chest")) {
+            String age = path.substring(0, path.length() - "copper_chest".length());
+            return age.isEmpty() ? "copper" : "copper_" + age.substring(0, age.length() - 1);
+        }
+        if (path.equals("chest")) {
+            return "normal";
+        }
+        return path.endsWith("_chest") ? path.substring(0, path.length() - 6) : path;
+    }
 }

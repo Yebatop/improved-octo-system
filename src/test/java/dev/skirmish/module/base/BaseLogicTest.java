@@ -114,26 +114,37 @@ class BaseLogicTest {
     }
 
     @Test
-    void voxelTopFaceFacesUp() {
-        int[] colors = new int[27];
-        colors[(1 * 3 + 1) * 3 + 1] = 0xFFFF0000;
-        VoxelRaster.Grid grid = new VoxelRaster.Grid(3, 3, 3, colors);
-        int[] img = VoxelRaster.render(grid, 0.6f, 0.6f, 1f, 2, 64, 64);
-        int lit = 0;
-        int brightest = 0;
-        for (int p : img) {
-            if ((p >>> 24) != 0) {
-                lit++;
-                brightest = Math.max(brightest, (p >> 16) & 0xFF);
-            }
+    void modelTopFaceFacesUpAndCutRemovesIt() {
+        // One cube in the middle of a 3×3×3 region: red top, green sides, dark bottom.
+        List<ModelRaster.Tex> tex = List.of(ModelRaster.Tex.of(1, 1, new int[]{0xFF202020}), ModelRaster.Tex.of(1, 1, new int[]{0xFFFF0000}),
+                ModelRaster.Tex.of(1, 1, new int[]{0xFF00FF00}));
+        ModelRaster.Kind cube = new ModelRaster.Kind(ModelRaster.box(0, 0, 0, 1, 1, 1, new int[]{0, 1, 2, 2, 2, 2}, 0xFFFFFF, true), true, false);
+        int[] cells = new int[27];
+        cells[(1 * 3 + 1) * 3 + 1] = 1;
+        byte[] light = new byte[27];
+        java.util.Arrays.fill(light, (byte) 15);
+        ModelRaster.Scene scene = new ModelRaster.Scene(3, 3, 3, cells, new byte[27], light, List.of(cube), tex);
+        ModelRaster.Look look = new ModelRaster.Look(0x00FF88, 0x101010, 0x000000);
+        ModelRaster.Frame frame = ModelRaster.render(scene, 0.6f, 0.9f, 1f, 0f, 0f, 2, 64, 64, 2, look);
+        // Looking down on it: the centre of the picture is the lit red top.
+        int centre = frame.argb()[32 * 64 + 32];
+        assertEquals(0xFF, centre >>> 24);
+        assertTrue(((centre >> 16) & 0xFF) > 200 && ((centre >> 8) & 0xFF) < 60, "red top in the middle");
+        float[] p = frame.view().project(1.5f, 2f, 1.5f);
+        assertEquals(32f, p[0], 0.6f);
+        // Cut below the block: no red left anywhere.
+        ModelRaster.Frame cut = ModelRaster.render(scene, 0.6f, 0.9f, 1f, 0f, 0f, 0, 64, 64, 1, look);
+        for (int px : cut.argb()) {
+            assertTrue(((px >> 16) & 0xFF) < 150 || ((px >> 8) & 0xFF) > 100, "no red");
         }
-        assertTrue(lit > 20, "cube drawn");
-        // The top face (full brightness) is visible from above.
-        assertEquals(255, brightest);
-        // Cut below the block: nothing left.
-        int[] cut = VoxelRaster.render(grid, 0.6f, 0.6f, 1f, 0, 64, 64);
-        for (int p : cut) {
-            assertEquals(0, p >>> 24);
-        }
+    }
+
+    @Test
+    void chestTextureNames() {
+        assertEquals("normal", BaseText.chestTexture("chest"));
+        assertEquals("trapped", BaseText.chestTexture("trapped_chest"));
+        assertEquals("ender", BaseText.chestTexture("ender_chest"));
+        assertEquals("copper", BaseText.chestTexture("copper_chest"));
+        assertEquals("copper_weathered", BaseText.chestTexture("waxed_weathered_copper_chest"));
     }
 }

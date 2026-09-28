@@ -1,6 +1,8 @@
 {
   "colors": {
-    "base_tone": "#3DDC84"
+    "base_tone": "#3DDC84",
+    "base_model_bg": "#222A3D",
+    "base_model_edge": "#0B0E16"
   },
   "text": {
     "base_title": {
@@ -72,7 +74,10 @@
       "icon_gap": 12,
       "log_time_width": 76,
       "model_side": 200,
-      "slider_height": 24
+      "slider_height": 24,
+      "model_pin": 22,
+      "model_tip_width": 260,
+      "model_compass": 30
     }
   }
 }
