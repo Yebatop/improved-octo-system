@@ -84,6 +84,11 @@ final class SkyPainter {
     }
 
     static void stars(VertexConsumer c, PoseStack.Pose p, float r, float t, float strength) {
+        stars(c, p, r, t, strength, 0f);
+    }
+
+    /** The starfield, turned with the night sky by {@code angle} (radians, the game's star angle). */
+    static void stars(VertexConsumer c, PoseStack.Pose p, float r, float t, float strength, float angle) {
         float unit = r * 0.0016f;
         for (float[] s : STAR) {
             float tw = 0.7f + 0.3f * (float) Math.sin(t * s[4] + s[3]);
@@ -91,44 +96,69 @@ final class SkyPainter {
             if (a < 4) {
                 continue;
             }
-            spot(c, p, SkyMath.dir(s[0], s[1]), r, unit * s[2], SkyMath.argb(a, STAR_COLORS[(int) s[5]]));
+            // Round, soft stars: a small fan bright in the middle; the bigger ones get a faint halo too.
+            float[] d = SkyMath.celestial(SkyMath.dir(s[0], s[1]), angle);
+            glow(c, p, d, r, unit * s[2] * 1.5f, SkyMath.argb(a, STAR_COLORS[(int) s[5]]), 7);
+            if (s[2] > 1.6f) {
+                glow(c, p, d, r, unit * s[2] * 3.5f, SkyMath.argb(a / 5, STAR_COLORS[(int) s[5]]), 8);
+            }
         }
     }
 
     static void galaxy(VertexConsumer c, PoseStack.Pose p, float r, float strength) {
-        for (float[] d : DUSTS) {
-            int a = Math.round(75 * strength * d[5]);
-            glow(c, p, new float[]{d[0], d[1], d[2]}, r, r * 0.014f * d[3], SkyMath.argb(a, DUST_COLORS[(int) d[4]]), 6);
-        }
-        float[] core = SkyMath.normalize(new float[]{DUSTS[0][0], DUSTS[0][1] + 0.1f, DUSTS[0][2]});
-        glow(c, p, core, r, r * 0.12f, SkyMath.argb(Math.round(60 * strength), 0xB89CFF), 24);
+        galaxy(c, p, r, strength, 0f);
     }
 
-    /** Aurora curtains: vertical ribbons along the northern sky, waving slowly. */
+    /** The galaxy's dust clouds and bulge, turned with the night sky by {@code angle}. */
+    static void galaxy(VertexConsumer c, PoseStack.Pose p, float r, float strength, float angle) {
+        for (float[] d : DUSTS) {
+            int a = Math.round(75 * strength * d[5]);
+            glow(c, p, SkyMath.celestial(new float[]{d[0], d[1], d[2]}, angle), r, r * 0.014f * d[3], SkyMath.argb(a, DUST_COLORS[(int) d[4]]), 6);
+        }
+        float[] core = SkyMath.normalize(new float[]{DUSTS[0][0], DUSTS[0][1] + 0.1f, DUSTS[0][2]});
+        glow(c, p, SkyMath.celestial(core, angle), r, r * 0.12f, SkyMath.argb(Math.round(60 * strength), 0xB89CFF), 24);
+    }
+
+    /**
+     * Aurora curtains: three wavy ribbons along the northern sky, each made of thin vertical rays that flicker, bright
+     * green at the foot fading to violet at the top.
+     */
     static void aurora(VertexConsumer c, PoseStack.Pose p, float r, float t, float strength) {
-        int[] colors = {0x3DFFB0, 0x4FD8E8, 0x9C7CFF};
+        int[] foot = {0x3DFFB0, 0x4FE8C8, 0x7CFF9C};
+        int[] crown = {0xB07CFF, 0x5B7CFF, 0xFF6BD5};
         for (int k = 0; k < 3; k++) {
-            double centre = Math.PI + (k - 1) * 0.55 + 0.15 * Math.sin(t * 0.05 + k);
-            double width = 1.3 - k * 0.2;
-            int steps = 64;
+            double centre = Math.PI + (k - 1) * 0.62 + 0.18 * Math.sin(t * 0.04 + k);
+            double width = 1.5 - k * 0.22;
+            int steps = 150;
             for (int i = 0; i < steps; i++) {
                 double a0 = centre - width / 2 + width * i / steps;
                 double a1 = centre - width / 2 + width * (i + 1) / steps;
-                double base0 = Math.toRadians(14 + k * 6 + 5 * Math.sin(a0 * 5 + t * 0.6 + k));
-                double base1 = Math.toRadians(14 + k * 6 + 5 * Math.sin(a1 * 5 + t * 0.6 + k));
-                double h = Math.toRadians(18 + 8 * Math.sin(a0 * 3 - t * 0.4 + k * 2));
+                double base0 = Math.toRadians(12 + k * 7 + 6 * Math.sin(a0 * 4 + t * 0.35 + k));
+                double base1 = Math.toRadians(12 + k * 7 + 6 * Math.sin(a1 * 4 + t * 0.35 + k));
+                double h0 = Math.toRadians(22 + 10 * Math.sin(a0 * 3 - t * 0.25 + k * 2));
+                double h1 = Math.toRadians(22 + 10 * Math.sin(a1 * 3 - t * 0.25 + k * 2));
                 float edge = (float) Math.sin(Math.PI * i / steps);
-                float wave = 0.6f + 0.4f * (float) Math.sin(a0 * 9 + t * 1.3 + k);
-                int bottom = SkyMath.argb(Math.round(150 * strength * edge * wave), colors[k]);
-                int top = SkyMath.argb(0, colors[(k + 1) % 3]);
+                // Rays: a flickering comb across the curtain.
+                float ray = 0.35f + 0.65f * (float) Math.pow(0.5 + 0.5 * Math.sin(a0 * 60 + k * 7 + t * (0.8 + k * 0.3)), 3);
+                float wave = 0.7f + 0.3f * (float) Math.sin(a0 * 9 + t * 1.1 + k);
+                int alphaFoot = Math.round(170 * strength * edge * wave * ray);
                 float[] b0 = SkyMath.dir(a0, base0);
                 float[] b1 = SkyMath.dir(a1, base1);
-                float[] t0 = SkyMath.dir(a0, base0 + h);
-                float[] t1 = SkyMath.dir(a1, base1 + h);
-                c.addVertex(p, b0[0] * r, b0[1] * r, b0[2] * r).setColor(bottom);
-                c.addVertex(p, b1[0] * r, b1[1] * r, b1[2] * r).setColor(bottom);
-                c.addVertex(p, t1[0] * r, t1[1] * r, t1[2] * r).setColor(top);
-                c.addVertex(p, t0[0] * r, t0[1] * r, t0[2] * r).setColor(top);
+                float[] m0 = SkyMath.dir(a0, base0 + h0 * 0.35);
+                float[] m1 = SkyMath.dir(a1, base1 + h1 * 0.35);
+                float[] t0 = SkyMath.dir(a0, base0 + h0);
+                float[] t1 = SkyMath.dir(a1, base1 + h1);
+                int cFoot = SkyMath.argb(alphaFoot, foot[k]);
+                int cMid = SkyMath.argb(Math.round(alphaFoot * 0.6f), SkyStyle.lerp(foot[k], crown[k], 0.4f));
+                int cTop = SkyMath.argb(0, crown[k]);
+                c.addVertex(p, b0[0] * r, b0[1] * r, b0[2] * r).setColor(cFoot);
+                c.addVertex(p, b1[0] * r, b1[1] * r, b1[2] * r).setColor(cFoot);
+                c.addVertex(p, m1[0] * r, m1[1] * r, m1[2] * r).setColor(cMid);
+                c.addVertex(p, m0[0] * r, m0[1] * r, m0[2] * r).setColor(cMid);
+                c.addVertex(p, m0[0] * r, m0[1] * r, m0[2] * r).setColor(cMid);
+                c.addVertex(p, m1[0] * r, m1[1] * r, m1[2] * r).setColor(cMid);
+                c.addVertex(p, t1[0] * r, t1[1] * r, t1[2] * r).setColor(cTop);
+                c.addVertex(p, t0[0] * r, t0[1] * r, t0[2] * r).setColor(cTop);
             }
         }
     }

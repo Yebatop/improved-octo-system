@@ -38,6 +38,23 @@ final class SkyMath {
         return new float[][]{u, v};
     }
 
+    /**
+     * A direction fixed to the turning night sky: turned by {@code angle} about the east–west axis like the game's
+     * stars, sun and moon (their layer is turned −90° about Y, then by the angle about X).
+     */
+    static float[] celestial(float[] d, float angle) {
+        float c = (float) Math.cos(angle);
+        float s = (float) Math.sin(angle);
+        float y = d[1] * c - d[2] * s;
+        float z = d[1] * s + d[2] * c;
+        return new float[]{-z, y, d[0]};
+    }
+
+    /** Where the game draws its sun (or moon) for that angle in radians: straight up at 0. */
+    static float[] body(float angle) {
+        return new float[]{(float) -Math.sin(angle), (float) Math.cos(angle), 0f};
+    }
+
     static int argb(int alpha, int rgb) {
         return (Math.max(0, Math.min(255, alpha)) << 24) | (rgb & 0xFFFFFF);
     }

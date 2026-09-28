@@ -41,7 +41,8 @@
     "skirmish-toolsaver.mixins.json",
     "skirmish-enemycd.mixins.json",
     "skirmish-menus.mixins.json",
-    "skirmish-invtheme.mixins.json"
+    "skirmish-invtheme.mixins.json",
+    "skirmish-sky.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_min_version}",
