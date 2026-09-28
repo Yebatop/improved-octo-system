@@ -149,10 +149,13 @@ public final class Hud {
                     float w = block.width(ui, false) * scale;
                     float h = block.height(ui, false) * scale;
                     float[] at = position(block, w, h, ui.width(), ui.height());
+                    float pivot = placements.getOrDefault(block.id(), block.defaultPlacement()).px();
                     if (!placements.containsKey(block.id())) {
-                        at = autoPlace(ui, block, at, w, h, drawn, sidebar);
+                        float[] auto = autoPlace(ui, block, at, w, h, drawn, sidebar);
+                        at = new float[]{auto[0], auto[1]};
+                        pivot = auto[2];
                     }
-                    drawn.put(block.id(), new float[]{at[0], at[1], w, h});
+                    drawn.put(block.id(), new float[]{at[0], at[1], w, h, pivot});
                     ui.pushAlpha(a);
                     draw(ui, block, at[0], at[1], scale, false);
                     ui.popAlpha();
@@ -182,20 +185,23 @@ public final class Hud {
 
     /**
      * Default places only (the user's own placements are kept as set): stack under another block, then step out of
-     * the scoreboard sidebar to its left.
+     * the scoreboard sidebar to its left. Returns x, y and the horizontal pivot the block lines up by.
      */
     private float[] autoPlace(Ui ui, HudBlock block, float[] at, float w, float h, Map<String, float[]> drawn, float @org.jspecify.annotations.Nullable [] sidebar) {
         float gap = ui.num("layout.hud.stack_gap");
         float x = at[0];
         float y = at[1];
-        // Walk up the stack chain to the nearest block drawn this frame and sit under it, aligned by this block's own
-        // pivot (centred blocks centre under it); with none drawn, take the place of the chain's first block.
+        float pivot = block.defaultPlacement().px();
+        // Walk up the stack chain to the nearest block drawn this frame and sit under it, lined up the way that column
+        // is (a column on the left keeps its left edge, a centred one stays centred); with none drawn, take the place
+        // of the chain's first block.
         String under = block.stackUnder();
         Set<String> seen = new HashSet<>();
         while (under != null && seen.add(under)) {
             float[] ref = drawn.get(under);
             if (ref != null) {
-                x = ref[0] + (ref[2] - w) * block.defaultPlacement().px();
+                pivot = ref.length > 4 ? ref[4] : pivot;
+                x = ref[0] + (ref[2] - w) * pivot;
                 y = ref[1] + ref[3] + gap;
                 break;
             }
@@ -207,6 +213,7 @@ public final class Hud {
                 float[] p = position(other, w, h, ui.width(), ui.height());
                 x = p[0];
                 y = p[1];
+                pivot = placements.getOrDefault(other.id(), other.defaultPlacement()).px();
                 break;
             }
             under = other.stackUnder();
@@ -217,7 +224,7 @@ public final class Hud {
         }
         x = Math.max(0f, Math.min(ui.width() - w, x));
         y = Math.max(0f, Math.min(ui.height() - h, y));
-        return new float[]{Math.round(x), Math.round(y)};
+        return new float[]{Math.round(x), Math.round(y), pivot};
     }
 
     private @org.jspecify.annotations.Nullable HudBlock byId(String id) {
