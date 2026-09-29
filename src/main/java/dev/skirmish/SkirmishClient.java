@@ -101,6 +101,8 @@ public final class SkirmishClient implements ClientModInitializer {
         modules.register(new dev.skirmish.module.hwitems.tooltips.HwTooltipsModule());
         modules.register(new dev.skirmish.module.recap.SessionRecapModule());
         modules.register(new dev.skirmish.module.scoreboard.ScoreboardModule());
+        modules.register(new dev.skirmish.module.chat.ChatModule());
+        modules.register(new dev.skirmish.module.tablist.TabListModule());
         modules.register(new dev.skirmish.module.food.FoodHudModule());
         modules.register(new dev.skirmish.module.toolsaver.ToolSaverModule());
         modules.register(new dev.skirmish.module.elytra.ElytraHudModule());

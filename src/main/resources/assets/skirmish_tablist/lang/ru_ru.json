@@ -1,0 +1,12 @@
+{
+  "skirmish.module.tab_list.name": "Tab List",
+  "skirmish.module.tab_list.description": "Список игроков по Tab в панели Skirmish: заголовок и подвал сервера как есть, сколько игроков онлайн и твой пинг, дальше игроки колонками — голова, ник с префиксами и цветами сервера, счёт из таба, если сервер его показывает, и пинг в миллисекундах цветом (зелёный — хорошо, красный — плохо). Твоя строка и строки друзей выделены. Когда показывать список, решает игра, как обычно.",
+  "skirmish.module.tab_list.setting.heads": "Головы",
+  "skirmish.module.tab_list.setting.heads.tooltip": "Голова скина перед ником",
+  "skirmish.module.tab_list.setting.friends": "Выделять друзей",
+  "skirmish.module.tab_list.setting.friends.tooltip": "Строки друзей из модуля Friends — зелёным",
+  "skirmish.module.tab_list.setting.opacity": "Непрозрачность",
+  "skirmish.module.tab_list.setting.opacity.tooltip": "Насколько плотный фон панели",
+  "skirmish.tablist.online": "Онлайн: %s",
+  "skirmish.tablist.your_ping": "Твой пинг: %s мс"
+}

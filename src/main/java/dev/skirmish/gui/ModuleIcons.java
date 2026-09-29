@@ -286,6 +286,21 @@ public final class ModuleIcons {
                 p(ui, x, y, s, c, 8f, 21f, 3f, 21f, 3f, 16f);
                 ui.border(x + 9f * s, y + 9f * s, 6f * s, 6f * s, 1f * s, STROKE * s, c);
             }
+            case "tab_list" -> { // list of players: heads and name lines in two columns
+                ui.border(x + 2.5f * s, y + 3.5f * s, 19f * s, 17f * s, 2.5f * s, STROKE * s, c);
+                for (float ry : new float[]{8f, 12f, 16f}) {
+                    ui.rect(x + 5.5f * s, y + (ry - 1f) * s, 2f * s, 2f * s, 0.5f * s, c);
+                    p(ui, x, y, s, c, 9f, ry, 11f, ry);
+                    ui.rect(x + 13f * s, y + (ry - 1f) * s, 2f * s, 2f * s, 0.5f * s, c);
+                    p(ui, x, y, s, c, 16.5f, ry, 18.5f, ry);
+                }
+            }
+            case "chat" -> { // speech bubble with two lines of text
+                ui.border(x + 3f * s, y + 4f * s, 18f * s, 13f * s, 3.5f * s, STROKE * s, c);
+                p(ui, x, y, s, c, 7f, 17f, 6.5f, 20.5f, 11f, 17f);
+                p(ui, x, y, s, c, 7.5f, 9f, 16.5f, 9f);
+                p(ui, x, y, s, c, 7.5f, 12.5f, 13f, 12.5f);
+            }
             case "scoreboard" -> { // sidebar panel: title bar and lines with scores
                 ui.border(x + 4f * s, y + 2.5f * s, 16f * s, 19f * s, 2.5f * s, STROKE * s, c);
                 p(ui, x, y, s, c, 4f, 7.5f, 20f, 7.5f);

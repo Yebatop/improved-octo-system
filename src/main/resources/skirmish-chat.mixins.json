@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.skirmish.module.chat.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ChatComponentAccessor",
+    "ChatComponentMixin",
+    "ChatScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

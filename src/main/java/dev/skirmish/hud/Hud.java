@@ -43,6 +43,23 @@ public final class Hud {
     private static java.util.function.BooleanSupplier fightFocus = () -> false;
     /** Where each block was last drawn, so the fight strip takes the place of the hidden ones. */
     private final Map<String, float[]> lastDrawn = new HashMap<>();
+    /** A panel over the HUD (the Tab list, design px) and until when (ms): blocks under it are not drawn. */
+    private float @org.jspecify.annotations.Nullable [] cover;
+    private long coverUntil;
+
+    /** The Tab list says where it is each frame it shows; the blocks it overlaps stay hidden meanwhile. */
+    public void cover(float x, float y, float w, float h) {
+        cover = new float[]{x, y, w, h};
+        coverUntil = net.minecraft.util.Util.getMillis() + 100;
+    }
+
+    private boolean covered(float x, float y, float w, float h) {
+        float[] c = cover;
+        if (c == null || net.minecraft.util.Util.getMillis() > coverUntil) {
+            return false;
+        }
+        return x < c[0] + c[2] && x + w > c[0] && y < c[1] + c[3] && y + h > c[1];
+    }
     private final dev.skirmish.ui.Anim strip = new dev.skirmish.ui.Anim("appear_ms");
 
     private Hud(Path file) {
@@ -191,6 +208,9 @@ public final class Hud {
                     drawn.put(block.id(), new float[]{at[0], at[1], w, h, pivot});
                     if (!steps) {
                         lastDrawn.put(block.id(), new float[]{at[0], at[1], w, h});
+                    }
+                    if (covered(at[0], at[1], w, h)) {
+                        continue;
                     }
                     ui.pushAlpha(a);
                     draw(ui, block, at[0], at[1], scale, false);
