@@ -115,7 +115,7 @@
   "skirmish.module.combat.setting.combat_panel": "Fight panel",
   "skirmish.module.combat.setting.combat_panel.tooltip": "Damage, totems and hits of the current fight",
   "skirmish.module.combat.setting.session_panel": "Session score",
-  "skirmish.module.combat.setting.session_panel.tooltip": "Kills, deaths and K/D since joining the server",
+  "skirmish.module.combat.setting.session_panel.tooltip": "Kills, deaths and K/D since joining the server. Shows up after the first kill or death",
   "skirmish.module.waypoints.setting.show_pill": "Selected waypoint pill",
   "skirmish.module.waypoints.setting.show_pill.tooltip": "Direction, coordinates and distance at the top of the screen",
   "skirmish.module.interface.name": "Interface",

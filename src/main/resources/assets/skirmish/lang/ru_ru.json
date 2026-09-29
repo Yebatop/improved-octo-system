@@ -120,7 +120,7 @@
   "skirmish.module.combat.setting.combat_panel": "Панель «Бой»",
   "skirmish.module.combat.setting.combat_panel.tooltip": "Урон, тотемы и попадания текущего боя",
   "skirmish.module.combat.setting.session_panel": "Счёт сессии",
-  "skirmish.module.combat.setting.session_panel.tooltip": "Убийства, смерти и K/D с момента входа на сервер",
+  "skirmish.module.combat.setting.session_panel.tooltip": "Убийства, смерти и K/D с момента входа на сервер. Появляется после первого убийства или смерти",
   "skirmish.module.waypoints.setting.show_pill": "Плашка выбранной метки",
   "skirmish.module.waypoints.setting.show_pill.tooltip": "Направление, координаты и расстояние сверху экрана",
   "skirmish.module.interface.name": "Interface",
