@@ -278,13 +278,22 @@ public final class WorldMapScreen extends UiScreen {
                 continue;
             }
             ui.rect(x0, y0, x1 - x0, y1 - y0, 0f, (accent & 0x00FFFFFF) | 0x14000000);
-            for (int[] xr : z.xs()) {
-                for (int[] zr : z.zs()) {
+            // Cells: gold to search, green once you have been in them, the hunt's next cell ringed.
+            int visitedFill = (ui.color("good") & 0x00FFFFFF) | 0x70000000;
+            int target = z == SearchZones.latest(Util.getMillis()) ? dev.skirmish.module.hunt.HuntModule.targetCell() : -1;
+            for (int i = 0; i < z.xs().size(); i++) {
+                int[] xr = z.xs().get(i);
+                for (int j = 0; j < z.zs().size(); j++) {
+                    int[] zr = z.zs().get(j);
                     float cx0 = sx(xr[0], w);
                     float cy0 = sy(zr[0], h);
                     float cw = Math.max(2f, (xr[1] - xr[0] + 1) * zoom);
                     float ch = Math.max(2f, (zr[1] - zr[0] + 1) * zoom);
-                    ui.rect(cx0, cy0, cw, ch, 0f, fill);
+                    int index = z.cell(i, j);
+                    ui.rect(cx0, cy0, cw, ch, 0f, z.visited().get(index) ? visitedFill : fill);
+                    if (index == target) {
+                        ui.border(cx0 - 3, cy0 - 3, cw + 6, ch + 6, 2f, 2f, ui.color("accent"));
+                    }
                 }
             }
             ui.border(x0, y0, x1 - x0, y1 - y0, 0f, 1.5f, accent);

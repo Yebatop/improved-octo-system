@@ -16,8 +16,8 @@ public final class MaskedCoords {
     /** At most this many ranges per axis; beyond it the axis is one range over all it can be. */
     static final int MAX_RANGES = 100;
 
-    /** A masked position: what the line said before it, the X and Z ranges, and Y when it was given. */
-    public record Masked(String what, List<int[]> xs, @Nullable Integer y, List<int[]> zs) {
+    /** A masked position: what the line said before it, the X and Z ranges, Y when it was given, and the masks as written. */
+    public record Masked(String what, List<int[]> xs, @Nullable Integer y, List<int[]> zs, String xMask, String zMask) {
         /** Number of cells (X range × Z range). */
         public int cells() {
             return xs.size() * zs.size();
@@ -50,7 +50,7 @@ public final class MaskedCoords {
             Integer height = y.contains("*") ? null : parseInt(y);
             String before = text.substring(0, m.start());
             before = WHERE.matcher(before).replaceFirst("").replaceFirst("^[\\s▶►>•]+", "").strip();
-            return new Masked(before, xs, height, zs);
+            return new Masked(before, xs, height, zs, x, z);
         }
         return null;
     }

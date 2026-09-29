@@ -8,5 +8,10 @@
   "skirmish.module.tab_list.setting.opacity": "Непрозрачность",
   "skirmish.module.tab_list.setting.opacity.tooltip": "Насколько плотный фон панели",
   "skirmish.tablist.online": "Онлайн: %s",
-  "skirmish.tablist.your_ping": "Твой пинг: %s мс"
+  "skirmish.tablist.your_ping": "Твой пинг: %s мс",
+  "skirmish.module.tab_list.setting.sort": "Порядок",
+  "skirmish.module.tab_list.setting.sort.tooltip": "Как на сервере (ранги и команды), по нику или по пингу",
+  "skirmish.module.tab_list.setting.sort.server": "Сервер",
+  "skirmish.module.tab_list.setting.sort.name": "Ник",
+  "skirmish.module.tab_list.setting.sort.ping": "Пинг"
 }

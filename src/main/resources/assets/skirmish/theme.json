@@ -32,7 +32,9 @@
     "theme/commander.json",
     "theme/hwos.json",
     "theme/chat.json",
-    "theme/tablist.json"
+    "theme/tablist.json",
+    "theme/hunt.json",
+    "theme/binds.json"
   ],
   "colors": {
     "page": "#0B0B12",

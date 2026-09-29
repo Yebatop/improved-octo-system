@@ -74,6 +74,16 @@ final class CategoryIcons {
         path(ui, x, y, size, color, 9f, 9f, 9f, 21f);
     }
 
+    /** Keyboard (binds shortcut): a rounded board with a row of keys and a space bar. */
+    static void keyboard(Ui ui, float x, float y, float size, int color) {
+        float s = size / 24f;
+        ui.border(x + 2f * s, y + 6f * s, 20f * s, 13f * s, 2.5f * s, STROKE * s, color);
+        for (float kx : new float[]{6f, 10f, 14f, 18f}) {
+            ui.rect(x + (kx - 1f) * s, y + 9f * s, 2f * s, 2f * s, 0.5f * s, color);
+        }
+        path(ui, x, y, size, color, 8f, 15.5f, 16f, 15.5f);
+    }
+
     /** Map pin (waypoints shortcut). */
     static void pin(Ui ui, float x, float y, float size, int color) {
         float s = size / 24f;

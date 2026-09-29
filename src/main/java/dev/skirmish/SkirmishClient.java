@@ -117,6 +117,7 @@ public final class SkirmishClient implements ClientModInitializer {
         modules.register(new dev.skirmish.module.navigator.NavigatorModule());
         modules.register(new dev.skirmish.module.base.BaseModule());
         modules.register(new dev.skirmish.module.commander.CommanderModule());
+        modules.register(new dev.skirmish.module.hunt.HuntModule());
         modules.register(new dev.skirmish.module.hwos.HwOsModule());
         InterfaceModule iface = modules.register(new InterfaceModule());
 
@@ -130,7 +131,11 @@ public final class SkirmishClient implements ClientModInitializer {
         }
 
         SkirmishKeys.register();
+        dev.skirmish.binds.ModuleKeys.register(modules.all());
         Hud.install(dir.resolve("hud.json"));
+        dev.skirmish.binds.BindToast.install();
+        dev.skirmish.module.menus.SkirmishPauseScreen.registerShortcut(new dev.skirmish.module.menus.SkirmishPauseScreen.Shortcut(
+                "skirmish.menu.shortcut.binds", "keys", 70, parent -> Minecraft.getInstance().setScreen(new dev.skirmish.binds.BindsScreen(parent)), () -> true));
         FeatureControl.install(iface::holyworldSafeMode);
         HolyApi.install(iface::holyworldApi);
         modules.initializeAll();
@@ -159,6 +164,12 @@ public final class SkirmishClient implements ClientModInitializer {
     }
 
     private static void onEndTick(Minecraft mc) {
+        dev.skirmish.binds.ModuleKeys.tick();
+        while (SkirmishKeys.BINDS_OPEN.consumeClick()) {
+            if (mc.screen == null) {
+                mc.setScreen(new dev.skirmish.binds.BindsScreen(null));
+            }
+        }
         while (SkirmishKeys.OPEN_MENU.consumeClick()) {
             if (mc.screen == null) {
                 mc.setScreen(new SkirmishScreen(null));

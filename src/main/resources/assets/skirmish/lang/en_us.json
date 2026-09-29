@@ -154,5 +154,6 @@
   "skirmish.waypoints.dimension.the_end": "End",
   "skirmish.module.interface.setting.fight_focus": "Fight focus",
   "skirmish.module.interface.setting.fight_focus.tooltip": "While tagged or fighting a player, events, schedule, event timers, the base chip and event hints fade out, leaving a thin strip. They come back after the fight",
-  "skirmish.hud.fight_strip": "Fight · %s hidden"
+  "skirmish.hud.fight_strip": "Fight · %s hidden",
+  "key.skirmish.hunt.stop": "Stop hunt"
 }

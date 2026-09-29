@@ -8,5 +8,10 @@
   "skirmish.module.tab_list.setting.opacity": "Opacity",
   "skirmish.module.tab_list.setting.opacity.tooltip": "How dense the panel's background is",
   "skirmish.tablist.online": "Online: %s",
-  "skirmish.tablist.your_ping": "Your ping: %s ms"
+  "skirmish.tablist.your_ping": "Your ping: %s ms",
+  "skirmish.module.tab_list.setting.sort": "Order",
+  "skirmish.module.tab_list.setting.sort.tooltip": "As the server sends it (ranks, teams), by nick or by ping",
+  "skirmish.module.tab_list.setting.sort.server": "Server",
+  "skirmish.module.tab_list.setting.sort.name": "Nick",
+  "skirmish.module.tab_list.setting.sort.ping": "Ping"
 }

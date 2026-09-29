@@ -16,7 +16,13 @@ public final class TabListModule extends Module {
     public static final String ID = "tab_list";
     private static @Nullable TabListModule instance;
 
+    /** Order of the players: as the server sends it (ranks, teams), by nick, or by ping. */
+    public enum Sort {
+        SERVER, NAME, PING
+    }
+
     final BoolSetting heads = add(new BoolSetting("heads", true));
+    final dev.skirmish.setting.EnumSetting<Sort> sort = add(new dev.skirmish.setting.EnumSetting<>("sort", Sort.SERVER));
     final BoolSetting friends = add(new BoolSetting("friends", true));
     final NumberSetting opacity = add(new NumberSetting("opacity", 90, 30, 100, 5).unit("%"));
 

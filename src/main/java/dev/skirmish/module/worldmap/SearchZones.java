@@ -18,7 +18,13 @@ public final class SearchZones {
     static final int MAX = 5;
 
     /** A zone: what the line was about, its cells, Y when given, its dimension and when it was seen. */
-    public record Zone(String what, List<int[]> xs, @Nullable Integer y, List<int[]> zs, String dimension, long at) {
+    public record Zone(String what, List<int[]> xs, @Nullable Integer y, List<int[]> zs, String dimension, long at,
+                       String xMask, String zMask, java.util.BitSet visited) {
+        /** Index of the cell (X range i, Z range j). */
+        public int cell(int i, int j) {
+            return i * zs.size() + j;
+        }
+
         public int minX() {
             return xs.getFirst()[0];
         }
@@ -46,7 +52,7 @@ public final class SearchZones {
     }
 
     public static synchronized void add(MaskedCoords.Masked m, String dimension, long now) {
-        ZONES.addFirst(new Zone(m.what(), m.xs(), m.y(), m.zs(), dimension, now));
+        ZONES.addFirst(new Zone(m.what(), m.xs(), m.y(), m.zs(), dimension, now, m.xMask(), m.zMask(), new java.util.BitSet()));
         while (ZONES.size() > MAX) {
             ZONES.removeLast();
         }
@@ -68,6 +74,15 @@ public final class SearchZones {
     public static synchronized @Nullable Zone latest(long now) {
         ZONES.removeIf(z -> now - z.at() > KEEP_MS);
         return ZONES.peekFirst();
+    }
+
+    /** Ends the hunt for that zone (or all of them). */
+    public static synchronized void remove(@Nullable Zone zone) {
+        if (zone == null) {
+            ZONES.clear();
+        } else {
+            ZONES.remove(zone);
+        }
     }
 
     static synchronized void clear() {

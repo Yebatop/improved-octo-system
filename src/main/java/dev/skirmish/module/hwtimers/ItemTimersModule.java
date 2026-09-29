@@ -218,7 +218,8 @@ public final class ItemTimersModule extends Module {
             int duration = effect.isInfiniteDuration() ? Integer.MAX_VALUE : effect.getDuration();
             current.put(id, new int[]{amplifier, duration});
             int[] before = lastEffects.get(id);
-            boolean applied = before == null || before[0] != amplifier || duration > before[1] + 10;
+            // long: an infinite effect is Integer.MAX_VALUE, and + 10 on it would wrap and count it as new every tick.
+            boolean applied = before == null || before[0] != amplifier || duration > (long) before[1] + 10;
             if (!applied) {
                 continue;
             }

@@ -24,7 +24,7 @@ public final class ModuleIcons {
     }
 
     /** The module's icon, or its category's when it has none. */
-    static void draw(Ui ui, Module module, float x, float y, float size, int color) {
+    public static void draw(Ui ui, Module module, float x, float y, float size, int color) {
         if (!drawOwn(ui, module.id(), x, y, size, color)) {
             CategoryIcons.draw(ui, module.category(), x, y, size, color);
         }
@@ -294,6 +294,11 @@ public final class ModuleIcons {
                     ui.rect(x + 13f * s, y + (ry - 1f) * s, 2f * s, 2f * s, 0.5f * s, c);
                     p(ui, x, y, s, c, 16.5f, ry, 18.5f, ry);
                 }
+            }
+            case "hunt" -> { // diamond (the prize) with a magnifier
+                p(ui, x, y, s, c, 10f, 3f, 16f, 9f, 10f, 15f, 4f, 9f, 10f, 3f);
+                ui.ring(x + 16f * s, y + 16f * s, 7f * s, STROKE * s, c);
+                p(ui, x, y, s, c, 18.5f, 18.5f, 21.5f, 21.5f);
             }
             case "chat" -> { // speech bubble with two lines of text
                 ui.border(x + 3f * s, y + 4f * s, 18f * s, 13f * s, 3.5f * s, STROKE * s, c);

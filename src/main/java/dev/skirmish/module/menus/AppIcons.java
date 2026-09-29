@@ -62,6 +62,13 @@ final class AppIcons {
                 ui.rect(x + 13 * s, y + 7 * s, 5 * s, 2 * s, 1 * s, c);
                 ui.rect(x + 6 * s, y + 14 * s, 12 * s, 3 * s, 1 * s, c);
             }
+            case "keys" -> { // keyboard
+                ui.border(x + 2 * s, y + 6 * s, 20 * s, 13 * s, 2.5f * s, W, c);
+                for (float kx : new float[]{6, 10, 14, 18}) {
+                    ui.rect(x + (kx - 1) * s, y + 9 * s, 2 * s, 2 * s, 0.5f * s, c);
+                }
+                l(ui, x, y, s, c, 8, 15.5f, 16, 15.5f);
+            }
             default -> ui.circle(x + 12 * s, y + 12 * s, 8 * s, c);
         }
     }

@@ -1,0 +1,55 @@
+{
+  "colors": {
+    "bind_free": "#FFFFFF0A",
+    "bind_game": "#FFFFFF24",
+    "bind_mod": "#7C5CFF80",
+    "bind_conflict": "#FF6B7888"
+  },
+  "layout": {
+    "binds": {
+      "width": 1080,
+      "height": 640,
+      "min_width": 780,
+      "min_height": 480,
+      "keyboard_share": 0.56,
+      "keyboard_max": 640,
+      "cap_gap": 4,
+      "cap_r": 6,
+      "row_h": 44,
+      "key_w": 92,
+      "legend_dot": 10,
+      "toast_pad": 12,
+      "toast_icon": 16,
+      "toast_gap": 8,
+      "toast_h": 34,
+      "reset_icon": 14
+    }
+  },
+  "text": {
+    "bind_cap": {
+      "size": 12,
+      "weight": 700,
+      "color": "text"
+    },
+    "bind_cap_small": {
+      "size": 9,
+      "weight": 700,
+      "color": "text"
+    },
+    "bind_cap_hint": {
+      "size": 10,
+      "weight": 600,
+      "color": "text_3"
+    },
+    "bind_toast": {
+      "size": 13,
+      "weight": 700,
+      "color": "text"
+    },
+    "bind_state": {
+      "size": 12,
+      "weight": 700,
+      "color": "text"
+    }
+  }
+}

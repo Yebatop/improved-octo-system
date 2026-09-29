@@ -63,6 +63,15 @@ public final class SkirmishCommand {
                             SkirmishClient.openScreenNextTick(() -> dev.skirmish.module.worldmap.WorldMapScreen.onZone(null));
                             return 1;
                         })))
+                .then(literal("binds").executes(ctx -> {
+                    SkirmishClient.openScreenNextTick(() -> new dev.skirmish.binds.BindsScreen(null));
+                    return 1;
+                }))
+                .then(literal("hunt").then(literal("stop").executes(ctx -> {
+                    dev.skirmish.module.hunt.HuntModule.stop();
+                    ctx.getSource().sendFeedback(Component.translatable("skirmish.hunt.stopped"));
+                    return 1;
+                })))
                 .then(literal("theme").executes(ctx -> {
                     SkirmishClient.openScreenNextTick(() -> new dev.skirmish.gui.TokensScreen(null));
                     return 1;

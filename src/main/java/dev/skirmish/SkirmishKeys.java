@@ -55,6 +55,12 @@ public final class SkirmishKeys {
     /** «HolyWorld OS»: the app window. O is free in vanilla. */
     public static final KeyMapping HWOS_OPEN = key("key.skirmish.hwos.open", GLFW.GLFW_KEY_O);
 
+    /** «Treasure Hunt»: end the running hunt. Unbound by default. */
+    public static final KeyMapping HUNT_STOP = key("key.skirmish.hunt.stop", InputConstants.UNKNOWN.getValue());
+
+    /** The binds screen. Unbound by default. */
+    public static final KeyMapping BINDS_OPEN = key("key.skirmish.binds.open", InputConstants.UNKNOWN.getValue());
+
     private SkirmishKeys() {
     }
 
@@ -65,7 +71,7 @@ public final class SkirmishKeys {
     static void register() {
         for (KeyMapping mapping : new KeyMapping[]{OPEN_MENU, WAYPOINT_ADD, WAYPOINT_CYCLE, KILLCAM_REPLAY, KILLCAM_CLIP, KILLCAM_LIBRARY, WORLD_MAP, NAVIGATOR_HOME, BASE_OS, COMMANDER_GO, HWOS_OPEN,
                 CLANSHARE_SHARE, GEARINSPECTOR_LOCK, ANVILCALC_CALCULATE, KILLCARD_OPEN_FOLDER, DETAILS, ZOOM, FULLBRIGHT_TOGGLE, AUTO_SPRINT_TOGGLE,
-                FRIEND_TOGGLE, FIGHT_REVIEW, PLAYER_MENU}) {
+                FRIEND_TOGGLE, FIGHT_REVIEW, PLAYER_MENU, HUNT_STOP, BINDS_OPEN}) {
             KeyBindingHelper.registerKeyBinding(mapping);
         }
     }

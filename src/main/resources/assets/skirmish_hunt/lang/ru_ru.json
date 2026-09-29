@@ -1,0 +1,23 @@
+{
+  "skirmish.module.hunt.name": "Treasure Hunt",
+  "skirmish.module.hunt.description": "Когда сервер пишет, где что-то поставили, но прячет часть цифр («Игрок … установил Золотой Спавнер на координатах 1*4*, 5, 1*9*»), начинается охота. Карточка показывает маску со скрытыми цифрами, ближайшую клетку, где ты ещё не был, со стрелкой и расстоянием, сколько клеток ты уже прошёл и — если стоишь в клетке-кандидате — сколько копать до нужной высоты. Метка сама переезжает на следующую ближайшую клетку (компас, плашка, карта), на карте пройденные клетки закрашены. Всё берётся из строки чата и твоей позиции, мир не просматривается.",
+  "skirmish.module.hunt.setting.card": "Карточка",
+  "skirmish.module.hunt.setting.card.tooltip": "Карточка охоты в HUD (колонка слева)",
+  "skirmish.module.hunt.setting.waypoint": "Метка на ближайшую клетку",
+  "skirmish.module.hunt.setting.waypoint.tooltip": "Метка «Охота: …» переезжает на ближайшую клетку, где ты ещё не был: компас, плашка метки, луч",
+  "skirmish.module.hunt.setting.sound": "Звук",
+  "skirmish.module.hunt.setting.sound.tooltip": "Короткий звук, когда начинается охота",
+  "skirmish.module.hunt.setting.stop_key": "Закончить охоту",
+  "skirmish.module.hunt.setting.stop_key.tooltip": "Клавиша, которая убирает охоту и её метку (ещё: /skirmish hunt stop)",
+  "skirmish.hud.element.hunt": "Treasure Hunt",
+  "skirmish.hunt.waypoint": "Охота: %s",
+  "skirmish.hunt.nearest": "Ближайшая клетка",
+  "skirmish.hunt.all_visited": "Ты побывал во всех клетках",
+  "skirmish.hunt.visited": "Побывал в %s из %s клеток",
+  "skirmish.hunt.in_cell": "Ты в клетке-кандидате",
+  "skirmish.hunt.below": "вниз %s бл.",
+  "skirmish.hunt.above": "вверх %s бл.",
+  "skirmish.hunt.level": "ты на нужной высоте",
+  "skirmish.hunt.other_dim": "Охота идёт в другом измерении",
+  "skirmish.hunt.stopped": "Охота закончена"
+}

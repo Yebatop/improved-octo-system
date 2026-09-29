@@ -12,6 +12,7 @@ import net.minecraft.client.gui.components.PlayerTabOverlay;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.numbers.StyledFormat;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Player;
@@ -81,23 +82,12 @@ public final class TabListRenderer {
             rows.add(new Row(info, name, nw, score, sw, me, friend));
         }
 
-        // Columns of at most 20, as vanilla; each cell: [head] name [score] ping.
-        int n = rows.size();
-        int perCol = n;
-        int cols = 1;
-        while (perCol > MAX_ROWS) {
-            cols++;
-            perCol = (n + cols - 1) / cols;
+        switch (m.sort.get()) {
+            case NAME -> rows.sort(java.util.Comparator.comparing(r -> r.info().getProfile().name(), String.CASE_INSENSITIVE_ORDER));
+            case PING -> rows.sort(java.util.Comparator.comparingInt(r -> r.info().getLatency() < 0 ? Integer.MAX_VALUE : r.info().getLatency()));
+            case SERVER -> {
+            }
         }
-        int pingW = font.width("9999") + 2;
-        int cellW = 4 + (heads ? FACE + 3 : 0) + nameW + (scoreW > 0 ? 6 + scoreW : 0) + 6 + pingW + 4;
-        int colGap = 4;
-        int maxW = width - 40;
-        if (cols * cellW + (cols - 1) * colGap > maxW) {
-            cellW = Math.max(60, (maxW - (cols - 1) * colGap) / cols);
-        }
-        int gridW = cols * cellW + (cols - 1) * colGap;
-
         List<FormattedCharSequence> header = split(font, access.skirmish$header(), width - 50);
         List<FormattedCharSequence> footer = split(font, access.skirmish$footer(), width - 50);
         int textW = 0;
@@ -107,6 +97,31 @@ public final class TabListRenderer {
         for (FormattedCharSequence line : footer) {
             textW = Math.max(textW, font.width(line));
         }
+
+        // Columns as tall as the screen allows (at least vanilla's 20), so a full server needs fewer, wider ones.
+        int n = rows.size();
+        int room = graphics.guiHeight() - 8 - 14 - header.size() * 9 - footer.size() * 9 - 12 - 3 - 20 - 16;
+        int maxRows = Math.max(MAX_ROWS, room / ROW_H);
+        int cols = Math.max(1, (n + maxRows - 1) / maxRows);
+        int perCol = Math.max(1, (n + cols - 1) / cols);
+        int pingW = font.width("9999") + 2;
+        int fixedW = 4 + (heads ? FACE + 3 : 0) + (scoreW > 0 ? 6 + scoreW : 0) + 6 + pingW + 4;
+        int colGap = 4;
+        int maxW = width - 24;
+        int cellW = fixedW + nameW;
+        if (cols * cellW + (cols - 1) * colGap > maxW) {
+            cellW = Math.max(fixedW + 30, (maxW - (cols - 1) * colGap) / cols);
+        }
+        int nameRoom = cellW - fixedW;
+        // A name with the server's long prefix that does not fit shows as the nick alone, in the nick's own colour.
+        for (int i = 0; i < n; i++) {
+            Row r = rows.get(i);
+            if (r.nameW() > nameRoom) {
+                Component nick = nickOnly(r.name(), r.info().getProfile().name());
+                rows.set(i, new Row(r.info(), nick, font.width(nick), r.score(), r.scoreW(), r.me(), r.friend()));
+            }
+        }
+        int gridW = cols * cellW + (cols - 1) * colGap;
 
         float s = Ui.designScale();
         int pad = 7;
@@ -176,7 +191,10 @@ public final class TabListRenderer {
                 cx += FACE + 3;
             }
             boolean spectator = r.info().getGameMode() == GameType.SPECTATOR;
+            // Each name stays in its own cell: whatever is still too long is cut at the cell's edge.
+            graphics.enableScissor(cx, cy - 1, cx + nameRoom, cy + ROW_H - 1);
             graphics.drawString(font, r.name(), cx, cy, spectator ? 0x90FFFFFF : -1);
+            graphics.disableScissor();
             if (r.score() != null && r.scoreW() > 0 && !spectator) {
                 int right = gridX + (i / perCol) * (cellW + colGap) + cellW - 4 - pingW - 6;
                 graphics.drawString(font, r.score(), right - r.scoreW(), cy, hearts ? 0xFFFF5555 : -1);
@@ -188,6 +206,18 @@ public final class TabListRenderer {
             ty += 9;
         }
         return true;
+    }
+
+    /** The nick alone, in the style the display name gives it (its prefixes left out). */
+    static Component nickOnly(Component display, String nick) {
+        Style[] found = {null};
+        display.visit((style, part) -> {
+            if (found[0] == null && part.contains(nick)) {
+                found[0] = style;
+            }
+            return java.util.Optional.empty();
+        }, Style.EMPTY);
+        return Component.literal(nick).withStyle(found[0] == null ? Style.EMPTY : found[0]);
     }
 
     private static List<FormattedCharSequence> split(Font font, @Nullable Component text, int width) {
