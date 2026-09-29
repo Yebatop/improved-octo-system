@@ -1,6 +1,7 @@
 package dev.skirmish.module.base;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalBlockTags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.client.renderer.BiomeColors;
@@ -20,6 +21,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.AbstractChestBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -40,7 +42,8 @@ import java.util.Optional;
  * Reads the base region into a {@link ModelRaster.Scene}: every block state once as its baked model's quads with
  * their textures' pixels and biome tint, water and lava as boxes of their height, chests (drawn by the game as
  * entities) as boxes with the chest's own texture, other entity-drawn blocks as their shape with their particle
- * texture. Also the faces neighbours cover and the light levels. Client thread; loaded chunks only.
+ * texture. Ores and other buried valuables are drawn as the rock around them (no X-ray). Also the faces
+ * neighbours cover and the light levels. Client thread; loaded chunks only.
  */
 final class ModelCapture {
     private static final Direction[] SIDES = Direction.values();
@@ -89,6 +92,7 @@ final class ModelCapture {
                     if (state.isAir()) {
                         continue;
                     }
+                    state = conceal(state);
                     states[i] = state;
                     int kind = kindOf(state, pos.immutable());
                     if (kind >= 0) {
@@ -132,6 +136,25 @@ final class ModelCapture {
             }
         }
         return new ModelRaster.Scene(sx, sy, sz, cells, hidden, light, List.copyOf(kinds), List.copyOf(textures));
+    }
+
+    /**
+     * No X-ray (HolyWorld rule 2.4): ores, ancient debris, spawners and budding amethyst are drawn as the rock they
+     * sit in (deepslate, netherrack or stone), so turning or cutting the model never shows where they are.
+     */
+    static BlockState conceal(BlockState state) {
+        String path = BuiltInRegistries.BLOCK.getKey(state.getBlock()).getPath();
+        // By name as well as by tag: a plain server does not send the «c:ores» tag.
+        if (!(BaseText.buried(path) || state.is(ConventionalBlockTags.ORES))) {
+            return state;
+        }
+        if (path.startsWith("deepslate")) {
+            return Blocks.DEEPSLATE.defaultBlockState();
+        }
+        if (path.startsWith("nether") || path.equals("ancient_debris")) {
+            return Blocks.NETHERRACK.defaultBlockState();
+        }
+        return Blocks.STONE.defaultBlockState();
     }
 
     /** The kind index of a block (built on first sight), or −1 for one with nothing to draw. */

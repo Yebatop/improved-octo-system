@@ -140,6 +140,17 @@ class BaseLogicTest {
     }
 
     @Test
+    void oresAreBuried() {
+        assertTrue(BaseText.buried("diamond_ore"));
+        assertTrue(BaseText.buried("deepslate_diamond_ore"));
+        assertTrue(BaseText.buried("nether_quartz_ore"));
+        assertTrue(BaseText.buried("ancient_debris"));
+        assertTrue(BaseText.buried("raw_iron_block"));
+        assertTrue(!BaseText.buried("diamond_block"));
+        assertTrue(!BaseText.buried("stone"));
+    }
+
+    @Test
     void chestTextureNames() {
         assertEquals("normal", BaseText.chestTexture("chest"));
         assertEquals("trapped", BaseText.chestTexture("trapped_chest"));

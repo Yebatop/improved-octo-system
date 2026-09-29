@@ -66,4 +66,10 @@ final class BaseText {
         }
         return path.endsWith("_chest") ? path.substring(0, path.length() - 6) : path;
     }
+
+    /** Blocks the base model never shows as themselves (no X-ray): ores, raw ore blocks of veins, debris, spawners. */
+    static boolean buried(String path) {
+        return path.endsWith("_ore") || path.equals("ancient_debris") || path.equals("spawner") || path.equals("trial_spawner")
+                || path.equals("budding_amethyst") || path.startsWith("raw_") && path.endsWith("_block");
+    }
 }
