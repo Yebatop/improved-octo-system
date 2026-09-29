@@ -64,6 +64,14 @@ public abstract class HudBlock {
         return false;
     }
 
+    /**
+     * Not needed in a fight (events, schedule, the base chip): with «Бой — только главное» on, the block fades out
+     * while the player is tagged or fighting another player and comes back after.
+     */
+    public boolean stepsAsideInFight() {
+        return false;
+    }
+
     /** Called once per frame before measuring, e.g. to refresh cached data. */
     public void update(boolean preview) {
     }

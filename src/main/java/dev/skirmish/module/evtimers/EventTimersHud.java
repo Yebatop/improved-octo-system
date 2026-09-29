@@ -220,4 +220,9 @@ final class EventTimersHud extends HudBlock {
             ui.rect(tx, barY, barW * Math.max(0f, Math.min(1f, chip.bar())), bar, bar / 2f, chip.tone());
         }
     }
+
+    @Override
+    public boolean stepsAsideInFight() {
+        return true;
+    }
 }

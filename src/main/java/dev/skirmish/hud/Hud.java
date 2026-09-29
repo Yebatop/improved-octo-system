@@ -39,6 +39,11 @@ public final class Hud {
     private final List<HudBlock> blocks = new ArrayList<>();
     private final Map<String, Placement> placements = new HashMap<>();
     private boolean editing;
+    /** Whether the fight focus applies now (set by «Интерфейс»). */
+    private static java.util.function.BooleanSupplier fightFocus = () -> false;
+    /** Where each block was last drawn, so the fight strip takes the place of the hidden ones. */
+    private final Map<String, float[]> lastDrawn = new HashMap<>();
+    private final dev.skirmish.ui.Anim strip = new dev.skirmish.ui.Anim("appear_ms");
 
     private Hud(Path file) {
         this.file = file;
@@ -53,6 +58,11 @@ public final class Hud {
 
     public static Hud get() {
         return instance;
+    }
+
+    /** What decides that non-combat blocks step aside now. */
+    public static void fightFocus(java.util.function.BooleanSupplier check) {
+        fightFocus = check;
     }
 
     public void register(HudBlock block) {
@@ -137,9 +147,32 @@ public final class Hud {
                 }
             }
             Map<String, float[]> drawn = new HashMap<>();
+            boolean fight = fightFocus.getAsBoolean();
+            int aside = 0;
+            float[] stripAt = null;
             for (HudBlock block : drawOrder()) {
                 try {
-                    boolean shown = block.enabled() && block.shown();
+                    boolean steps = fight && block.stepsAsideInFight();
+                    boolean shown = block.enabled() && block.shown() && !steps;
+                    if (steps && block.enabled() && block.shown()) {
+                        aside++;
+                        float[] at = lastDrawn.get(block.id());
+                        if (at == null) {
+                            // Never drawn yet (the fight started first): where it would sit on its own.
+                            block.update(false);
+                            float bs = scale(block);
+                            float bw = block.width(ui, false) * bs;
+                            float bh = block.height(ui, false) * bs;
+                            float[] p = position(block, bw, bh, ui.width(), ui.height());
+                            if (!placements.containsKey(block.id())) {
+                                p = autoPlace(ui, block, p, bw, bh, Map.of(), null);
+                            }
+                            at = new float[]{p[0], p[1], bw, bh};
+                        }
+                        if (stripAt == null || at[1] < stripAt[1]) {
+                            stripAt = at;
+                        }
+                    }
                     float a = block.appear.target(shown).value();
                     if (a <= 0f || !block.hasContent()) {
                         continue;
@@ -156,6 +189,9 @@ public final class Hud {
                         pivot = auto[2];
                     }
                     drawn.put(block.id(), new float[]{at[0], at[1], w, h, pivot});
+                    if (!steps) {
+                        lastDrawn.put(block.id(), new float[]{at[0], at[1], w, h});
+                    }
                     ui.pushAlpha(a);
                     draw(ui, block, at[0], at[1], scale, false);
                     ui.popAlpha();
@@ -163,10 +199,40 @@ public final class Hud {
                     DebugLog.error("hud", "render failed: " + block.id(), t);
                 }
             }
+            fightStrip(ui, aside, stripAt);
         } finally {
             ui.end();
         }
     }
+
+    /**
+     * A thin strip where the hidden blocks were: «Бой · скрыто 3», so it is clear they only stepped aside. It fades
+     * like the blocks do.
+     */
+    private void fightStrip(Ui ui, int aside, float @org.jspecify.annotations.Nullable [] at) {
+        float a = strip.target(aside > 0 && at != null).value();
+        if (a <= 0f || at == null && lastStrip == null) {
+            return;
+        }
+        if (at != null) {
+            lastStrip = at;
+            lastAside = aside;
+        }
+        float[] p = lastStrip;
+        String text = Ui.tr("skirmish.hud.fight_strip", lastAside);
+        float padX = ui.num("layout.hud.strip_pad_x");
+        float h = ui.num("layout.hud.strip_height");
+        float dot = ui.num("layout.hud.strip_dot");
+        float w = padX * 2 + dot + padX * 0.6f + ui.textWidth("hud_strip", text);
+        ui.pushAlpha(a);
+        ui.box(p[0], p[1], w, h, h / 2f, ui.color("panel"), ui.color("stroke_07"));
+        ui.circle(p[0] + padX + dot / 2f, p[1] + h / 2f, dot, ui.color("bad"));
+        ui.textCentered("hud_strip", text, p[0] + padX + dot + padX * 0.6f, p[1], h, ui.color("text_2"));
+        ui.popAlpha();
+    }
+
+    private float @org.jspecify.annotations.Nullable [] lastStrip;
+    private int lastAside;
 
     /** {x, y, w, h} in design px of a shown block that replaces vanilla's sidebar, or null. */
     private float @org.jspecify.annotations.Nullable [] ownSidebar(Ui ui) {

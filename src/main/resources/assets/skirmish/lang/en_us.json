@@ -151,5 +151,8 @@
   "skirmish.waypoints.bad_coords": "Coordinates must be numbers, e.g. 120 64 -350",
   "skirmish.waypoints.dimension.overworld": "Overworld",
   "skirmish.waypoints.dimension.the_nether": "Nether",
-  "skirmish.waypoints.dimension.the_end": "End"
+  "skirmish.waypoints.dimension.the_end": "End",
+  "skirmish.module.interface.setting.fight_focus": "Fight focus",
+  "skirmish.module.interface.setting.fight_focus.tooltip": "While tagged or fighting a player, events, schedule, event timers, the base chip and event hints fade out, leaving a thin strip. They come back after the fight",
+  "skirmish.hud.fight_strip": "Fight · %s hidden"
 }

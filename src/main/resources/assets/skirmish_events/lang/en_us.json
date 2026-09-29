@@ -90,5 +90,6 @@
   "skirmish.events.lasts.on_min": "on for %s+",
   "skirmish.events.lasts.min": "%s min",
   "skirmish.events.lasts.h": "%s h",
-  "skirmish.events.lasts.h_min": "%s h %s min"
+  "skirmish.events.lasts.h_min": "%s h %s min",
+  "skirmish.events.none_meta": "no events"
 }

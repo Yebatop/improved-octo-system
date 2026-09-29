@@ -156,5 +156,8 @@
   "skirmish.waypoints.bad_coords": "Координаты — числа, например 120 64 -350",
   "skirmish.waypoints.dimension.overworld": "Мир",
   "skirmish.waypoints.dimension.the_nether": "Ад",
-  "skirmish.waypoints.dimension.the_end": "Энд"
+  "skirmish.waypoints.dimension.the_end": "Энд",
+  "skirmish.module.interface.setting.fight_focus": "Бой — только главное",
+  "skirmish.module.interface.setting.fight_focus.tooltip": "Пока идёт КТ или бой с игроком, ивенты, расписание, таймеры событий, база и подсказки ивентов плавно прячутся, на их месте тонкая плашка. После боя всё возвращается",
+  "skirmish.hud.fight_strip": "Бой · скрыто %s"
 }

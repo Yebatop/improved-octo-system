@@ -148,4 +148,9 @@ final class CommanderHud extends HudBlock {
             cy += h + ui.num(L + "chip_gap");
         }
     }
+
+    @Override
+    public boolean stepsAsideInFight() {
+        return true;
+    }
 }

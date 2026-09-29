@@ -45,10 +45,10 @@ final class EventsPanel extends HudBlock {
         return module.isEnabled() && module.hud.get();
     }
 
-    /** Steps aside during a fight: the fight panel uses the same corner by default. */
+    /** Steps aside in a fight through the HUD's fight focus (the fight panel uses the same corner by default). */
     @Override
     public boolean shown() {
-        return HolyWorld.isConnected() && dev.skirmish.combat.CombatTracker.get().activeFights().isEmpty();
+        return HolyWorld.isConnected();
     }
 
     @Override
@@ -104,6 +104,12 @@ final class EventsPanel extends HudBlock {
                 out.add(new EventRows.Section(Ui.tr("skirmish.events.section.prime")));
             }
             primeRows(out, server, max);
+        }
+        // Nothing on: just the header, «ДуоЛайт #12 · ивентов нет», instead of a panel with one grey line.
+        if (out.size() == 1 && out.getFirst() instanceof EventRows.Note note
+                && (note.text().equals(Ui.tr("skirmish.events.none_here")) || note.text().equals(Ui.tr("skirmish.events.none")))) {
+            out.clear();
+            meta = meta + " · " + Ui.tr("skirmish.events.none_meta");
         }
         items = out;
     }
@@ -234,5 +240,10 @@ final class EventsPanel extends HudBlock {
     public void render(Ui ui, float x, float y, boolean preview) {
         List<EventRows.Item> shown = expand.value() <= 0f ? collapsed : items;
         EventRows.render(ui, x, y, width(ui, preview), height(ui, preview), Ui.tr("skirmish.events.title"), meta, shown, false);
+    }
+
+    @Override
+    public boolean stepsAsideInFight() {
+        return true;
     }
 }

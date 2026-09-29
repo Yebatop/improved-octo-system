@@ -358,6 +358,11 @@
       "color": "text_3",
       "mono": true
     },
+    "hud_strip": {
+      "size": 11,
+      "weight": 600,
+      "color": "text_2"
+    },
     "target_name": {
       "size": 12,
       "weight": 700,
@@ -732,6 +737,9 @@
       "empty_pad": 48
     },
     "hud": {
+      "strip_pad_x": 10,
+      "strip_height": 22,
+      "strip_dot": 6,
       "pill_pad_top": 8,
       "pill_pad_right": 14,
       "pill_pad_bottom": 8,

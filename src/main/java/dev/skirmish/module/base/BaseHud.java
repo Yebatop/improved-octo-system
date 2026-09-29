@@ -106,4 +106,9 @@ final class BaseHud extends HudBlock {
             cy += ui.lineHeight("base_row");
         }
     }
+
+    @Override
+    public boolean stepsAsideInFight() {
+        return true;
+    }
 }

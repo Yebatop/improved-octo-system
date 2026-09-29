@@ -34,7 +34,7 @@ final class SchedulePanel extends HudBlock {
     /** Hidden in a fight like the events list; left at its default place it sits under that list. */
     @Override
     public boolean shown() {
-        return HolyWorld.isConnected() && dev.skirmish.combat.CombatTracker.get().activeFights().isEmpty();
+        return HolyWorld.isConnected();
     }
 
     @Override
@@ -116,5 +116,10 @@ final class SchedulePanel extends HudBlock {
     @Override
     public void render(Ui ui, float x, float y, boolean preview) {
         EventRows.render(ui, x, y, width(ui, preview), Ui.tr("skirmish.events.schedule.title"), meta, items, true);
+    }
+
+    @Override
+    public boolean stepsAsideInFight() {
+        return true;
     }
 }

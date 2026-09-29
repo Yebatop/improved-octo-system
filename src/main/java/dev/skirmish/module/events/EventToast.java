@@ -99,4 +99,9 @@ final class EventToast extends HudBlock {
         cy += line + ui.num(EventRows.L + "sub_gap");
         ui.text("toast_sub", ui.ellipsize("toast_sub", s.server(), cw), cx, cy);
     }
+
+    @Override
+    public boolean stepsAsideInFight() {
+        return true;
+    }
 }
