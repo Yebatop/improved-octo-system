@@ -7,6 +7,8 @@
   "skirmish.worldmap.title": "Карта",
   "skirmish.worldmap.no_roof": "Это измерение с крышей — карта не рисуется",
   "skirmish.worldmap.center": "К себе",
+  "skirmish.worldmap.to_zone": "К зоне",
+  "skirmish.worldmap.zone_cells": "клеток: %s",
   "skirmish.worldmap.hint": "ЛКМ — тащить · колесо — масштаб · ПКМ — поставить метку",
   "skirmish.worldmap.scale": "Масштаб %s",
   "skirmish.worldmap.waypoint": "Метка %s %s",

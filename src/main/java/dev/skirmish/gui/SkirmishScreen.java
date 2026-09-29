@@ -18,6 +18,7 @@ import dev.skirmish.ui.KeyNames;
 import dev.skirmish.ui.Theme;
 import dev.skirmish.ui.Ui;
 import dev.skirmish.ui.widget.Button;
+import dev.skirmish.ui.widget.Dropdown;
 import dev.skirmish.ui.widget.KeybindButton;
 import dev.skirmish.ui.widget.Segmented;
 import dev.skirmish.ui.widget.Slider;
@@ -59,6 +60,8 @@ import java.util.function.BooleanSupplier;
  */
 public final class SkirmishScreen extends UiScreen {
     private static final String L = "layout.menu.";
+    /** Enum settings with more values than this get a dropdown instead of a segmented row. */
+    private static final int MAX_SEGMENTS = 4;
     private static String lastSelected = "";
     private static @Nullable Category lastCategory;
     private static boolean lastOnModule;
@@ -1076,6 +1079,10 @@ public final class SkirmishScreen extends UiScreen {
 
     private float drawRow(Ui ui, Setting<?> setting, float x, float y, float w, double mx, double my, int kids) {
         Widget control = controlFor(setting);
+        if (control instanceof Segmented && setting instanceof EnumSetting<?> e && control.preferredWidth(ui) > w * 0.55f) {
+            control = enumControl(e, true);
+            controls.put(setting, control);
+        }
         float gap = ui.num(L + "row_gap");
         float controlW = controlWidth(ui, setting, control);
         float controlH = controlHeight(ui, setting, control);
@@ -1151,6 +1158,9 @@ public final class SkirmishScreen extends UiScreen {
         if (control instanceof Segmented segmented) {
             return segmented.preferredHeight(ui);
         }
+        if (control instanceof Dropdown dropdown) {
+            return dropdown.preferredHeight(ui);
+        }
         return ui.num(L + "keybind_height");
     }
 
@@ -1186,7 +1196,18 @@ public final class SkirmishScreen extends UiScreen {
         return created;
     }
 
-    private <E extends Enum<E>> Segmented enumControl(EnumSetting<E> setting) {
+    /** Up to four choices sit side by side; more (the sky presets) or ones too wide for the row go in a dropdown. */
+    private <E extends Enum<E>> Widget enumControl(EnumSetting<E> setting) {
+        return enumControl(setting, setting.visibleValues().size() > MAX_SEGMENTS);
+    }
+
+    private <E extends Enum<E>> Widget enumControl(EnumSetting<E> setting, boolean dropdown) {
+        if (dropdown) {
+            return new Dropdown(
+                    () -> setting.visibleValues().stream().map(v -> Texts.enumValue(setting, v).getString()).toList(),
+                    () -> setting.visibleValues().indexOf(setting.get()),
+                    i -> setting.set(setting.visibleValues().get(i)));
+        }
         return new Segmented(Segmented.Spec.MENU,
                 () -> setting.visibleValues().stream().map(v -> Texts.enumValue(setting, v).getString()).toList(),
                 () -> setting.visibleValues().indexOf(setting.get()),
@@ -1197,6 +1218,9 @@ public final class SkirmishScreen extends UiScreen {
 
     @Override
     public boolean keyPressed(KeyEvent event) {
+        if ((event.isEscape() || event.key() == GLFW.GLFW_KEY_BACKSPACE) && closeDropdown()) {
+            return true;
+        }
         if (focusedWidget() == null) {
             boolean backKey = event.isEscape() || event.key() == GLFW.GLFW_KEY_BACKSPACE;
             if (view == View.MODULE && backKey) {
@@ -1236,7 +1260,7 @@ public final class SkirmishScreen extends UiScreen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+    protected boolean onScroll(double mouseX, double mouseY, double scrollX, double scrollY) {
         float step = (float) scrollY * Theme.get().num(L + "scroll_step");
         if (view == View.CARDS) {
             if (gridMax > 0f) {

@@ -493,7 +493,7 @@ final class FightReviewScreen extends UiScreen {
     // ---- input ----
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+    protected boolean onScroll(double mouseX, double mouseY, double scrollX, double scrollY) {
         float step = (float) scrollY * Theme.get().num("layout.menu.scroll_step");
         if (Ui.toDesign(mouseX) < listRight) {
             listScroll = Math.max(0f, Math.min(listMax, listScroll - step));

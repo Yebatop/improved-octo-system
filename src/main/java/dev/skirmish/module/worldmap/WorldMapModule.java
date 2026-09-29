@@ -82,7 +82,10 @@ public final class WorldMapModule extends Module {
                 enqueue(chunk.getPos());
             }
         });
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> closeStore());
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            closeStore();
+            SearchZones.clear();
+        });
         SkirmishPauseScreen.registerShortcut(new SkirmishPauseScreen.Shortcut("skirmish.worldmap.title", "map", 30,
                 parent -> Minecraft.getInstance().setScreen(new WorldMapScreen(parent)), this::isEnabled));
     }

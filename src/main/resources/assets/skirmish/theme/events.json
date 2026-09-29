@@ -50,6 +50,9 @@
     "events": {
       "width": 248,
       "schedule_width": 228,
+      "vote_width": 248,
+      "meter_height": 4,
+      "meter_gap": 4,
       "default_x": 18,
       "default_y": 18,
       "schedule_default_x": -18,

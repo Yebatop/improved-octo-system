@@ -42,9 +42,10 @@ final class SchedulePanel extends HudBlock {
         return HolyWorld.isConnected();
     }
 
+    /** Under the vote card while one runs, else under the events list. */
     @Override
     public String stackUnder() {
-        return "events";
+        return "event_vote";
     }
 
     @Override
@@ -72,7 +73,9 @@ final class SchedulePanel extends HudBlock {
                     EventRows.countdown(bunker.toEpochMilli() - now.toEpochMilli()), countdown,
                     Ui.tr("skirmish.events.schedule.bunker.sub", EventRows.local(bunker)), false));
             EventsJson.Voting voting = module.myVoting();
-            if (voting != null) {
+            if (voting != null && module.voteCard.get()) {
+                // The vote card right above shows it in full.
+            } else if (voting != null) {
                 out.add(new EventRows.Row(Ui.tr("skirmish.events.schedule.vote"), null, "", Ui.tr("skirmish.events.state.running"),
                         running, candidates(voting), false));
             } else {

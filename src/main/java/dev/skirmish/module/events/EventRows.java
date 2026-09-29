@@ -18,7 +18,11 @@ import java.util.Locale;
 final class EventRows {
     static final String L = "layout.events.";
 
-    sealed interface Item permits Section, Row, Note {
+    sealed interface Item permits Section, Row, Note, Meter {
+    }
+
+    /** A thin bar under the row before it: {@code fraction} of it filled in colour token {@code color}. */
+    record Meter(float fraction, String color) implements Item {
     }
 
     /** Small caps label above a group ("ЛАЙТ", "ПРАЙМ"). */
@@ -71,20 +75,27 @@ final class EventRows {
     static float height(Ui ui, List<Item> items) {
         float h = HudStyle.insetY(ui) * 2 + HudStyle.headerHeight(ui);
         for (int i = 0; i < items.size(); i++) {
-            Item item = items.get(i);
-            h += i == 0 || item instanceof Section ? ui.num("layout.panel_gap") : ui.num(L + "row_gap");
-            if (i > 0 && item instanceof Section) {
-                h += ui.num(L + "section_gap") - ui.num("layout.panel_gap");
-            }
-            h += itemHeight(ui, item);
+            h += gapBefore(ui, items, i) + itemHeight(ui, items.get(i));
         }
         return h;
+    }
+
+    private static float gapBefore(Ui ui, List<Item> items, int i) {
+        Item item = items.get(i);
+        if (item instanceof Meter) {
+            return ui.num(L + "meter_gap");
+        }
+        if (i == 0) {
+            return ui.num("layout.panel_gap");
+        }
+        return item instanceof Section ? ui.num(L + "section_gap") : ui.num(L + "row_gap");
     }
 
     private static float itemHeight(Ui ui, Item item) {
         return switch (item) {
             case Section s -> ui.lineHeight("event_section");
             case Note n -> ui.lineHeight("event_empty");
+            case Meter m -> ui.num(L + "meter_height");
             case Row r -> Math.max(ui.lineHeight("event_name"), Math.max(ui.lineHeight("event_time"), chipHeight(ui)))
                     + (r.sub() == null ? 0f : ui.num(L + "sub_gap") + ui.lineHeight(r.subMono() ? "event_coords" : "event_sub"));
         };
@@ -131,14 +142,19 @@ final class EventRows {
         cy += HudStyle.headerHeight(ui);
         for (int i = 0; i < items.size(); i++) {
             Item item = items.get(i);
-            cy += i == 0 || item instanceof Section ? ui.num("layout.panel_gap") : ui.num(L + "row_gap");
-            if (i > 0 && item instanceof Section) {
-                cy += ui.num(L + "section_gap") - ui.num("layout.panel_gap");
-            }
+            cy += gapBefore(ui, items, i);
             switch (item) {
                 case Section s -> ui.text("event_section", s.label().toUpperCase(Locale.ROOT), cx, cy);
                 case Note n -> ui.text("event_empty", ui.ellipsize("event_empty", n.text(), cw), cx, cy);
                 case Row r -> row(ui, r, cx, cy, cw);
+                case Meter m -> {
+                    float mh = ui.num(L + "meter_height");
+                    ui.rect(cx, cy, cw, mh, mh / 2f, ui.color("fill_06"));
+                    float fw = cw * Math.max(0f, Math.min(1f, m.fraction()));
+                    if (fw > 0.5f) {
+                        ui.rect(cx, cy, Math.max(mh, fw), mh, mh / 2f, ui.color(m.color()));
+                    }
+                }
             }
             cy += itemHeight(ui, item);
         }
@@ -194,13 +210,42 @@ final class EventRows {
                 ui.color(ui.theme().string("events.rarity." + tier + ".fg")));
     }
 
-    /** Chip label: the translated tier, or the raw API value when the tier is unknown. */
+    /**
+     * Chip label: the translated tier; else the translated kind for values HolyWorld uses that are no tier
+     * (Ценный груз «EXPLOSIVE», boss «MEDIUM»); else the raw value, capitalised.
+     */
     static String chipText(Rarity rarity, String raw) {
         if (rarity != Rarity.UNKNOWN) {
             return Ui.tr("skirmish.events.rarity." + rarity.key());
         }
-        String r = raw == null ? "" : raw.trim().replace('_', ' ');
-        return r.length() > 10 ? r.substring(0, 10) : r;
+        String variant = variantKey(raw);
+        if (variant != null) {
+            return Ui.tr("skirmish.events.variant." + variant);
+        }
+        String r = raw == null ? "" : raw.trim().replace('_', ' ').toLowerCase(java.util.Locale.ROOT);
+        r = r.isEmpty() ? r : Character.toUpperCase(r.charAt(0)) + r.substring(1);
+        return r.length() > 12 ? r.substring(0, 12) : r;
+    }
+
+    /** Lang key part of an API value that is a kind, not a tier (see {@link #chipText}), or null. */
+    static @Nullable String variantKey(@Nullable String raw) {
+        if (raw == null) {
+            return null;
+        }
+        String r = raw.toLowerCase(java.util.Locale.ROOT);
+        if (r.contains("explos")) {
+            return "explosive";
+        }
+        if (r.contains("medium")) {
+            return "medium";
+        }
+        if (r.contains("hard")) {
+            return "hard";
+        }
+        if (r.contains("easy")) {
+            return "easy";
+        }
+        return null;
     }
 
     /** Theme color token of a state ({@code events.state.<key>}). */

@@ -191,7 +191,7 @@ public final class HwOsScreen extends UiScreen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+    protected boolean onScroll(double mouseX, double mouseY, double scrollX, double scrollY) {
         double mx = Ui.toDesign(mouseX);
         double my = Ui.toDesign(mouseY);
         if (apps.get(current).scrolled(mx, my, scrollY)) {

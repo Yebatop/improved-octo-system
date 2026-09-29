@@ -43,6 +43,7 @@ public final class WorldMapScreen extends UiScreen {
     private final Button routeToggle = new Button(() -> Ui.tr("skirmish.worldmap.layer.route"), false,
             () -> showRoute = !showRoute).layout(L).selected(() -> showRoute);
     private final Button center = new Button(() -> Ui.tr("skirmish.worldmap.center"), false, this::centerOnPlayer).layout(L);
+    private final Button toZone = new Button(() -> Ui.tr("skirmish.worldmap.to_zone"), false, this::centerOnZone).layout(L);
     private final Button in = new Button(() -> "+", false, () -> zoomAt(1.5f, Double.NaN, Double.NaN)).layout(L);
     private final Button out = new Button(() -> "−", false, () -> zoomAt(1 / 1.5f, Double.NaN, Double.NaN)).layout(L);
 
@@ -58,6 +59,27 @@ public final class WorldMapScreen extends UiScreen {
             cx = mc.player.getX();
             cz = mc.player.getZ();
         }
+    }
+
+    /** The map opened on the newest search zone, zoomed so all of it fits. */
+    public static WorldMapScreen onZone(@Nullable Screen parent) {
+        WorldMapScreen screen = new WorldMapScreen(parent);
+        screen.centerOnZone();
+        return screen;
+    }
+
+    private void centerOnZone() {
+        SearchZones.Zone z = SearchZones.latest(Util.getMillis());
+        if (z == null) {
+            return;
+        }
+        cx = (z.minX() + z.maxX() + 1) / 2.0;
+        cz = (z.minZ() + z.maxZ() + 1) / 2.0;
+        var mc = net.minecraft.client.Minecraft.getInstance();
+        double w = mc.getWindow().getGuiScaledWidth() / Ui.designScale();
+        double h = mc.getWindow().getGuiScaledHeight() / Ui.designScale();
+        double span = Math.max(z.maxX() - z.minX() + 1, z.maxZ() - z.minZ() + 1) * 1.25;
+        zoom = (float) Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, Math.min(w, h) / span));
     }
 
     @Override
@@ -113,6 +135,8 @@ public final class WorldMapScreen extends UiScreen {
                 drawRoute(ui, nav, w, h);
             }
         }
+        java.util.List<SearchZones.Zone> zones = SearchZones.in(ServerContext.dimension(), now);
+        drawZones(ui, zones, w, h);
         drawWaypoints(ui, w, h);
         drawPlayer(ui, w, h);
 
@@ -146,6 +170,11 @@ public final class WorldMapScreen extends UiScreen {
         widget(ui, out, mx, my);
         widget(ui, in, mx, my);
         widget(ui, center, mx, my);
+        if (!zones.isEmpty()) {
+            float zw = toZone.preferredWidth(ui);
+            toZone.bounds(x - gap * 3 - bh * 2 - zw, m, zw, bh);
+            widget(ui, toZone, mx, my);
+        }
         if (nav != null && nav.isEnabled()) {
             float ly = m + bh + gap;
             float lx = w - m;
@@ -233,6 +262,39 @@ public final class WorldMapScreen extends UiScreen {
         }
         for (double bz = Math.floor(top / 16) * 16; sy(bz, h) < h; bz += 16) {
             ui.rect(0, sy(bz, h), w, 1f, 0f, color);
+        }
+    }
+
+    /** Every cell a masked position can be in, shaded, inside the outline of all of them, with what it is. */
+    private void drawZones(Ui ui, java.util.List<SearchZones.Zone> zones, float w, float h) {
+        int accent = ui.color("warn");
+        int fill = (accent & 0x00FFFFFF) | 0x55000000;
+        for (SearchZones.Zone z : zones) {
+            float x0 = sx(z.minX(), w);
+            float y0 = sy(z.minZ(), h);
+            float x1 = sx(z.maxX() + 1, w);
+            float y1 = sy(z.maxZ() + 1, h);
+            if (x1 < 0 || y1 < 0 || x0 > w || y0 > h) {
+                continue;
+            }
+            ui.rect(x0, y0, x1 - x0, y1 - y0, 0f, (accent & 0x00FFFFFF) | 0x14000000);
+            for (int[] xr : z.xs()) {
+                for (int[] zr : z.zs()) {
+                    float cx0 = sx(xr[0], w);
+                    float cy0 = sy(zr[0], h);
+                    float cw = Math.max(2f, (xr[1] - xr[0] + 1) * zoom);
+                    float ch = Math.max(2f, (zr[1] - zr[0] + 1) * zoom);
+                    ui.rect(cx0, cy0, cw, ch, 0f, fill);
+                }
+            }
+            ui.border(x0, y0, x1 - x0, y1 - y0, 0f, 1.5f, accent);
+            String label = ui.ellipsize("wm_marker", z.what(), 260f) + " · "
+                    + Ui.tr("skirmish.worldmap.zone_cells", z.cells()) + (z.y() == null ? "" : " · Y " + z.y());
+            float lw = ui.textWidth("wm_marker", label);
+            float lh = ui.lineHeight("wm_marker");
+            float ly = Math.max(4f, y0 - lh - 6);
+            ui.rect(x0, ly, lw + 10, lh + 2, lh / 2f, ui.color("panel"));
+            ui.text("wm_marker", label, x0 + 5, ly + 1, accent);
         }
     }
 
@@ -340,7 +402,7 @@ public final class WorldMapScreen extends UiScreen {
     }
 
     @Override
-    public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
+    protected boolean onScroll(double x, double y, double scrollX, double scrollY) {
         if (scrollY != 0) {
             zoomAt(scrollY > 0 ? 1.25f : 0.8f, Ui.toDesign(x), Ui.toDesign(y));
             return true;

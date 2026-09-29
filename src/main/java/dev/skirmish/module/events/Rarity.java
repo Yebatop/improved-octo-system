@@ -24,7 +24,7 @@ public enum Rarity {
                 || r.contains("opasn") || r.contains("опасн")) {
             return EPIC;
         }
-        if (r.contains("rare") || r.contains("редк") || r.contains("zazhit") || r.contains("зажиточ")
+        if (r.contains("rare") || r.contains("редк") || r.contains("zazhit") || r.contains("zajit") || r.contains("зажиточ")
                 || r.contains("zlov") || r.contains("злов")) {
             return RARE;
         }

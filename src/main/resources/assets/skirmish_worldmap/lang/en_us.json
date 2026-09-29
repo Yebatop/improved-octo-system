@@ -7,6 +7,8 @@
   "skirmish.worldmap.title": "Map",
   "skirmish.worldmap.no_roof": "This dimension has a roof — no map",
   "skirmish.worldmap.center": "Me",
+  "skirmish.worldmap.to_zone": "To zone",
+  "skirmish.worldmap.zone_cells": "%s cells",
   "skirmish.worldmap.hint": "LMB — drag · wheel — zoom · RMB — add a waypoint",
   "skirmish.worldmap.scale": "Scale %s",
   "skirmish.worldmap.waypoint": "Waypoint %s %s",

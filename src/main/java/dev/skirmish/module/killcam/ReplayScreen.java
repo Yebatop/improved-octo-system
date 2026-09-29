@@ -405,7 +405,7 @@ final class ReplayScreen extends UiScreen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double horizontal, double vertical) {
+    protected boolean onScroll(double mouseX, double mouseY, double horizontal, double vertical) {
         if (vertical != 0) {
             session.scroll(vertical);
         }

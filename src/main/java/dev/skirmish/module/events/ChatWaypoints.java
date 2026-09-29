@@ -54,10 +54,22 @@ final class ChatWaypoints {
             List<ChatCoords.Coords> found = ours ? List.of() : ChatCoords.find(text);
             // Server announcements (▶) name their event also without coordinates, for the countdown they may give.
             boolean announcement = !ours && text.stripLeading().startsWith("▶");
-            String event = found.isEmpty() && !announcement ? null : ChatCoords.eventName(text, module.liveEventNames());
+            // The lines of a multi-line event card (▍ Имя / ▍ Тип: … / ▍ Координаты: …) belong to its title's event.
+            String card = ours ? null : module.cards.feed(text, module.liveEventNames(), System.currentTimeMillis());
+            String event = card != null ? card
+                    : found.isEmpty() && !announcement ? null : ChatCoords.eventName(text, module.liveEventNames());
             String dimension = dimension(text, event);
             if (holy) {
                 module.onChatLine(text, found, event, dimension);
+            }
+            // «… на координатах 1*4*, 5, 1*9*»: a search zone on the map, opened by a link after the line.
+            dev.skirmish.util.MaskedCoords.Masked masked = holy && announcement && found.isEmpty()
+                    ? dev.skirmish.util.MaskedCoords.find(text) : null;
+            if (masked != null) {
+                String hint = ChatCoords.dimensionHint(text);
+                dev.skirmish.module.worldmap.SearchZones.add(masked, hint != null ? hint : "minecraft:overworld", System.currentTimeMillis());
+                module.log("search zone from chat: %s, %d cells (line: %s)", masked.what(), masked.cells(), text);
+                return module.waypoints.get() ? Component.empty().append(message).append(zoneLink(masked)) : message;
             }
             if (found.isEmpty() || !module.waypoints.get() || !(holy || module.everywhere.get())) {
                 return message;
@@ -138,6 +150,15 @@ final class ChatWaypoints {
                 .withColor(ChatFormatting.GREEN)
                 .withUnderlined(false)
                 .withClickEvent(new ClickEvent.RunCommand(command))
+                .withHoverEvent(new HoverEvent.ShowText(hover))));
+    }
+
+    /** « [на карте]»: opens the world map on the zone ({@code /skirmish map zone}, client-only). */
+    private static Component zoneLink(dev.skirmish.util.MaskedCoords.Masked masked) {
+        Component hover = Component.translatable("skirmish.events.chat.zone_hover", masked.cells());
+        return Component.literal(" ").append(Component.translatable("skirmish.events.chat.zone").withStyle(style -> style
+                .withColor(ChatFormatting.GOLD)
+                .withClickEvent(new ClickEvent.RunCommand("/skirmish map zone"))
                 .withHoverEvent(new HoverEvent.ShowText(hover))));
     }
 

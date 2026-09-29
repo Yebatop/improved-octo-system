@@ -54,6 +54,15 @@ public final class SkirmishCommand {
                                     dev.skirmish.holyworld.FeatureControl.setServerBlocklist(ids);
                                     return features(ctx);
                                 }))))
+                .then(literal("map")
+                        .executes(ctx -> {
+                            SkirmishClient.openScreenNextTick(() -> new dev.skirmish.module.worldmap.WorldMapScreen(null));
+                            return 1;
+                        })
+                        .then(literal("zone").executes(ctx -> {
+                            SkirmishClient.openScreenNextTick(() -> dev.skirmish.module.worldmap.WorldMapScreen.onZone(null));
+                            return 1;
+                        })))
                 .then(literal("theme").executes(ctx -> {
                     SkirmishClient.openScreenNextTick(() -> new dev.skirmish.gui.TokensScreen(null));
                     return 1;

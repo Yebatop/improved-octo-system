@@ -965,7 +965,7 @@ public final class BaseScreen extends UiScreen {
     // ---- input ----
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+    protected boolean onScroll(double mouseX, double mouseY, double scrollX, double scrollY) {
         if (tab == 3) {
             model.zoom = Math.max(0.5f, Math.min(8f, model.zoom * (scrollY > 0 ? 1.15f : 1 / 1.15f)));
             return true;

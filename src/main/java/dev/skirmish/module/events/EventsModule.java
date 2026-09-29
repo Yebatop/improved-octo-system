@@ -71,6 +71,7 @@ public final class EventsModule extends Module {
     private final KeySetting detailsKey = add(new KeySetting("details_key", "key.skirmish.details"));
     final BoolSetting waypoints = (BoolSetting) add(new BoolSetting("waypoints", true)).feature("event_waypoints");
     final BoolSetting everywhere = (BoolSetting) add(new BoolSetting("everywhere", false)).feature("event_waypoints");
+    final BoolSetting voteCard = (BoolSetting) add(new BoolSetting("vote_card", true)).feature("event_hud");
 
     private final ServerDetector detector = new ServerDetector();
     private final KnownCoords coords = new KnownCoords(Math.round(Theme.get().num("layout.events.coords_max_age_ms")));
@@ -92,11 +93,23 @@ public final class EventsModule extends Module {
     private ServerParser.@Nullable ServerRef current;
     private @Nullable Instant voteAnchor;
     private @Nullable String anchoredVoting;
+    /** The vote on my server as last polled, kept after it ends to show the winner; when it began and ended (ms, 0 = not yet). */
+    private EventsJson.@Nullable Voting lastVoting;
+    private long voteStartedAt;
+    private long voteEndedAt;
+    /** When chat last said a vote started (it comes before the API lists it). */
+    private long voteChatStart;
+    /** The last poll that had no vote on my server. */
+    private long noVoteSeenAt;
     private int detectCountdown;
     /** Event lengths: Lite from when events appear and vanish, Prime from their start times. */
     private final ClockStore clocks = new ClockStore();
     /** Countdowns this server's event announcements gave, by folded event name. */
     private final Map<String, Announced> countdowns = new java.util.HashMap<>();
+    /** Ties the lines of a multi-line event card to its event. */
+    final EventCards cards = new EventCards();
+    /** «Тип» / «Редкость» the event cards on this server gave, by folded event name. */
+    private final Map<String, String> cardKinds = new java.util.HashMap<>();
 
     /** An announced moment of an event: what happens ("boom", "appear", ...) and when (epoch ms). */
     private record Announced(String kind, long at) {
@@ -134,6 +147,7 @@ public final class EventsModule extends Module {
     @Override
     public void onInitialize() {
         Hud.get().register(new EventsPanel(this));
+        Hud.get().register(new VotePanel(this));
         Hud.get().register(new SchedulePanel(this));
         Hud.get().register(toast);
         ClientReceiveMessageEvents.MODIFY_GAME.register(chat::modify);
@@ -155,6 +169,9 @@ public final class EventsModule extends Module {
         detector.reset();
         coords.clear();
         countdowns.clear();
+        cardKinds.clear();
+        lastVoting = null;
+        noVoteSeenAt = 0;
         liteDiff.reset();
         primeDiff.reset();
         current = null;
@@ -210,6 +227,7 @@ public final class EventsModule extends Module {
                     voteAnchor = Instant.now();
                     log("vote %s seen in the API, 65-min cycle anchored", mine.instanceId());
                 }
+                trackVote(mine, System.currentTimeMillis());
             }
         }
         if (live && wantPrime) {
@@ -246,6 +264,9 @@ public final class EventsModule extends Module {
             }
             if (current != null && next != null) {
                 countdowns.clear();
+                cardKinds.clear();
+                lastVoting = null;
+                noVoteSeenAt = 0;
             }
         }
         current = next;
@@ -291,6 +312,7 @@ public final class EventsModule extends Module {
             voteAnchor = Instant.now().plus(untilVote);
             log("next vote from chat: in %d s", untilVote.toSeconds());
         } else if (ChatCoords.isVoteStart(plain)) {
+            voteChatStart = System.currentTimeMillis();
             Instant now = Instant.now();
             if (voteAnchor == null || Duration.between(voteAnchor, now).compareTo(VOTE_REANCHOR) > 0) {
                 voteAnchor = now;
@@ -303,6 +325,11 @@ public final class EventsModule extends Module {
             if (mine.size() == 1) {
                 name = mine.getFirst().name();
             }
+        }
+        EventCards.Field field = EventCards.field(plain, name);
+        if (field != null) {
+            cardKinds.put(ServerParser.normalize(field.event()), field.value());
+            log("kind of '%s' from its card: %s", field.event(), field.value());
         }
         ChatCoords.Countdown countdown = name == null ? null : ChatCoords.eventCountdown(plain);
         if (countdown != null) {
@@ -482,6 +509,23 @@ public final class EventsModule extends Module {
         return dev.skirmish.ui.Ui.tr("skirmish.events.countdown." + a.kind(), EventSchedule.clock(left));
     }
 
+    /** Tier of an event on my server: from its chat card («Редкость: Эпическая») when it gave one, else the API's. */
+    Rarity rarityOf(EventsJson.LiteEvent e) {
+        String kind = cardKinds.get(ServerParser.normalize(e.name()));
+        Rarity fromCard = kind == null ? Rarity.UNKNOWN : Rarity.parse(kind);
+        return fromCard != Rarity.UNKNOWN ? fromCard : e.rarity();
+    }
+
+    /** Chip of an event on my server: the tier, else the card's «Тип» as written («Взрывной»), else the API's value. */
+    String chipOf(EventsJson.LiteEvent e) {
+        String kind = cardKinds.get(ServerParser.normalize(e.name()));
+        Rarity rarity = rarityOf(e);
+        if (rarity == Rarity.UNKNOWN && kind != null) {
+            return kind;
+        }
+        return EventRows.chipText(rarity, e.rareRaw());
+    }
+
     /** How long a running Prime event goes on, or null while unknown. */
     public EventClock.@Nullable Estimate primeLasts(EventsJson.PrimeEvent e) {
         return clocks.prime().estimate(e.uuid(), System.currentTimeMillis());
@@ -577,6 +621,40 @@ public final class EventsModule extends Module {
 
     @Nullable Instant voteAnchor() {
         return voteAnchor;
+    }
+
+    /** How long the winner of a vote stays on the card after the vote ends. */
+    static final long VOTE_RESULT_MS = 60_000;
+
+    /** The vote on my server: its candidates as last polled, when it began (0 = unknown), when it ended (0 = running). */
+    record VoteState(EventsJson.Voting voting, long startedAt, long endedAt) {
+    }
+
+    private void trackVote(EventsJson.@Nullable Voting mine, long now) {
+        if (mine != null) {
+            if (lastVoting == null || !lastVoting.instanceId().equals(mine.instanceId())) {
+                // Its start is known from the chat line, or when a recent poll had no vote here; else unknown (0).
+                voteStartedAt = voteChatStart > 0 && now - voteChatStart < 180_000 ? voteChatStart
+                        : noVoteSeenAt > 0 && now - noVoteSeenAt <= EventClock.MAX_GAP ? (noVoteSeenAt + now) / 2 : 0;
+                voteEndedAt = 0;
+            }
+            lastVoting = mine;
+        } else {
+            noVoteSeenAt = now;
+            if (lastVoting != null && voteEndedAt == 0) {
+                voteEndedAt = now;
+                log("vote %s ended%s", lastVoting.instanceId(),
+                        voteStartedAt > 0 ? String.format(java.util.Locale.ROOT, " after %d s", (now - voteStartedAt) / 1000) : "");
+            }
+        }
+    }
+
+    /** The running vote, or the one that just ended (for {@link #VOTE_RESULT_MS}); null otherwise. */
+    @Nullable VoteState vote(long now) {
+        if (lastVoting == null || voteEndedAt > 0 && now - voteEndedAt > VOTE_RESULT_MS) {
+            return null;
+        }
+        return new VoteState(lastVoting, voteStartedAt, voteEndedAt);
     }
 
     KnownCoords.@Nullable Entry coordsOf(String eventName) {

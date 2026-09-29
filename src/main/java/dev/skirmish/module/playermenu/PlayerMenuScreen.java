@@ -227,7 +227,7 @@ final class PlayerMenuScreen extends UiScreen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+    protected boolean onScroll(double mouseX, double mouseY, double scrollX, double scrollY) {
         scroll = Math.max(0f, Math.min(maxScroll, scroll - (float) scrollY * Theme.get().num("layout.menu.scroll_step")));
         return true;
     }

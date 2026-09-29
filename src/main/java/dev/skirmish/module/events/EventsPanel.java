@@ -134,7 +134,7 @@ final class EventsPanel extends HudBlock {
                 String sub = where == null ? time : time == null ? where : where + " · " + time;
                 String tone = countdown != null ? "accent"
                         : lasts != null && "warn".equals(EventsModule.lastsTone(lasts)) ? "warn" : null;
-                out.add(new EventRows.Row(e.name(), e.rarity(), EventRows.chipText(e.rarity(), e.rareRaw()), "", "text", sub, where != null, tone));
+                out.add(new EventRows.Row(e.name(), module.rarityOf(e), module.chipOf(e), "", "text", sub, where != null, tone));
             }
             return;
         }

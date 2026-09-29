@@ -75,6 +75,15 @@ public abstract class UiScreen extends Screen {
         try {
             ui.pushAlpha(appear.value());
             draw(ui, m[0], m[1]);
+            // An open dropdown's list goes over everything, outside any clip; one not drawn this frame closes.
+            Dropdown open = openDropdown();
+            if (open != null) {
+                if (frameWidgets.stream().anyMatch(h -> h.widget() == open)) {
+                    open.drawList(ui, m[0], m[1]);
+                } else {
+                    open.close();
+                }
+            }
             ui.popAlpha();
         } finally {
             ui.end();
@@ -94,7 +103,29 @@ public abstract class UiScreen extends Screen {
         float[] clip = clips.peek();
         frameWidgets.add(new Hit(widget, clip));
         boolean inClip = clip == null || (mx >= clip[0] && mx < clip[2] && my >= clip[1] && my < clip[3]);
-        widget.render(ui, mx, my, inClip && (pressed == null || pressed == widget));
+        Dropdown open = dropdown;
+        boolean underList = open != null && open != widget && open.listContains(mx, my);
+        widget.render(ui, mx, my, inClip && !underList && (pressed == null || pressed == widget));
+    }
+
+    private @Nullable Dropdown dropdown;
+
+    /** Closes an open dropdown list; true when there was one (screens with their own Esc handling ask first). */
+    protected boolean closeDropdown() {
+        Dropdown open = openDropdown();
+        if (open == null) {
+            return false;
+        }
+        open.close();
+        return true;
+    }
+
+    /** The dropdown whose list is open, if any. */
+    private @Nullable Dropdown openDropdown() {
+        if (dropdown != null && !dropdown.isOpen()) {
+            dropdown = null;
+        }
+        return dropdown;
     }
 
     /** Clips drawing (scissor, 2 design px precision) and input of the widgets registered until {@link #popClip}. */
@@ -149,10 +180,26 @@ public abstract class UiScreen extends Screen {
             keybind.mouseClicked(mx, my, event.button());
             return true;
         }
+        Dropdown open = openDropdown();
+        if (open != null) {
+            // The open list takes the click; a click anywhere else only closes it (the field itself toggles).
+            if (open.listContains(mx, my)) {
+                open.clickList(mx, my);
+            } else if (!open.contains(mx, my)) {
+                open.close();
+            } else {
+                open.mouseClicked(mx, my, event.button());
+            }
+            return true;
+        }
         Widget target = topAt(mx, my);
         focus(target != null && target.focusable() ? target : null);
         if (target != null && target.mouseClicked(mx, my, event.button())) {
             pressed = target;
+            if (target instanceof Dropdown d && d.isOpen()) {
+                dropdown = d;
+                pressed = null;
+            }
             return true;
         }
         return onBackgroundClick(mx, my, event.button());
@@ -183,7 +230,30 @@ public abstract class UiScreen extends Screen {
     }
 
     @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        Dropdown open = openDropdown();
+        if (open != null) {
+            double[] m = mouse();
+            if (open.listContains(m[0], m[1])) {
+                open.scrollList(scrollY);
+            }
+            return true;
+        }
+        return onScroll(mouseX, mouseY, scrollX, scrollY);
+    }
+
+    /** The wheel when no dropdown list is open (by default what {@link Screen} does). */
+    protected boolean onScroll(double mouseX, double mouseY, double scrollX, double scrollY) {
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+
+    @Override
     public boolean keyPressed(KeyEvent event) {
+        Dropdown open = openDropdown();
+        if (open != null && event.isEscape()) {
+            open.close();
+            return true;
+        }
         if (focused != null && focused.keyPressed(event)) {
             return true;
         }
