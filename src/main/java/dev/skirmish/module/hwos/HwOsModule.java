@@ -31,6 +31,12 @@ public final class HwOsModule extends Module {
     }
 
     @Override
+    public void onInitialize() {
+        dev.skirmish.module.menus.SkirmishPauseScreen.registerShortcut(new dev.skirmish.module.menus.SkirmishPauseScreen.Shortcut(
+                "skirmish.menus.app.hwos", "os", 20, parent -> Minecraft.getInstance().setScreen(new HwOsScreen(parent)), this::isEnabled));
+    }
+
+    @Override
     public void tick() {
         Minecraft mc = Minecraft.getInstance();
         while (SkirmishKeys.HWOS_OPEN.consumeClick()) {

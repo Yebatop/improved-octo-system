@@ -176,6 +176,8 @@ public final class BaseModule extends Module {
     public void onInitialize() {
         instance = this;
         store.load();
+        dev.skirmish.module.menus.SkirmishPauseScreen.registerShortcut(new dev.skirmish.module.menus.SkirmishPauseScreen.Shortcut(
+                "skirmish.menus.app.base", "base", 10, parent -> Minecraft.getInstance().setScreen(new BaseScreen(parent)), this::isEnabled));
         Hud.get().register(new BaseHud(this));
         UseBlockCallback.EVENT.register((player, world, hand, hit) -> {
             if (world.isClientSide() && isEnabled()) {

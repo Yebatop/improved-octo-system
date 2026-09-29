@@ -179,6 +179,8 @@ public final class KillCamModule extends Module {
 
     @Override
     public void onInitialize() {
+        dev.skirmish.module.menus.SkirmishPauseScreen.registerShortcut(new dev.skirmish.module.menus.SkirmishPauseScreen.Shortcut(
+                "skirmish.menus.app.replays", "replays", 50, this::openLibrary, this::isEnabled));
         CombatTracker.get().addListener(new Listener());
         dev.skirmish.hud.Hud.get().register(new KillCamIndicator(this, recorder));
         ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {

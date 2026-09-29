@@ -63,6 +63,8 @@ public final class FightReviewModule extends Module {
 
     @Override
     public void onInitialize() {
+        dev.skirmish.module.menus.SkirmishPauseScreen.registerShortcut(new dev.skirmish.module.menus.SkirmishPauseScreen.Shortcut(
+                "skirmish.menus.app.review", "review", 40, parent -> open(null, parent), this::isEnabled));
         AnalyticsHub.get().require(this::isEnabled);
         CombatTracker.get().addListener(recorder);
         Hud.get().register(new ReviewHint(this));

@@ -119,6 +119,14 @@ public final class SessionRecapModule extends Module {
         }
     }
 
+    /** What the running session earned by the sidebar's balance, or null (no balance line, not connected, off). */
+    public static @Nullable Long sessionCoins() {
+        if (!(dev.skirmish.module.ModuleManager.get().byId(ID) instanceof SessionRecapModule m) || !m.isEnabled() || !m.tracker.active()) {
+            return null;
+        }
+        return m.tracker.snapshot(System.currentTimeMillis(), false).coins();
+    }
+
     /** The recap to show now: the running session while connected, else the last finished one. */
     @Nullable SessionRecap current() {
         return tracker.active() ? tracker.snapshot(System.currentTimeMillis(), false) : last;

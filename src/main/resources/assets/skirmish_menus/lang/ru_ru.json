@@ -38,5 +38,13 @@
   "skirmish.menus.tip.9": "Каждый сундук Ящика Пандоры живёт 10 секунд — первый забирает до 5 предметов.",
   "skirmish.menus.tip.10": "Уникальный приват из древних обломков ломают только С4 и Разрывная волна.",
   "skirmish.menus.tip.11": "Клавиша J сохраняет последние секунды в «Мои реплеи».",
-  "skirmish.menus.tip.12": "Шалкеры замка: серый ломается 5 раз, голубой 7, фиолетовый 12."
+  "skirmish.menus.tip.12": "Шалкеры замка: серый ломается 5 раз, голубой 7, фиолетовый 12.",
+  "skirmish.menus.kills_deaths": "убийств / смертей",
+  "skirmish.menus.earned": "за сессию",
+  "skirmish.menus.event_now": "ивент сейчас",
+  "skirmish.menus.base_value": "стоимость базы",
+  "skirmish.menus.app.base": "Base OS",
+  "skirmish.menus.app.hwos": "HolyWorld OS",
+  "skirmish.menus.app.review": "Разбор боёв",
+  "skirmish.menus.app.replays": "Мои реплеи"
 }

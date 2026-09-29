@@ -38,5 +38,13 @@
   "skirmish.menus.tip.9": "Each Pandora Box chest lives 10 seconds — the first player takes up to 5 items.",
   "skirmish.menus.tip.10": "The unique ancient debris region only breaks to C4 and the Blast Wave.",
   "skirmish.menus.tip.11": "J saves the last seconds to «My replays».",
-  "skirmish.menus.tip.12": "Castle shulkers: grey breaks 5 times, light blue 7, purple 12."
+  "skirmish.menus.tip.12": "Castle shulkers: grey breaks 5 times, light blue 7, purple 12.",
+  "skirmish.menus.kills_deaths": "kills / deaths",
+  "skirmish.menus.earned": "this session",
+  "skirmish.menus.event_now": "event now",
+  "skirmish.menus.base_value": "base value",
+  "skirmish.menus.app.base": "Base OS",
+  "skirmish.menus.app.hwos": "HolyWorld OS",
+  "skirmish.menus.app.review": "Fight review",
+  "skirmish.menus.app.replays": "My replays"
 }

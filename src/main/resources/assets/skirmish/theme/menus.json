@@ -19,6 +19,7 @@
     "pm_server": {"size": 12, "weight": 600, "color": "text_2"},
     "pm_stat": {"size": 20, "weight": 800, "color": "text"},
     "pm_stat_label": {"size": 10, "weight": 600, "color": "text_3"},
+    "pm_app": {"size": 11, "weight": 600, "color": "text_2"},
     "ld_title": {"size": 36, "weight": 800, "color": "text"},
     "ld_tip": {"size": 13, "weight": 500, "color": "text_2"}
   },
@@ -50,8 +51,12 @@
       "tip_gap": 6
     },
     "pausemenu": {
-      "width": 470,
+      "width": 500,
       "pad": 22,
+      "apps_per_row": 4,
+      "app_height": 68,
+      "app_icon": 22,
+      "app_icon_gap": 8,
       "head": 36,
       "logo": 30,
       "logo_gap": 12,
