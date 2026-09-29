@@ -7,6 +7,8 @@ package dev.skirmish.module.food;
 final class FoodMath {
     static final int ICONS = 10;
     static final int MAX = 20;
+    /** At this hunger or less you cannot sprint. */
+    static final int LOW = 6;
 
     private FoodMath() {
     }
