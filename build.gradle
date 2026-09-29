@@ -3,7 +3,17 @@ plugins {
     id 'maven-publish'
 }
 
-version = project.mod_version
+// The commit goes into the version (0.1.0+cc33fd6), so the jar's name, the log and the main menu tell builds apart.
+def commit = ''
+try {
+    commit = providers.exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        ignoreExitValue = true
+    }.standardOutput.asText.get().trim()
+} catch (Exception ignored) {
+    // No git here: the plain version.
+}
+version = commit.isEmpty() ? project.mod_version : "${project.mod_version}+${commit}"
 group = project.maven_group
 
 base {

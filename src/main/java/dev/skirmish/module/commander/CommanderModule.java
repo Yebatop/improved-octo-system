@@ -115,6 +115,12 @@ public final class CommanderModule extends Module {
         return ev == null ? null : ev.lastsOf(event);
     }
 
+    /** The countdown the event's announcement gave in chat («взрыв через 3:55»), or null. */
+    public @Nullable String countdown(String event) {
+        EventsModule ev = events();
+        return ev == null ? null : ev.countdownText(event);
+    }
+
     /** Upcoming starts, soonest first (whatever kinds are switched on). */
     public List<HeadsUp.Item> upcoming() {
         return upcoming;

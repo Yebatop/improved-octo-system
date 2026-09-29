@@ -6,13 +6,17 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Map tiles of one server + dimension, saved as PNG files under {@code config/skirmish/map/<server>/<dimension>/}.
@@ -22,6 +26,8 @@ final class MapStore {
     private final Path dir;
     private final String key;
     private final Map<Long, MapTile> tiles = new HashMap<>();
+    /** Tiles whose file could not be read (see {@link #setAside}). */
+    private final Set<Long> broken = new HashSet<>();
 
     MapStore(Path root, String server, String dimension) {
         this.dir = root.resolve(MapShade.safe(server)).resolve(MapShade.safe(dimension));
@@ -46,15 +52,16 @@ final class MapStore {
         if (t == null) {
             Path f = file(rx, rz);
             NativeImage image = null;
-            if (Files.exists(f)) {
+            if (!broken.contains(pack(rx, rz)) && Files.exists(f)) {
                 try (InputStream in = Files.newInputStream(f)) {
                     image = NativeImage.read(in);
                     if (image.getWidth() != MapTile.SIZE || image.getHeight() != MapTile.SIZE) {
                         image.close();
                         image = null;
+                        setAside(rx, rz, new IOException("size " + MapTile.SIZE + " expected"));
                     }
                 } catch (IOException | RuntimeException e) {
-                    DebugLog.error("world_map", "tile unreadable: " + f, e);
+                    setAside(rx, rz, e);
                 }
             }
             if (image == null) {
@@ -70,9 +77,24 @@ final class MapStore {
         return t;
     }
 
+    /**
+     * A tile file that can't be read (cut short when the game closed mid-save) is renamed to {@code .broken} and not
+     * read again, so it is reported once instead of on every frame; the tile is drawn anew as the area is seen.
+     */
+    private void setAside(int rx, int rz, Exception why) {
+        broken.add(pack(rx, rz));
+        Path f = file(rx, rz);
+        try {
+            Files.move(f, f.resolveSibling(f.getFileName() + ".broken"), StandardCopyOption.REPLACE_EXISTING);
+            DebugLog.error("world_map", "tile unreadable, set aside as .broken: " + f, why);
+        } catch (IOException | RuntimeException e) {
+            DebugLog.error("world_map", "tile unreadable, skipped: " + f, why);
+        }
+    }
+
     /** Whether a tile exists in memory or on disk (so the screen doesn't create empty ones). */
     boolean exists(int rx, int rz) {
-        return tiles.containsKey(pack(rx, rz)) || Files.exists(file(rx, rz));
+        return tiles.containsKey(pack(rx, rz)) || !broken.contains(pack(rx, rz)) && Files.exists(file(rx, rz));
     }
 
     /** Saves tiles changed since the last save. */
@@ -81,8 +103,17 @@ final class MapStore {
         for (MapTile t : tiles.values()) {
             if (t.unsaved) {
                 try {
+                    // Written aside and then moved in, so a save cut short never leaves a broken tile.
                     Files.createDirectories(dir);
-                    t.image.writeToFile(file(t.rx, t.rz));
+                    Path f = file(t.rx, t.rz);
+                    Path tmp = f.resolveSibling(f.getFileName() + ".tmp");
+                    t.image.writeToFile(tmp);
+                    try {
+                        Files.move(tmp, f, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+                    } catch (AtomicMoveNotSupportedException e) {
+                        Files.move(tmp, f, StandardCopyOption.REPLACE_EXISTING);
+                    }
+                    broken.remove(pack(t.rx, t.rz));
                     t.unsaved = false;
                     saved++;
                 } catch (IOException | RuntimeException e) {

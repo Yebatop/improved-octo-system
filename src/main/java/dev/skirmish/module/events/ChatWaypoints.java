@@ -52,7 +52,9 @@ final class ChatWaypoints {
             }
             String text = plain.toString();
             List<ChatCoords.Coords> found = ours ? List.of() : ChatCoords.find(text);
-            String event = found.isEmpty() ? null : ChatCoords.eventName(text, module.liveEventNames());
+            // Server announcements (▶) name their event also without coordinates, for the countdown they may give.
+            boolean announcement = !ours && text.stripLeading().startsWith("▶");
+            String event = found.isEmpty() && !announcement ? null : ChatCoords.eventName(text, module.liveEventNames());
             String dimension = dimension(text, event);
             if (holy) {
                 module.onChatLine(text, found, event, dimension);

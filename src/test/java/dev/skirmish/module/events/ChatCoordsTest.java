@@ -103,4 +103,23 @@ class ChatCoordsTest {
         assertEquals("-541 53 -193",
                 ChatCoords.find("▶ Вы были убиты игроком Enemy_3 на координатах -541 53 -193.").getFirst().text());
     }
+
+    /** Real HolyWorld event announcements (game log, 2026-09-28/29). */
+    @Test
+    void eventCountdownFromHolyWorldChat() {
+        String cargo = "▶ Ценный груз находится на координатах 1447 64 -1581 [+метка] и взорвется через 235 секунд.";
+        assertEquals(new ChatCoords.Countdown("boom", java.time.Duration.ofSeconds(235)), ChatCoords.eventCountdown(cargo));
+        assertEquals("Ценный груз", ChatCoords.eventName(cargo, java.util.List.of()));
+        assertEquals(new ChatCoords.Countdown("boom", java.time.Duration.ofSeconds(118)),
+                ChatCoords.eventCountdown("▶ Кубик находится на координатах 120 70 -45 [+метка] — до взрыва 118 сек."));
+        assertEquals(new ChatCoords.Countdown("appear", java.time.Duration.ofSeconds(60)),
+                ChatCoords.eventCountdown("▶ Цветочная поляна появится через 1 минуту на рандомных координатах."));
+        assertEquals(new ChatCoords.Countdown("appear", java.time.Duration.ofSeconds(60)),
+                ChatCoords.eventCountdown("▶ Мистический босс появится через минуту на пвп арене (/warp pvp)."));
+        // Not event countdowns: the vote, a teleport, a player's message, a line without a time.
+        assertNull(ChatCoords.eventCountdown("▶ Ближайшее голосование за мероприятие будет проводиться через 39 мин., 21 сек."));
+        assertNull(ChatCoords.eventCountdown("Телепортация начнется через 5 секунд. Не двигайтесь."));
+        assertNull(ChatCoords.eventCountdown("ɢ | Player_1: кубик взорвется через 30 секунд"));
+        assertNull(ChatCoords.eventCountdown("▶ Цветочная поляна находится на 10 64 20 [+метка]."));
+    }
 }

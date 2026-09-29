@@ -214,8 +214,10 @@ public final class SkirmishPauseScreen extends UiScreen {
         if (ModuleManager.get().byId(EventsModule.ID) instanceof EventsModule ev && ev.isEnabled() && ev.liteDataLoaded() && !ev.onPrime()) {
             List<String> live = ev.myLiteEventNames();
             if (!live.isEmpty()) {
+                String countdown = ev.countdownText(live.getFirst());
                 EventClock.Estimate lasts = ev.lastsOf(live.getFirst());
-                tiles.add(new String[]{live.getFirst(), lasts == null ? Ui.tr("skirmish.menus.event_now") : EventsModule.lastsText(lasts), "text"});
+                tiles.add(new String[]{live.getFirst(), countdown != null ? countdown
+                        : lasts == null ? Ui.tr("skirmish.menus.event_now") : EventsModule.lastsText(lasts), "text"});
             }
         }
         BaseModule.Summary base = BaseModule.summary();

@@ -127,11 +127,13 @@ final class EventsPanel extends HudBlock {
             for (EventsJson.LiteEvent e : mine.subList(0, Math.min(max, mine.size()))) {
                 KnownCoords.Entry at = module.coordsOf(e.name());
                 String where = at == null ? null : at.coords().text() + dimensionSuffix(at.dimension());
-                // Under the name: where it is (when chat said) and how long it goes on.
+                // Under the name: where it is (when chat said) and the countdown chat gave, else how long it goes on.
+                String countdown = module.countdownText(e.name());
                 EventClock.Estimate lasts = module.liteLasts(e);
-                String time = lasts == null ? null : EventsModule.lastsText(lasts);
+                String time = countdown != null ? countdown : lasts == null ? null : EventsModule.lastsText(lasts);
                 String sub = where == null ? time : time == null ? where : where + " · " + time;
-                String tone = lasts != null && "warn".equals(EventsModule.lastsTone(lasts)) ? "warn" : null;
+                String tone = countdown != null ? "accent"
+                        : lasts != null && "warn".equals(EventsModule.lastsTone(lasts)) ? "warn" : null;
                 out.add(new EventRows.Row(e.name(), e.rarity(), EventRows.chipText(e.rarity(), e.rareRaw()), "", "text", sub, where != null, tone));
             }
             return;

@@ -45,7 +45,7 @@ public final class ChatCoords {
 
     /** Event names known without the API (Lite, Prime and Alpha; from the wiki). The API adds live display names. */
     public static final List<String> KNOWN_EVENTS = List.of(
-            "Таинственный груз", "Таинственный корабль", "Цветочная поляна", "Опытный Тыпо", "Контейнер", "Посылка",
+            "Таинственный груз", "Ценный груз", "Таинственный корабль", "Цветочная поляна", "Опытный Тыпо", "Контейнер", "Посылка",
             "Смертельная шахта", "Золотая лихорадка", "Игральный куб", "Кубик", "Трофейная охота", "Захват Энда", "Бункер",
             "Ядро Солнца", "Древний город", "Ящик Пандоры", "Золотой БоБ", "Испытательное Сумасшествие",
             "Теневой купец", "Кровавая луна", "АирДроп", "Аирдроп", "Мистический босс", "Босс");
@@ -183,6 +183,54 @@ public final class ChatCoords {
             return Duration.ofSeconds(seconds);
         }
         return null;
+    }
+
+    /** What an event's announcement counts down to ("boom", "appear", "start", "open" or "other") and in how long. */
+    public record Countdown(String kind, Duration in) {
+    }
+
+    private static final Pattern COUNTDOWN = Pattern.compile(
+            "(?:через|до\\s+\\p{L}+)\\s+(?:(\\d{1,3})\\s*мин\\p{L}*\\.?[,\\s]*)?(?:(\\d{1,4})\\s*сек)?");
+    private static final Pattern COUNTDOWN_WORD = Pattern.compile("через\\s+(полминуты|минуту|секунду)");
+
+    /**
+     * The countdown in an event announcement: «▶ Ценный груз находится на координатах 1447 64 -1581 [+метка] и
+     * взорвется через 235 секунд.», «▶ Кубик находится на координатах … — до взрыва 118 сек.», «▶ Цветочная поляна
+     * появится через 1 минуту на рандомных координатах.», «▶ Мистический босс появится через минуту …» (captured
+     * 2026-09). Server lines only (they start with ▶); null for the vote and teleport countdowns and anything else.
+     */
+    public static @Nullable Countdown eventCountdown(String text) {
+        String t = fold(text);
+        if (!t.startsWith("▶") || t.contains("голосовани") || t.contains("телепорт")) {
+            return null;
+        }
+        Duration in = null;
+        Matcher m = COUNTDOWN.matcher(t);
+        while (in == null && m.find()) {
+            if (m.group(1) != null || m.group(2) != null) {
+                in = Duration.ofSeconds((m.group(1) == null ? 0 : Long.parseLong(m.group(1)) * 60)
+                        + (m.group(2) == null ? 0 : Long.parseLong(m.group(2))));
+            }
+        }
+        if (in == null) {
+            Matcher w = COUNTDOWN_WORD.matcher(t);
+            if (w.find()) {
+                in = Duration.ofSeconds(switch (w.group(1)) {
+                    case "полминуты" -> 30;
+                    case "минуту" -> 60;
+                    default -> 1;
+                });
+            }
+        }
+        if (in == null || in.isZero()) {
+            return null;
+        }
+        String kind = t.contains("взорв") || t.contains("взрыв") ? "boom"
+                : t.contains("появит") ? "appear"
+                : t.contains("начнет") || t.contains("стартует") ? "start"
+                : t.contains("откроет") ? "open"
+                : "other";
+        return new Countdown(kind, in);
     }
 
     /** Heuristic: a server line starting a Lite event vote ("Началось голосование за ивент! /vote"). */

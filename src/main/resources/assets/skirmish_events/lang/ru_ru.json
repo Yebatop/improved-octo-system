@@ -91,5 +91,10 @@
   "skirmish.events.lasts.min": "%s мин",
   "skirmish.events.lasts.h": "%s ч",
   "skirmish.events.lasts.h_min": "%s ч %s мин",
+  "skirmish.events.countdown.boom": "взрыв через %s",
+  "skirmish.events.countdown.appear": "появится через %s",
+  "skirmish.events.countdown.start": "начнётся через %s",
+  "skirmish.events.countdown.open": "откроется через %s",
+  "skirmish.events.countdown.other": "через %s",
   "skirmish.events.none_meta": "ивентов нет"
 }

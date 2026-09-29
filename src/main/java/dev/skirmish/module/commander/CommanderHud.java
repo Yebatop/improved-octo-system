@@ -73,7 +73,8 @@ final class CommanderHud extends HudBlock {
                 break;
             }
             EventClock.Estimate lasts = module.lasts(m.event());
-            String left = lasts == null ? "" : " · " + EventsModule.lastsText(lasts);
+            String countdown = module.countdown(m.event());
+            String left = countdown != null ? " · " + countdown : lasts == null ? "" : " · " + EventsModule.lastsText(lasts);
             if (m.onSite()) {
                 out.add(new Chip("good", m.event(), Ui.tr("skirmish.commander.here"),
                         Ui.tr("skirmish.commander.here_for", EventSchedule.clock(nowMs - m.siteSince()),

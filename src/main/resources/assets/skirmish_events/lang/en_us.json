@@ -91,5 +91,10 @@
   "skirmish.events.lasts.min": "%s min",
   "skirmish.events.lasts.h": "%s h",
   "skirmish.events.lasts.h_min": "%s h %s min",
+  "skirmish.events.countdown.boom": "blows up in %s",
+  "skirmish.events.countdown.appear": "appears in %s",
+  "skirmish.events.countdown.start": "starts in %s",
+  "skirmish.events.countdown.open": "opens in %s",
+  "skirmish.events.countdown.other": "in %s",
   "skirmish.events.none_meta": "no events"
 }

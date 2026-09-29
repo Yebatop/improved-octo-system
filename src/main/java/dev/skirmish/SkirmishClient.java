@@ -141,7 +141,9 @@ public final class SkirmishClient implements ClientModInitializer {
             }
             DebugLog.shutdown();
         });
-        DebugLog.log("core", "Skirmish initialized with " + modules.all().size() + " modules");
+        String version = FabricLoader.getInstance().getModContainer(MOD_ID)
+                .map(c -> c.getMetadata().getVersion().getFriendlyString()).orElse("dev");
+        DebugLog.log("core", "Skirmish " + version + " initialized with " + modules.all().size() + " modules");
     }
 
     /** config/skirmish, created on first use. */

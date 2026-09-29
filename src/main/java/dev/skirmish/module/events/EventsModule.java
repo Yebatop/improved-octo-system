@@ -95,6 +95,12 @@ public final class EventsModule extends Module {
     private int detectCountdown;
     /** Event lengths: Lite from when events appear and vanish, Prime from their start times. */
     private final ClockStore clocks = new ClockStore();
+    /** Countdowns this server's event announcements gave, by folded event name. */
+    private final Map<String, Announced> countdowns = new java.util.HashMap<>();
+
+    /** An announced moment of an event: what happens ("boom", "appear", ...) and when (epoch ms). */
+    private record Announced(String kind, long at) {
+    }
 
     /** Hears event coordinates as they are seen in chat (Event Commander turns them into waypoints). */
     public interface CoordsListener {
@@ -148,6 +154,7 @@ public final class EventsModule extends Module {
     private void resetSession() {
         detector.reset();
         coords.clear();
+        countdowns.clear();
         liteDiff.reset();
         primeDiff.reset();
         current = null;
@@ -237,6 +244,9 @@ public final class EventsModule extends Module {
                 voteAnchor = null;
                 anchoredVoting = null;
             }
+            if (current != null && next != null) {
+                countdowns.clear();
+            }
         }
         current = next;
     }
@@ -287,15 +297,20 @@ public final class EventsModule extends Module {
                 log("vote start seen in chat, 65-min cycle anchored");
             }
         }
-        if (found.isEmpty()) {
-            return;
-        }
         String name = eventName;
         if (name == null && mentionsEvent(plain)) {
             List<EventsJson.LiteEvent> mine = myLiteEvents();
             if (mine.size() == 1) {
                 name = mine.getFirst().name();
             }
+        }
+        ChatCoords.Countdown countdown = name == null ? null : ChatCoords.eventCountdown(plain);
+        if (countdown != null) {
+            countdowns.put(ServerParser.normalize(name), new Announced(countdown.kind(), System.currentTimeMillis() + countdown.in().toMillis()));
+            log("countdown of '%s' from chat: %s in %d s (line: %s)", name, countdown.kind(), countdown.in().toSeconds(), plain);
+        }
+        if (found.isEmpty()) {
+            return;
         }
         if (name != null) {
             coords.put(name, found.getFirst(), dimension, System.currentTimeMillis());
@@ -452,6 +467,19 @@ public final class EventsModule extends Module {
             }
         }
         return null;
+    }
+
+    /**
+     * «взрыв через 3:55» while the countdown the event's own announcement gave in chat runs («… и взорвется через 235
+     * секунд»), else null. More exact than {@link #lastsOf}, so it goes first where both fit.
+     */
+    public @Nullable String countdownText(String eventName) {
+        Announced a = countdowns.get(ServerParser.normalize(eventName));
+        long left = a == null ? -1 : a.at() - System.currentTimeMillis();
+        if (left <= 0) {
+            return null;
+        }
+        return dev.skirmish.ui.Ui.tr("skirmish.events.countdown." + a.kind(), EventSchedule.clock(left));
     }
 
     /** How long a running Prime event goes on, or null while unknown. */
