@@ -141,5 +141,6 @@
   "skirmish.analytics.dossier.fights.many": "fights",
   "skirmish.analytics.dossier.vs": "You vs %s",
   "skirmish.analytics.dossier.last_fight": "last fight %s",
-  "skirmish.analytics.dossier.first": "first encounter"
+  "skirmish.analytics.dossier.first": "first encounter",
+  "skirmish.analytics.outcome.live": "going on"
 }

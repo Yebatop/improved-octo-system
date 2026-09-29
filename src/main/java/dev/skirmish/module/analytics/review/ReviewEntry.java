@@ -9,7 +9,8 @@ import java.util.UUID;
 
 /**
  * One row of the review list: a finished fight with its timeline, plus the death recap when the fight ended with my
- * death; or a death that happened outside any fight (then {@link #fight()} is null).
+ * death; a death that happened outside any fight (then {@link #fight()} is null); or the fight going on now
+ * ({@link #live()}), whose timeline grows while the review is open.
  */
 public final class ReviewEntry {
     private final @Nullable Fight fight;
@@ -18,9 +19,16 @@ public final class ReviewEntry {
     private final @Nullable DeathRecap death;
     private final ItemStack killerWeapon;
     private final long timeMs;
+    private final boolean live;
 
     ReviewEntry(@Nullable Fight fight, @Nullable FightLog log, @Nullable EquipmentSnapshot gear, @Nullable DeathRecap death,
                 ItemStack killerWeapon, long timeMs) {
+        this(fight, log, gear, death, killerWeapon, timeMs, false);
+    }
+
+    ReviewEntry(@Nullable Fight fight, @Nullable FightLog log, @Nullable EquipmentSnapshot gear, @Nullable DeathRecap death,
+                ItemStack killerWeapon, long timeMs, boolean live) {
+        this.live = live;
         this.fight = fight;
         this.log = log;
         this.gear = gear;
@@ -31,6 +39,11 @@ public final class ReviewEntry {
 
     public @Nullable Fight fight() {
         return fight;
+    }
+
+    /** The fight is still going on. */
+    public boolean live() {
+        return live && fight != null && fight.isActive();
     }
 
     public @Nullable FightLog log() {
@@ -76,6 +89,9 @@ public final class ReviewEntry {
     }
 
     public Outcome outcome() {
+        if (live()) {
+            return Outcome.LIVE;
+        }
         return Outcome.of(fight == null ? null : fight.endReason(), killedByOpponent());
     }
 

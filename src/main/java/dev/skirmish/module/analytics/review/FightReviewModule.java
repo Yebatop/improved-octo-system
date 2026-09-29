@@ -111,9 +111,30 @@ public final class FightReviewModule extends Module {
     }
 
     /** Recorded fights and deaths, newest first. */
+    /** Fights going on now (newest first, one stable entry per fight), then the finished ones, newest first. */
     public List<ReviewEntry> entries() {
-        return recorder.entries();
+        List<ReviewEntry> done = recorder.entries();
+        List<ReviewEntry> out = new java.util.ArrayList<>();
+        java.util.Set<Integer> active = new java.util.HashSet<>();
+        if (isEnabled()) {
+            List<dev.skirmish.combat.Fight> fights = new java.util.ArrayList<>(dev.skirmish.combat.CombatTracker.get().activeFights());
+            fights.sort(java.util.Comparator.comparingLong(dev.skirmish.combat.Fight::startMs).reversed());
+            for (dev.skirmish.combat.Fight f : fights) {
+                // Like finished fights: only one with an opponent seen in plain sight.
+                if (!AnalyticsHub.get().seenVisible(f)) {
+                    continue;
+                }
+                active.add(f.id());
+                out.add(liveEntries.computeIfAbsent(f.id(), id -> new ReviewEntry(f, recorder.log(f),
+                        dev.skirmish.combat.CombatTracker.get().equipment(f), null, net.minecraft.world.item.ItemStack.EMPTY, f.startMs(), true)));
+            }
+        }
+        liveEntries.keySet().retainAll(active);
+        out.addAll(done);
+        return out;
     }
+
+    private final java.util.Map<Integer, ReviewEntry> liveEntries = new java.util.HashMap<>();
 
     /** The entry the hint points at while it is on screen. */
     @Nullable ReviewEntry hintEntry(long nowMs) {

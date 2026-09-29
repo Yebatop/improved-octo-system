@@ -141,5 +141,6 @@
   "skirmish.analytics.dossier.fights.many": "боёв",
   "skirmish.analytics.dossier.vs": "Вы против %s",
   "skirmish.analytics.dossier.last_fight": "последний бой %s",
-  "skirmish.analytics.dossier.first": "первая встреча"
+  "skirmish.analytics.dossier.first": "первая встреча",
+  "skirmish.analytics.outcome.live": "идёт сейчас"
 }

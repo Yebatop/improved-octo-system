@@ -165,7 +165,9 @@ final class FightReviewScreen extends UiScreen {
                 name = Ui.tr("skirmish.analytics.review.death_title");
             }
             ui.text("fa_list_name", ui.ellipsize("fa_list_name", name, textW), tx, ty);
-            String sub = Ui.tr(outcome.langKey()) + " · " + AnalyticsText.ago(System.currentTimeMillis() - entry.timeMs());
+            String sub = entry.live() && f != null
+                    ? Ui.tr(outcome.langKey()) + " · " + Ui.duration(f.durationMs(System.currentTimeMillis()))
+                    : Ui.tr(outcome.langKey()) + " · " + AnalyticsText.ago(System.currentTimeMillis() - entry.timeMs());
             ui.text("fa_list_sub", ui.ellipsize("fa_list_sub", sub, textW), tx, ty + ui.lineHeight("fa_list_name") + ui.num(L + "row_text_gap"));
             if (!score.isEmpty()) {
                 ui.textCentered("fa_list_score", score, x + w - padX - scoreW, y, h);

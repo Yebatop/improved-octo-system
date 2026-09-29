@@ -13,7 +13,9 @@ public enum Outcome {
     DIED("bad"),
     SPLIT("text_2"),
     INTERRUPTED("text_2"),
-    DEATH("bad");
+    DEATH("bad"),
+    /** The fight is still on (shown live in the review). */
+    LIVE("accent");
 
     private final String color;
 
