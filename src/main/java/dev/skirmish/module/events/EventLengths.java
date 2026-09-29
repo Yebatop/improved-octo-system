@@ -8,8 +8,16 @@ import java.util.Map;
  * event ids (Lite) and plugin names (Prime); values in ms. What the client learns itself takes over.
  */
 final class EventLengths {
-    static final Map<String, Long> LITE = Map.of();
-    static final Map<String, Long> PRIME = Map.of();
+    /** Measured on 2026-09-28/29 over ~1.5 h of polls, kinds with at least three ended events. */
+    static final Map<String, Long> LITE = Map.of(
+            "CUBE", 1_164_000L,
+            "JAYCOB", 1_068_000L,
+            "CARGO", 786_000L,
+            "SHIP", 786_000L,
+            "GOLDEN_FORTRESS", 630_000L,
+            "PARCELS", 2_040_000L);
+    static final Map<String, Long> PRIME = Map.of(
+            "bosses", 2_700_000L);
 
     private EventLengths() {
     }
