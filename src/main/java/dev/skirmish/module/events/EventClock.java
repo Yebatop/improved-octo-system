@@ -13,7 +13,10 @@ import java.util.Map;
  * that first had it and the one before (known only when that one was recent), and its end the moment between the
  * last poll that had it and the next. From events that ended while polling, a typical length per event kind is
  * learned (median of the latest ones) and kept across sessions; kinds never seen ending fall back to lengths
- * measured beforehand. Prime events carry their own start time. Pure Java; plain fields for Gson.
+ * measured beforehand. Prime events carry their own start time. Lite events come in waves (all anarchies at once,
+ * then one by one they end), so a poll where everything vanished at once is held back until the next one: if the
+ * events are back it was a hiccup of the API and is dropped, otherwise they really ended. Pure Java; plain fields
+ * for Gson.
  */
 public final class EventClock {
     /** A poll farther than this from the one before cannot date an appearance or an end. */
@@ -46,6 +49,9 @@ public final class EventClock {
     Map<String, List<Long>> lengths = new HashMap<>();
     long lastPoll;
     private transient Map<String, Long> seeds = Map.of();
+    /** A poll that looked like a hiccup (everything gone at once), held until the next poll decides. */
+    private transient @Nullable List<Seen> held;
+    private transient long heldAt;
 
     void seeds(Map<String, Long> seeds) {
         this.seeds = seeds;
@@ -53,6 +59,47 @@ public final class EventClock {
 
     /** A new poll at {@code at}: dates new events, learns the lengths of those that ended; true when anything changed. */
     boolean update(List<Seen> now, long at) {
+        boolean changed = false;
+        if (held != null) {
+            List<Seen> before = held;
+            long beforeAt = heldAt;
+            held = null;
+            if (!mostlyBack(now)) {
+                changed = apply(before, beforeAt);
+            }
+        } else if (suspicious(now)) {
+            held = now;
+            heldAt = at;
+            return false;
+        }
+        return apply(now, at) || changed;
+    }
+
+    /** Everything live gone at once (or most of many): maybe the API's hiccup rather than the events ending. */
+    private boolean suspicious(List<Seen> now) {
+        if (live.isEmpty()) {
+            return false;
+        }
+        int gone = live.size() - present(now);
+        return now.isEmpty() || live.size() >= 5 && gone >= 0.6 * live.size();
+    }
+
+    /** At least half of what was live before the held poll is in this one. */
+    private boolean mostlyBack(List<Seen> now) {
+        return !live.isEmpty() && present(now) >= 0.5 * live.size();
+    }
+
+    private int present(List<Seen> now) {
+        int n = 0;
+        for (Seen s : now) {
+            if (live.containsKey(s.key())) {
+                n++;
+            }
+        }
+        return n;
+    }
+
+    private boolean apply(List<Seen> now, long at) {
         boolean continuous = lastPoll > 0 && at - lastPoll <= MAX_GAP && at > lastPoll;
         Map<String, Seen> byKey = new HashMap<>();
         for (Seen s : now) {

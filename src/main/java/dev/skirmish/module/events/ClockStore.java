@@ -19,8 +19,12 @@ import java.util.List;
 final class ClockStore {
     static final long SAVE_EVERY = 120_000;
 
+    /** Files older than this learned lengths from API hiccups; their lengths are dropped. */
+    static final int VERSION = 2;
+
     /** What the file holds. */
     static final class Data {
+        int version;
         EventClock lite = new EventClock();
         EventClock prime = new EventClock();
     }
@@ -74,6 +78,10 @@ final class ClockStore {
                     }
                     data.lite.sanitize();
                     data.prime.sanitize();
+                    if (data.version < VERSION) {
+                        data.lite.lengths.clear();
+                        data.prime.lengths.clear();
+                    }
                 }
             }
         } catch (IOException | RuntimeException e) {
@@ -95,6 +103,7 @@ final class ClockStore {
             return;
         }
         try {
+            data.version = VERSION;
             Files.createDirectories(file.getParent());
             Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
             Files.writeString(tmp, gson.toJson(data), StandardCharsets.UTF_8);
