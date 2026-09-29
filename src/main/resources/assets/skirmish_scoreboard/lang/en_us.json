@@ -1,6 +1,6 @@
 {
   "skirmish.module.scoreboard.name": "Scoreboard",
-  "skirmish.module.scoreboard.description": "The server's sidebar (HolyWorld's board) in a Skirmish panel instead of vanilla's grey box: a title with an accent underline, even padding, blank lines as thin dividers and the red numbers hidden. It is a HUD element, so move and scale it in the HUD editor. The server's text, colours and icons stay.",
+  "skirmish.module.scoreboard.description": "The server's sidebar (HolyWorld's board) in a Skirmish panel instead of vanilla's grey box: a title with an accent underline, even padding, «Balance: 12 500» lines as two columns with icons, blank lines as thin dividers and the red numbers hidden. It is a HUD element, so move and scale it in the HUD editor. The server's text, colours and icons stay.",
   "skirmish.module.scoreboard.setting.title": "Title",
   "skirmish.module.scoreboard.setting.title.tooltip": "The board's name on top with an accent underline",
   "skirmish.module.scoreboard.setting.numbers": "Numbers",
@@ -11,5 +11,9 @@
   "skirmish.module.scoreboard.setting.shadow.tooltip": "A shadow under the lines' text, like chat",
   "skirmish.module.scoreboard.setting.opacity": "Opacity",
   "skirmish.module.scoreboard.setting.opacity.tooltip": "How solid the panel's background is",
-  "skirmish.hud.element.scoreboard": "Scoreboard"
+  "skirmish.hud.element.scoreboard": "Scoreboard",
+  "skirmish.module.scoreboard.setting.look": "Look",
+  "skirmish.module.scoreboard.setting.look.tooltip": "Modern — «Balance: 12 500» lines as two columns with an icon, in the mod's font. Classic — the server's lines as they are, in the game font",
+  "skirmish.module.scoreboard.setting.look.modern": "Modern",
+  "skirmish.module.scoreboard.setting.look.classic": "Classic"
 }

@@ -1,6 +1,6 @@
 {
   "skirmish.module.scoreboard.name": "Scoreboard",
-  "skirmish.module.scoreboard.description": "Сайдбар сервера (борд HolyWorld) в панели Skirmish вместо серого ванильного: заголовок с акцентной чертой, ровные отступы, пустые строки превращаются в тонкие разделители, красные числа скрыты. Это элемент HUD — двигается и масштабируется в редакторе HUD. Текст, цвета и значки сервера сохраняются.",
+  "skirmish.module.scoreboard.description": "Сайдбар сервера (борд HolyWorld) в панели Skirmish вместо серого ванильного: заголовок с акцентной чертой, ровные отступы, строки «Баланс: 12 500» в две колонки с иконками, пустые строки превращаются в тонкие разделители, красные числа скрыты. Это элемент HUD — двигается и масштабируется в редакторе HUD. Текст, цвета и значки сервера сохраняются.",
   "skirmish.module.scoreboard.setting.title": "Заголовок",
   "skirmish.module.scoreboard.setting.title.tooltip": "Название борда сверху с акцентной чертой",
   "skirmish.module.scoreboard.setting.numbers": "Числа",
@@ -11,5 +11,9 @@
   "skirmish.module.scoreboard.setting.shadow.tooltip": "Тень под текстом строк, как у чата",
   "skirmish.module.scoreboard.setting.opacity": "Непрозрачность",
   "skirmish.module.scoreboard.setting.opacity.tooltip": "Насколько плотный фон панели",
-  "skirmish.hud.element.scoreboard": "Scoreboard"
+  "skirmish.hud.element.scoreboard": "Scoreboard",
+  "skirmish.module.scoreboard.setting.look": "Вид",
+  "skirmish.module.scoreboard.setting.look.tooltip": "Современный — строки «Баланс: 12 500» в две колонки с иконкой, шрифтом мода. Классика — строки сервера как есть, игровым шрифтом",
+  "skirmish.module.scoreboard.setting.look.modern": "Современный",
+  "skirmish.module.scoreboard.setting.look.classic": "Классика"
 }

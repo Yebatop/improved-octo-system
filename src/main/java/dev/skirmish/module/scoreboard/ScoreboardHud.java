@@ -8,16 +8,21 @@ import dev.skirmish.ui.Ui;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * The sidebar panel. Layout is in design px like every HUD element; the server's lines are drawn with the game
- * font at its native GUI size (the pose is scaled back by the design scale), so they stay crisp and keep
- * resource-pack glyphs and colours. Default place: vanilla's, the right edge at mid-height.
+ * The sidebar panel. Layout is in design px like every HUD element. In the modern look «Label: value» lines become
+ * two columns: an icon and the label in the mod's font on the left, the value on the right in its own colour; other
+ * lines are set in the mod's font too. Lines with resource-pack glyphs (and every line in the classic look) are drawn
+ * with the game font at its native GUI size (the pose scaled back by the design scale), so they stay crisp and keep
+ * the glyphs and colours. Default place: vanilla's, the right edge at mid-height.
  */
 final class ScoreboardHud extends HudBlock {
     static final String L = "layout.scoreboard.";
@@ -71,6 +76,7 @@ final class ScoreboardHud extends HudBlock {
             blank.add(row.name().getString().isBlank() && (!module.numbers.get() || row.score().getString().isBlank()));
         }
         order = layout(blank, module.dividers.get());
+        lines = lines(live, Theme.get());
     }
 
     /**
@@ -116,6 +122,99 @@ final class ScoreboardHud extends HudBlock {
         return new SidebarBounds.Row(name, Component.literal(""));
     }
 
+    // ---- lines as drawn ----
+
+    private static final int GAME = 0;
+    private static final int PAIR = 1;
+    private static final int TEXT = 2;
+    private static final int RULE = 3;
+
+    /**
+     * One line as drawn: a divider, a line in the game font (resource-pack glyphs, or the classic look), a «label:
+     * value» pair with an icon, or a plain line in the mod's font. {@code value} is drawn in {@code color}, or as
+     * {@code valueGame} in the game font when it has glyphs; {@code score} is the right-hand number or null.
+     */
+    private record Line(int kind, @Nullable Component game, String icon, String label, String value,
+                        @Nullable Component valueGame, int color, @Nullable Component score) {
+    }
+
+    private List<Line> lines = List.of();
+
+    /** A piece of a line's text with its style. */
+    private record Seg(String text, Style style) {
+    }
+
+    private List<Line> lines(SidebarBounds.Sidebar b, Theme theme) {
+        List<Line> out = new ArrayList<>();
+        boolean modern = module.look.get() == ScoreboardModule.Look.MODERN;
+        int textColor = theme.color("text");
+        for (int index : order) {
+            if (index == DIVIDER) {
+                out.add(new Line(RULE, null, "", "", "", null, 0, null));
+                continue;
+            }
+            SidebarBounds.Row row = b.rows().get(index);
+            Component score = null;
+            if (showScore(row)) {
+                score = row.score();
+                if (DEFAULT_RED.equals(score.getStyle().getColor())) {
+                    score = Component.literal(score.getString()).withStyle(Style.EMPTY.withColor(theme.color("text_3") & 0xFFFFFF));
+                }
+            }
+            String plain = row.name().getString();
+            int split = modern ? SidebarText.split(plain) : -1;
+            if (!modern || split < 0 && !SidebarText.modFont(plain) || split > 0 && !SidebarText.modFont(plain.substring(0, split))) {
+                out.add(new Line(GAME, row.name(), "", "", "", null, 0, score));
+                continue;
+            }
+            List<Seg> segs = new ArrayList<>();
+            row.name().visit((style, text) -> {
+                segs.add(new Seg(text, style));
+                return Optional.empty();
+            }, Style.EMPTY);
+            if (split < 0) {
+                out.add(new Line(TEXT, null, "", "", plain.strip(), null, colorAt(segs, 0, textColor), score));
+                continue;
+            }
+            String label = plain.substring(0, split).strip();
+            String value = plain.substring(split + 1).strip();
+            int valueStart = split + 1;
+            while (valueStart < plain.length() && Character.isWhitespace(plain.charAt(valueStart))) {
+                valueStart++;
+            }
+            Component valueGame = SidebarText.modFont(value) ? null : tail(segs, valueStart);
+            out.add(new Line(PAIR, null, SidebarText.icon(label), label, value, valueGame, colorAt(segs, valueStart, textColor), score));
+        }
+        return out;
+    }
+
+    /** The colour of the character at {@code at} (white-ish default when it has none). */
+    private static int colorAt(List<Seg> segs, int at, int fallback) {
+        int pos = 0;
+        for (Seg seg : segs) {
+            if (at < pos + seg.text().length() && !seg.text().isBlank()) {
+                TextColor c = seg.style().getColor();
+                return c == null ? fallback : 0xFF000000 | c.getValue();
+            }
+            pos += seg.text().length();
+        }
+        return fallback;
+    }
+
+    /** The line from character {@code from} on, styles kept (for a value with resource-pack glyphs). */
+    private static Component tail(List<Seg> segs, int from) {
+        MutableComponent out = Component.empty();
+        int pos = 0;
+        for (Seg seg : segs) {
+            int end = pos + seg.text().length();
+            if (end > from) {
+                out.append(Component.literal(seg.text().substring(Math.max(0, from - pos))).withStyle(seg.style()));
+            }
+            pos = end;
+        }
+        return out;
+    }
+
     // ---- measuring ----
 
     private static float gui() {
@@ -135,11 +234,31 @@ final class ScoreboardHud extends HudBlock {
         return module.numbers.get() && !row.score().getString().isEmpty();
     }
 
+    private boolean modernTitle() {
+        return module.look.get() == ScoreboardModule.Look.MODERN && board != null && SidebarText.modFont(board.title().getString());
+    }
+
+    private float titleHeight(Ui ui) {
+        return modernTitle() ? ui.lineHeight("sb_title") : line();
+    }
+
     private float headerHeight(Ui ui) {
         if (!module.title.get() || board == null) {
             return 0f;
         }
-        return line() + ui.num(L + "title_gap") + ui.num(L + "underline") + ui.num(L + "rule_gap");
+        return titleHeight(ui) + ui.num(L + "title_gap") + ui.num(L + "underline") + ui.num(L + "rule_gap");
+    }
+
+    private float lineHeight(Ui ui, Line l) {
+        return switch (l.kind()) {
+            case PAIR, TEXT -> Math.max(ui.num(L + "icon"), Math.max(ui.lineHeight("sb_label"), ui.lineHeight("sb_value")));
+            case RULE -> ui.num(L + "divider");
+            default -> line();
+        };
+    }
+
+    private float valueWidth(Ui ui, Line l) {
+        return l.valueGame() != null ? width(l.valueGame()) : ui.textWidth("sb_value", l.value());
     }
 
     @Override
@@ -147,15 +266,25 @@ final class ScoreboardHud extends HudBlock {
         if (board == null) {
             return 1f;
         }
-        float inner = module.title.get() ? width(board.title()) : 0f;
+        float inner = !module.title.get() ? 0f : modernTitle() ? ui.textWidth("sb_title", board.title().getString()) : width(board.title());
         float gap = ui.num(L + "score_gap");
-        for (int index : order) {
-            if (index == DIVIDER) {
-                continue;
+        float labels = 0f;
+        float values = 0f;
+        for (Line l : lines) {
+            float score = l.score() == null ? 0f : gap + width(l.score());
+            switch (l.kind()) {
+                case GAME -> inner = Math.max(inner, width(l.game()) + score);
+                case TEXT -> inner = Math.max(inner, ui.textWidth("sb_value", l.value()) + score);
+                case PAIR -> {
+                    labels = Math.max(labels, ui.textWidth("sb_label", l.label()));
+                    values = Math.max(values, valueWidth(ui, l) + score);
+                }
+                default -> {
+                }
             }
-            SidebarBounds.Row row = board.rows().get(index);
-            float w = width(row.name()) + (showScore(row) ? gap + width(row.score()) : 0f);
-            inner = Math.max(inner, w);
+        }
+        if (labels > 0f) {
+            inner = Math.max(inner, ui.num(L + "icon") + ui.num(L + "icon_gap") + labels + ui.num(L + "col_gap") + values);
         }
         return Math.max(ui.num(L + "min_width"), (float) Math.ceil(inner + ui.num(L + "pad_x") * 2));
     }
@@ -166,12 +295,9 @@ final class ScoreboardHud extends HudBlock {
             return 1f;
         }
         float h = ui.num(L + "pad_y") * 2 + headerHeight(ui);
-        for (int i = 0; i < order.size(); i++) {
-            if (order.get(i) == DIVIDER) {
-                h += ui.num(L + "divider");
-            } else {
-                h += line() + (i > 0 && order.get(i - 1) != DIVIDER ? ui.num(L + "row_gap") : 0f);
-            }
+        for (int i = 0; i < lines.size(); i++) {
+            Line l = lines.get(i);
+            h += lineHeight(ui, l) + (i > 0 && l.kind() != RULE && lines.get(i - 1).kind() != RULE ? ui.num(L + "row_gap") : 0f);
         }
         return h;
     }
@@ -192,38 +318,54 @@ final class ScoreboardHud extends HudBlock {
         float cy = y + ui.num(L + "pad_y");
         boolean shadow = module.shadow.get();
         if (module.title.get()) {
-            float tw = width(b.title());
-            text(ui, b.title(), x + (w - tw) / 2f, cy, ui.color("text"), shadow);
-            cy += line() + ui.num(L + "title_gap");
+            float tw;
+            if (modernTitle()) {
+                String title = b.title().getString().strip();
+                tw = ui.textWidth("sb_title", title);
+                TextColor tc = b.title().getStyle().getColor();
+                ui.text("sb_title", title, x + (w - tw) / 2f, cy, tc == null ? ui.color("text") : 0xFF000000 | tc.getValue());
+            } else {
+                tw = width(b.title());
+                text(ui, b.title(), x + (w - tw) / 2f, cy, ui.color("text"), shadow);
+            }
+            cy += titleHeight(ui) + ui.num(L + "title_gap");
             float uw = Math.min(w - padX * 2, Math.max(tw, ui.num(L + "underline_min")));
             float uh = ui.num(L + "underline");
             ui.rect(x + (w - uw) / 2f, cy, uw, uh, uh / 2f, ui.color("accent"));
             cy += uh + ui.num(L + "rule_gap");
         }
         float right = x + w - padX;
-        float gap = ui.num(L + "row_gap");
-        for (int i = 0; i < order.size(); i++) {
-            int index = order.get(i);
-            if (index == DIVIDER) {
-                float d = ui.num(L + "divider");
-                ui.hline(x + padX, cy + d / 2f, w - padX * 2, ui.color("stroke"));
-                cy += d;
-                continue;
+        float gap = ui.num(L + "score_gap");
+        float icon = ui.num(L + "icon");
+        float iconGap = ui.num(L + "icon_gap");
+        for (int i = 0; i < lines.size(); i++) {
+            Line l = lines.get(i);
+            if (i > 0 && l.kind() != RULE && lines.get(i - 1).kind() != RULE) {
+                cy += ui.num(L + "row_gap");
             }
-            if (i > 0 && order.get(i - 1) != DIVIDER) {
-                cy += gap;
+            float lh = lineHeight(ui, l);
+            float valueRight = right;
+            if (l.score() != null) {
+                float sw = width(l.score());
+                text(ui, l.score(), right - sw, cy + (lh - line()) / 2f, ui.color("text"), shadow);
+                valueRight = right - sw - gap;
             }
-            SidebarBounds.Row row = b.rows().get(index);
-            text(ui, row.name(), x + padX, cy, ui.color("text"), shadow);
-            if (showScore(row)) {
-                Component score = row.score();
-                boolean plainRed = DEFAULT_RED.equals(score.getStyle().getColor());
-                if (plainRed) {
-                    score = Component.literal(score.getString());
+            switch (l.kind()) {
+                case RULE -> ui.hline(x + padX, cy + lh / 2f, w - padX * 2, ui.color("stroke"));
+                case GAME -> text(ui, l.game(), x + padX, cy, ui.color("text"), shadow);
+                case TEXT -> ui.textCentered("sb_value", l.value(), x + padX, cy, lh, l.color());
+                default -> {
+                    SidebarIcons.draw(ui, l.icon(), x + padX, cy + (lh - icon) / 2f, icon, ui.color("text_3"));
+                    ui.textCentered("sb_label", l.label(), x + padX + icon + iconGap, cy, lh, ui.color("text_2"));
+                    float vw = valueWidth(ui, l);
+                    if (l.valueGame() != null) {
+                        text(ui, l.valueGame(), valueRight - vw, cy + (lh - line()) / 2f, ui.color("text"), shadow);
+                    } else {
+                        ui.textCentered("sb_value", l.value(), valueRight - vw, cy, lh, l.color());
+                    }
                 }
-                text(ui, score, right - width(score), cy, ui.color(plainRed ? "text_3" : "text"), shadow);
             }
-            cy += line();
+            cy += lh;
         }
     }
 

@@ -9,9 +9,30 @@
       "underline": 2,
       "underline_min": 36,
       "rule_gap": 8,
-      "row_gap": 2,
+      "row_gap": 4,
       "divider": 12,
-      "score_gap": 12
+      "score_gap": 12,
+      "icon": 13,
+      "icon_gap": 7,
+      "col_gap": 16
+    }
+  },
+  "text": {
+    "sb_title": {
+      "size": 14,
+      "weight": 700,
+      "color": "text"
+    },
+    "sb_label": {
+      "size": 12,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "sb_value": {
+      "size": 12,
+      "weight": 700,
+      "color": "text",
+      "mono": true
     }
   }
 }
