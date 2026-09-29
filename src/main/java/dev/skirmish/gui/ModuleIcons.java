@@ -295,6 +295,10 @@ public final class ModuleIcons {
                     p(ui, x, y, s, c, 16.5f, ry, 18.5f, ry);
                 }
             }
+            case "command_binds" -> { // a key cap with a slash (a command)
+                ui.border(x + 3f * s, y + 4f * s, 18f * s, 16f * s, 3f * s, STROKE * s, c);
+                p(ui, x, y, s, c, 13.5f, 8f, 10.5f, 16f);
+            }
             case "hunt" -> { // diamond (the prize) with a magnifier
                 p(ui, x, y, s, c, 10f, 3f, 16f, 9f, 10f, 15f, 4f, 9f, 10f, 3f);
                 ui.ring(x + 16f * s, y + 16f * s, 7f * s, STROKE * s, c);

@@ -118,6 +118,7 @@ public final class SkirmishClient implements ClientModInitializer {
         modules.register(new dev.skirmish.module.base.BaseModule());
         modules.register(new dev.skirmish.module.commander.CommanderModule());
         modules.register(new dev.skirmish.module.hunt.HuntModule());
+        modules.register(new dev.skirmish.binds.CommandBindsModule());
         modules.register(new dev.skirmish.module.hwos.HwOsModule());
         InterfaceModule iface = modules.register(new InterfaceModule());
 
@@ -132,6 +133,7 @@ public final class SkirmishClient implements ClientModInitializer {
 
         SkirmishKeys.register();
         dev.skirmish.binds.ModuleKeys.register(modules.all());
+        dev.skirmish.binds.CommandBindsModule.registerKeys();
         Hud.install(dir.resolve("hud.json"));
         dev.skirmish.binds.BindToast.install();
         dev.skirmish.module.menus.SkirmishPauseScreen.registerShortcut(new dev.skirmish.module.menus.SkirmishPauseScreen.Shortcut(

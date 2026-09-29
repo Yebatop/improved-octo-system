@@ -22,7 +22,8 @@
       "toast_icon": 16,
       "toast_gap": 8,
       "toast_h": 34,
-      "reset_icon": 14
+      "reset_icon": 14,
+      "mode_w": 74
     }
   },
   "text": {

@@ -22,6 +22,8 @@ public final class BindToast extends HudBlock {
     private static boolean on;
     private static boolean blocked;
     private static long shownAt;
+    /** A sent command («/warp pvp») instead of a module. */
+    private static @Nullable String command;
 
     public BindToast() {
         super("bind_toast", "skirmish.hud.element.bind_toast", new Placement(0.5f, 0.5f, 0.5f, 1f, 0, -40));
@@ -31,7 +33,14 @@ public final class BindToast extends HudBlock {
         Hud.get().register(new BindToast());
     }
 
+    static void showCommand(String text) {
+        module = null;
+        command = text;
+        shownAt = Util.getMillis();
+    }
+
     static void show(Module m, boolean enabled, boolean isBlocked) {
+        command = null;
         module = m;
         on = enabled;
         blocked = isBlocked;
@@ -45,15 +54,21 @@ public final class BindToast extends HudBlock {
 
     @Override
     public boolean shown() {
-        return module != null && Util.getMillis() - shownAt < SHOW_MS;
+        return (module != null || command != null) && Util.getMillis() - shownAt < SHOW_MS;
     }
 
     private static String state() {
+        if (command != null) {
+            return Ui.tr("skirmish.binds.sent");
+        }
         return Ui.tr(blocked ? "skirmish.binds.blocked" : on ? "skirmish.binds.on" : "skirmish.binds.off");
     }
 
     private static String name(boolean preview) {
         Module m = module;
+        if (!preview && command != null) {
+            return command.length() > 40 ? command.substring(0, 40) + "…" : command;
+        }
         return m == null || preview ? "Fullbright" : Component.translatable(m.nameKey()).getString();
     }
 
@@ -75,10 +90,12 @@ public final class BindToast extends HudBlock {
         HudStyle.pill(ui, x, y, w, h);
         float pad = ui.num(L + "toast_pad");
         float icon = ui.num(L + "toast_icon");
-        boolean isOn = preview || on && !blocked;
-        int tone = ui.color(isOn ? "good" : blocked ? "warn" : "text_3");
+        boolean isOn = preview || command != null || on && !blocked;
+        int tone = ui.color(command != null && !preview ? "accent" : isOn ? "good" : blocked ? "warn" : "text_3");
         if (module != null && !preview) {
             ModuleIcons.draw(ui, module, x + pad, y + (h - icon) / 2f, icon, tone);
+        } else if (command != null && !preview) {
+            dev.skirmish.ui.Icons.forward(ui, x + pad, y + (h - icon) / 2f, icon, 2f, tone);
         }
         float tx = x + pad + icon + ui.num(L + "toast_gap");
         tx = ui.textCentered("bind_toast", name(preview), tx, y, h) + ui.num(L + "toast_gap");

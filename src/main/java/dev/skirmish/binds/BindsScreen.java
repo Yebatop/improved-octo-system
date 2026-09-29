@@ -42,6 +42,9 @@ public final class BindsScreen extends UiScreen {
     }
 
     private static final List<Cap> KEYBOARD = keyboard();
+    /** Examples in empty command slots. */
+    private static final String[] HINTS = {"/warp pvp", "/home", "/spawn", "/ah", "/kit start", "/trade", "/warp mine",
+            "/feed", "/rtp", "/clan home", "/vote", "/spec"};
 
     private final WindowFrame frame = new WindowFrame("binds", L);
     private final StringSetting query = new StringSetting("query", "", 32, false);
@@ -49,7 +52,7 @@ public final class BindsScreen extends UiScreen {
     private int filter;
     private final Segmented filterPicker = new Segmented(Segmented.Spec.MENU,
             () -> List.of(Ui.tr("skirmish.binds.filter.all"), Ui.tr("skirmish.binds.filter.actions"),
-                    Ui.tr("skirmish.binds.filter.modules"), Ui.tr("skirmish.binds.filter.conflicts")),
+                    Ui.tr("skirmish.binds.filter.modules"), Ui.tr("skirmish.binds.filter.commands"), Ui.tr("skirmish.binds.filter.conflicts")),
             () -> filter, i -> {
                 filter = i;
                 scroll = 0f;
@@ -57,6 +60,8 @@ public final class BindsScreen extends UiScreen {
     private final Button done = new Button(() -> Ui.tr("skirmish.menu.done"), true, this::onClose);
     private final Map<KeyMapping, KeybindButton> buttons = new HashMap<>();
     private final Map<KeyMapping, IconButton> resets = new HashMap<>();
+    private final Map<Integer, TextField> commandFields = new HashMap<>();
+    private final Map<Integer, Button> modeButtons = new HashMap<>();
     private final List<CapWidget> caps = new ArrayList<>();
     private InputConstants.@Nullable Key picked;
     private float scroll;
@@ -125,10 +130,19 @@ public final class BindsScreen extends UiScreen {
     }
 
     private static boolean isMod(KeyMapping m) {
-        return m.getCategory() == SkirmishKeys.CATEGORY || m.getCategory() == ModuleKeys.CATEGORY;
+        return m.getCategory() == SkirmishKeys.CATEGORY || m.getCategory() == ModuleKeys.CATEGORY
+                || m.getCategory() == CommandBindsModule.CATEGORY;
     }
 
     private static String displayName(KeyMapping m) {
+        CommandBindsModule commands = CommandBindsModule.instance();
+        if (commands != null) {
+            for (CommandBindsModule.Slot slot : commands.slots()) {
+                if (slot.key() == m && !slot.command().get().isBlank()) {
+                    return slot.command().get().strip();
+                }
+            }
+        }
         for (Map.Entry<Module, KeyMapping> e : ModuleKeys.all().entrySet()) {
             if (e.getValue() == m) {
                 return Ui.tr("skirmish.binds.toggle", Component.translatable(e.getKey().nameKey()).getString());
@@ -224,7 +238,7 @@ public final class BindsScreen extends UiScreen {
         for (Bind b : modBinds()) {
             InputConstants.Key key = keyOf(b.mapping());
             boolean conflict = on(key).size() > 1;
-            if (filter == 1 && b.module() || filter == 2 && !b.module() || filter == 3 && !conflict) {
+            if (filter == 1 && b.module() || filter == 2 && !b.module() || filter == 3 || filter == 4 && !conflict) {
                 continue;
             }
             if (picked != null && !key.equals(picked)) {
@@ -241,7 +255,8 @@ public final class BindsScreen extends UiScreen {
         float ry = y - scroll + ui.num("layout.menu.rows_gap");
         boolean moduleHeader = false;
         boolean actionHeader = false;
-        if (binds.isEmpty()) {
+        List<CommandBindsModule.Slot> slots = commandSlots(q);
+        if (binds.isEmpty() && slots.isEmpty()) {
             ui.text("menu_row_desc", Ui.tr("skirmish.binds.empty"), x, ry + 4);
         }
         for (Bind b : binds) {
@@ -291,9 +306,83 @@ public final class BindsScreen extends UiScreen {
             widget(ui, reset, mx, my);
             ry += rowH;
         }
+        if (!slots.isEmpty()) {
+            ry += section(ui, Ui.tr("skirmish.binds.section.commands"), x, ry);
+        }
+        for (CommandBindsModule.Slot slot : slots) {
+            ry = commandRow(ui, slot, x, ry, w, rowH, mx, my);
+        }
         popClip(ui);
         maxScroll = Math.max(0f, ry + scroll - bottom);
         scroll = Math.max(0f, Math.min(scroll, maxScroll));
+    }
+
+    /**
+     * Command slots to list: all of them under «Команды»; under «Все» the filled ones and one empty to add a command;
+     * narrowed by the picked key, the search and «Конфликты» like the rest.
+     */
+    private List<CommandBindsModule.Slot> commandSlots(String q) {
+        CommandBindsModule commands = CommandBindsModule.instance();
+        List<CommandBindsModule.Slot> out = new ArrayList<>();
+        if (commands == null || commands.isBlocked() || filter == 1 || filter == 2) {
+            return out;
+        }
+        boolean emptyShown = false;
+        for (CommandBindsModule.Slot slot : commands.slots()) {
+            if (slot.key() == null) {
+                continue;
+            }
+            InputConstants.Key key = keyOf(slot.key());
+            String text = slot.command().get();
+            if (picked != null && !key.equals(picked) || filter == 4 && on(key).size() < 2) {
+                continue;
+            }
+            if (!q.isEmpty() && !text.toLowerCase(Locale.ROOT).contains(q) && !key.getDisplayName().getString().toLowerCase(Locale.ROOT).contains(q)) {
+                continue;
+            }
+            if (text.isBlank() && key.equals(InputConstants.UNKNOWN) && filter == 0) {
+                if (emptyShown) {
+                    continue;
+                }
+                emptyShown = true;
+            }
+            out.add(slot);
+        }
+        return out;
+    }
+
+    /** One command slot: the command to type, «Сразу» / «В чат», its key; a conflict line under it. */
+    private float commandRow(Ui ui, CommandBindsModule.Slot slot, float x, float ry, float w, float rowH, double mx, double my) {
+        float fgap = ui.num("layout.menu.footer_gap");
+        float kh = ui.num("layout.menu.keybind_height");
+        KeybindButton button = buttons.computeIfAbsent(slot.key(), KeybindButton::new);
+        TextField field = commandFields.computeIfAbsent(slot.index(), i -> new TextField(slot.command(), () -> { })
+                .placeholder(() -> HINTS[slot.index() % HINTS.length]));
+        Button mode = modeButtons.computeIfAbsent(slot.index(), i -> new Button(
+                () -> Ui.tr(slot.send().get() ? "skirmish.binds.mode.send" : "skirmish.binds.mode.insert"), false,
+                () -> slot.send().set(!slot.send().get())).layout("layout.menu.small_"));
+        float kw = Math.max(ui.num(L + "key_w"), button.preferredWidth(ui));
+        float modeW = ui.num(L + "mode_w");
+        float cy = ry + (rowH - kh) / 2f;
+        button.bounds(x + w - kw, cy, kw, kh);
+        mode.bounds(button.x - fgap - modeW, cy, modeW, kh);
+        field.bounds(x, cy, mode.x - fgap - x, kh);
+        widget(ui, field, mx, my);
+        widget(ui, mode, mx, my);
+        widget(ui, button, mx, my);
+        List<KeyMapping> same = on(keyOf(slot.key()));
+        if (same.size() > 1) {
+            StringBuilder with = new StringBuilder();
+            for (KeyMapping other : same) {
+                if (other != slot.key()) {
+                    with.append(with.isEmpty() ? "" : ", ").append(displayName(other));
+                }
+            }
+            ui.text("menu_row_desc", ui.ellipsize("menu_row_desc", Ui.tr("skirmish.binds.conflict", with), w),
+                    x, cy + kh + 1, ui.color("bad"));
+            return ry + rowH + ui.lineHeight("menu_row_desc");
+        }
+        return ry + rowH;
     }
 
     /** Circular arrow (back to the default key). */
