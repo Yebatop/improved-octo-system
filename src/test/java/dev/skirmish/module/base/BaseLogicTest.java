@@ -140,6 +140,17 @@ class BaseLogicTest {
     }
 
     @Test
+    void cropItemsAndShortCounts() {
+        assertEquals("carrot", BaseText.cropItem("carrots"));
+        assertEquals("wheat", BaseText.cropItem("wheat"));
+        assertEquals("sweet_berries", BaseText.cropItem("sweet_berry_bush"));
+        assertEquals("64", BaseText.shortCount(64, ','));
+        assertEquals("1,2к", BaseText.shortCount(1_250, ','));
+        assertEquals("15к", BaseText.shortCount(15_400, ','));
+        assertEquals("1,1м", BaseText.shortCount(1_100_000, ','));
+    }
+
+    @Test
     void oresAreBuried() {
         assertTrue(BaseText.buried("diamond_ore"));
         assertTrue(BaseText.buried("deepslate_diamond_ore"));

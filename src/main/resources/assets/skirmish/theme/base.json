@@ -37,6 +37,12 @@
       "weight": 700,
       "color": "text",
       "mono": true
+    },
+    "base_cell_count": {
+      "size": 12,
+      "weight": 700,
+      "color": "text",
+      "mono": true
     }
   },
   "layout": {
@@ -77,7 +83,12 @@
       "slider_height": 24,
       "model_pin": 22,
       "model_tip_width": 260,
-      "model_compass": 30
+      "model_compass": 30,
+      "cell": 64,
+      "cell_gap": 8,
+      "cell_icon": 32,
+      "cell_pad": 7,
+      "crop_icon": 24
     }
   }
 }

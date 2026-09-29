@@ -104,5 +104,11 @@
   "skirmish.base.model.route_hint": "Клик — маршрут к сундуку",
   "skirmish.base.model.empty_chest": "Пусто",
   "skirmish.base.model.north": "С",
-  "skirmish.base.model.drawing": "Рисую модель…"
+  "skirmish.base.model.drawing": "Рисую модель…",
+  "skirmish.base.view.grid": "Сетка",
+  "skirmish.base.view.list": "Список",
+  "skirmish.base.grid_hint": "ЛКМ — маршрут к сундуку, где этого больше всего · ПКМ — предупредить, когда станет меньше, чем сейчас",
+  "skirmish.base.grid_tip_hint": "ЛКМ — маршрут · ПКМ — минимум",
+  "skirmish.base.tip_value": "по цене аукциона: %s",
+  "skirmish.base.tip_min": "минимум: %s"
 }

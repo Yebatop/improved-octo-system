@@ -104,5 +104,11 @@
   "skirmish.base.model.route_hint": "Click for a route to the chest",
   "skirmish.base.model.empty_chest": "Empty",
   "skirmish.base.model.north": "N",
-  "skirmish.base.model.drawing": "Drawing the model…"
+  "skirmish.base.model.drawing": "Drawing the model…",
+  "skirmish.base.view.grid": "Grid",
+  "skirmish.base.view.list": "List",
+  "skirmish.base.grid_hint": "Left click — route to the chest with the most · Right click — warn when it drops below the current amount",
+  "skirmish.base.grid_tip_hint": "Left — route · Right — minimum",
+  "skirmish.base.tip_value": "at auction prices: %s",
+  "skirmish.base.tip_min": "minimum: %s"
 }

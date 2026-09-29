@@ -36,6 +36,8 @@ import java.util.OptionalDouble;
 public final class BaseScreen extends UiScreen {
     private static final String L = BaseModule.L;
     private static int tab;
+    /** Storage as a grid of items (0) or a list (1). */
+    private static int storageView;
 
     private final WindowFrame frame = new WindowFrame("base_os", L);
     private final Segmented tabs = new Segmented(Segmented.Spec.MENU,
@@ -109,6 +111,40 @@ public final class BaseScreen extends UiScreen {
     private @Nullable Pin hoverPin;
     private int pinCount;
     private int pinMatches;
+    private final Segmented storageViews = new Segmented(Segmented.Spec.MENU,
+            () -> List.of(Ui.tr("skirmish.base.view.grid"), Ui.tr("skirmish.base.view.list")), () -> storageView, i -> {
+        storageView = i;
+        scroll = 0;
+    });
+    private final Map<String, Cell> cells = new HashMap<>();
+
+    /** A storage grid cell: left click routes to the chest with the most, right click sets or clears the minimum. */
+    private final class Cell extends Widget {
+        private final String key;
+
+        Cell(String key) {
+            this.key = key;
+        }
+
+        @Override
+        protected void draw(Ui ui, double mx, double my) {
+        }
+
+        @Override
+        public boolean mouseClicked(double mx, double my, int button) {
+            if (button == 0) {
+                route(key);
+                return true;
+            }
+            BaseModule m = module();
+            if (button == 1 && m != null) {
+                m.totals().stream().filter(t -> t.key().equals(key)).findFirst().ifPresent(m::toggleMinimum);
+                return true;
+            }
+            return false;
+        }
+    }
+
     private float scroll;
     private float maxScroll;
 
@@ -320,24 +356,37 @@ public final class BaseScreen extends UiScreen {
                 ry += ui.lineHeight("menu_row_desc");
             }
         }
+        float crop = ui.num(L + "crop_icon");
+        float cropGap = ui.num(L + "icon_gap");
         for (BaseModule.Farm f : farms) {
             if (ry > bottom - 30) {
                 break;
             }
             boolean ripe = f.ripe() >= f.total();
+            // The crop's own item beside its line, bar and time.
+            float blockH = ui.lineHeight("base_list") + 3 + ui.num(L + "bar") + 3 + ui.lineHeight("menu_row_desc");
+            ItemStack cropStack = icons.computeIfAbsent("minecraft:" + BaseText.cropItem(f.kind()), BaseScreen::stackOf);
+            var pose = ui.graphics().pose();
+            pose.pushMatrix();
+            pose.translate(Math.round(rx), Math.round(ry + (blockH - crop) / 2f));
+            pose.scale(crop / 16f, crop / 16f);
+            ui.graphics().renderItem(cropStack, 0, 0);
+            pose.popMatrix();
+            float fx = rx + crop + cropGap;
+            float fw = colW - crop - cropGap;
             String right = f.ripe() + " / " + f.total();
             float vw = ui.textWidth("base_list_value", right);
-            ui.text("base_list_value", right, rx + colW - vw, ry, ui.color(ripe ? "good" : "text"));
-            ui.text("base_list", ui.ellipsize("base_list", f.name(), colW - vw - 12), rx, ry);
+            ui.text("base_list_value", right, fx + fw - vw, ry, ui.color(ripe ? "good" : "text"));
+            ui.text("base_list", ui.ellipsize("base_list", f.name(), fw - vw - 12), fx, ry);
             ry += ui.lineHeight("base_list") + 3;
             float bar = ui.num(L + "bar");
-            ui.rect(rx, ry, colW, bar, bar / 2f, ui.color("track"));
-            ui.rect(rx, ry, colW * f.ripe() / (float) Math.max(1, f.total()), bar, bar / 2f, ui.color(ripe ? "good" : "base_tone"));
+            ui.rect(fx, ry, fw, bar, bar / 2f, ui.color("track"));
+            ui.rect(fx, ry, fw * f.ripe() / (float) Math.max(1, f.total()), bar, bar / 2f, ui.color(ripe ? "good" : "base_tone"));
             ry += bar + 3;
             String eta = ripe ? Ui.tr("skirmish.base.farm_ready") : f.etaMs() > 0 ? Ui.tr("skirmish.base.farm_eta", BaseModule.left(f.etaMs()))
                     : Ui.tr("skirmish.base.farm_growing");
-            ui.text("menu_row_desc", eta, rx, ry, ui.color(ripe ? "good" : "text_3"));
-            ry += ui.lineHeight("menu_row_desc") + 8;
+            ui.text("menu_row_desc", eta, fx, ry, ui.color(ripe ? "good" : "text_3"));
+            ry += ui.lineHeight("menu_row_desc") + 10;
         }
     }
 
@@ -350,12 +399,21 @@ public final class BaseScreen extends UiScreen {
 
     private void storage(Ui ui, BaseModule m, float x, float y, float cw, float bottom, double mx, double my) {
         float fieldH = ui.num("layout.menu.keybind_height");
-        search.bounds(x, y, cw, fieldH);
+        float segW = storageViews.preferredWidth(ui);
+        float segH = storageViews.preferredHeight(ui);
+        float gapX = ui.num(L + "col_gap");
+        search.bounds(x, y, cw - segW - gapX, fieldH);
         widget(ui, search, mx, my);
+        storageViews.bounds(x + cw - segW, y + (fieldH - segH) / 2f, segW, segH);
+        widget(ui, storageViews, mx, my);
         y += fieldH + ui.num("layout.menu.content_gap");
         List<StorageIndex.Total> all = m.totals();
         List<StorageIndex.Total> rows = StorageIndex.search(all, query.get());
         Map<String, Integer> minimums = m.server().minimums;
+        if (storageView == 0 && !rows.isEmpty()) {
+            storageGrid(ui, rows, minimums, x, y, cw, bottom, mx, my);
+            return;
+        }
         float top = y;
         float hintH = ui.lineHeight("menu_hint") + 6;
         float listBottom = bottom - hintH;
@@ -424,6 +482,102 @@ public final class BaseScreen extends UiScreen {
         maxScroll = Math.max(0f, ry + scroll - top - (listBottom - top));
         scroll = Math.max(0f, Math.min(scroll, maxScroll));
         ui.text("menu_hint", ui.ellipsize("menu_hint", Ui.tr("skirmish.base.storage_hint"), cw), x, bottom - ui.lineHeight("menu_hint"));
+    }
+
+    /**
+     * The storage as a grid like an inventory: each item's icon with a short count, a red frame when it is under its
+     * minimum, an accent one when a minimum is set; hover for the details.
+     */
+    private void storageGrid(Ui ui, List<StorageIndex.Total> rows, Map<String, Integer> minimums, float x, float top, float cw, float bottom,
+                             double mx, double my) {
+        float hintH = ui.lineHeight("menu_hint") + 6;
+        float listBottom = bottom - hintH;
+        float size = ui.num(L + "cell");
+        float gap = ui.num(L + "cell_gap");
+        int cols = Math.max(1, (int) ((cw + gap) / (size + gap)));
+        float cellW = (cw - gap * (cols - 1)) / cols;
+        float icon = ui.num(L + "cell_icon");
+        float pad = ui.num(L + "cell_pad");
+        char decimal = Ui.decimal(1.5, 1).charAt(1);
+        StorageIndex.Total hovered = null;
+        pushClip(ui, x - 4, top, x + cw + 4, listBottom);
+        for (int i = 0; i < rows.size(); i++) {
+            StorageIndex.Total t = rows.get(i);
+            float cx = x + (i % cols) * (cellW + gap);
+            float cy = top - scroll + (i / cols) * (size + gap);
+            if (cy + size < top || cy > listBottom) {
+                continue;
+            }
+            Cell cell = cells.computeIfAbsent(t.key(), Cell::new);
+            cell.bounds(cx, cy, cellW, size);
+            widget(ui, cell, mx, my);
+            boolean hover = cell.contains(mx, my) && my >= top && my < listBottom;
+            Integer min = minimums.get(t.key());
+            boolean low = min != null && t.count() < min;
+            ui.box(cx, cy, cellW, size, ui.theme().radius("tile"), ui.color(hover ? "fill_08" : "fill_04"),
+                    ui.color(low ? "warn" : min != null ? "accent" : hover ? "stroke_07" : "stroke"));
+            ItemStack stack = icons.computeIfAbsent(t.id(), BaseScreen::stackOf);
+            var pose = ui.graphics().pose();
+            pose.pushMatrix();
+            pose.translate(Math.round(cx + (cellW - icon) / 2f), Math.round(cy + pad));
+            pose.scale(icon / 16f, icon / 16f);
+            ui.graphics().renderItem(stack, 0, 0);
+            pose.popMatrix();
+            String count = BaseText.shortCount(t.count(), decimal);
+            float tw = ui.textWidth("base_cell_count", count);
+            ui.text("base_cell_count", count, cx + cellW - pad - tw, cy + size - pad - ui.lineHeight("base_cell_count"),
+                    ui.color(low ? "warn" : "text"));
+            if (hover) {
+                hovered = t;
+            }
+        }
+        popClip(ui);
+        int lines = (rows.size() + cols - 1) / cols;
+        maxScroll = Math.max(0f, lines * (size + gap) - gap - (listBottom - top));
+        scroll = Math.max(0f, Math.min(scroll, maxScroll));
+        ui.text("menu_hint", ui.ellipsize("menu_hint", Ui.tr("skirmish.base.grid_hint"), cw), x, bottom - ui.lineHeight("menu_hint"));
+        if (hovered != null) {
+            cellTip(ui, hovered, minimums.get(hovered.key()), mx, my);
+        }
+    }
+
+    /** The details of a grid cell: name, exact count, how many chests, value, minimum, what the clicks do. */
+    private void cellTip(Ui ui, StorageIndex.Total t, @Nullable Integer min, double mx, double my) {
+        ItemStack stack = icons.computeIfAbsent(t.id(), BaseScreen::stackOf);
+        List<String> lines = new java.util.ArrayList<>();
+        lines.add(StorageIndex.stacks(t.count(), stack.getMaxStackSize()) + " · " + Ui.tr("skirmish.base.in_chests", t.where().size()));
+        OptionalDouble price = MarketModule.usualPrice(t.key());
+        if (price.isPresent()) {
+            lines.add(Ui.tr("skirmish.base.tip_value", BaseHud.money(price.getAsDouble() * t.count())));
+        }
+        if (min != null) {
+            lines.add(Ui.tr("skirmish.base.tip_min", min));
+        }
+        float pad = 10;
+        float w = ui.textWidth("menu_row_title", t.name());
+        for (String l : lines) {
+            w = Math.max(w, ui.textWidth("menu_row_desc", l));
+        }
+        String hint = Ui.tr("skirmish.base.grid_tip_hint");
+        w = Math.max(w, ui.textWidth("menu_hint", hint)) + pad * 2;
+        float h = pad * 2 + ui.lineHeight("menu_row_title") + 4 + lines.size() * ui.lineHeight("menu_row_desc") + 6 + ui.lineHeight("menu_hint");
+        float tx = (float) mx + 14;
+        float ty = (float) my + 12;
+        if (tx + w > ui.width() - 8) {
+            tx = (float) mx - 14 - w;
+        }
+        if (ty + h > ui.height() - 8) {
+            ty = ui.height() - 8 - h;
+        }
+        ui.box(tx, ty, w, h, ui.theme().radius("tile"), ui.color("window"), ui.color(min != null && t.count() < min ? "warn" : "base_tone"));
+        float cy = ty + pad;
+        ui.text("menu_row_title", t.name(), tx + pad, cy);
+        cy += ui.lineHeight("menu_row_title") + 4;
+        for (String l : lines) {
+            ui.text("menu_row_desc", l, tx + pad, cy);
+            cy += ui.lineHeight("menu_row_desc");
+        }
+        ui.text("menu_hint", hint, tx + pad, cy + 6, ui.color("base_tone"));
     }
 
     /** Route to the chest with the most of an item, then close so you can walk there. */

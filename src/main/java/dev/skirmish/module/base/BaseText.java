@@ -72,4 +72,39 @@ final class BaseText {
         return path.endsWith("_ore") || path.equals("ancient_debris") || path.equals("spawner") || path.equals("trial_spawner")
                 || path.equals("budding_amethyst") || path.startsWith("raw_") && path.endsWith("_block");
     }
+
+    /** The item that stands for a farm kind (a crop block's path) in lists: wheat, carrot, sweet berries… */
+    static String cropItem(String kind) {
+        return switch (kind) {
+            case "carrots" -> "carrot";
+            case "potatoes" -> "potato";
+            case "beetroots" -> "beetroot";
+            case "cocoa" -> "cocoa_beans";
+            case "sweet_berry_bush" -> "sweet_berries";
+            case "melon_stem" -> "melon_slice";
+            case "pumpkin_stem" -> "pumpkin";
+            case "torchflower_crop" -> "torchflower";
+            case "pitcher_crop" -> "pitcher_plant";
+            default -> kind;
+        };
+    }
+
+    /** A count in a grid cell: "64", "1,2к", "15к", "1,1м" (the exact count is in the tooltip). */
+    static String shortCount(long n, char decimal) {
+        if (n >= 1_000_000L) {
+            return oneDecimal(n / 1_000_000.0, decimal) + "м";
+        }
+        if (n >= 10_000L) {
+            return Math.round(n / 1000.0) + "к";
+        }
+        if (n >= 1_000L) {
+            return oneDecimal(n / 1000.0, decimal) + "к";
+        }
+        return Long.toString(n);
+    }
+
+    private static String oneDecimal(double v, char decimal) {
+        double r = Math.floor(v * 10) / 10;
+        return r == Math.floor(r) ? Long.toString((long) r) : String.format(java.util.Locale.ROOT, "%.1f", r).replace('.', decimal);
+    }
 }
