@@ -32,7 +32,7 @@ import java.util.Set;
  * «World Map»: a full-screen map (key M) of the surface you have loaded, in the colours of the blocks' own textures
  * with smooth relief and see-through shallow water (or flat like vanilla map items), with your waypoints and your own
  * position. It is saved per server and dimension. Only the top surface is drawn —
- * no caves, no players or mobs — and dimensions with a roof (the Nether) are not mapped. Read-only; Feature Control
+ * no caves; players and mobs are shown only with the Minimap on — and dimensions with a roof (the Nether) are not mapped. Read-only; Feature Control
  * id {@code world_map}.
  */
 public final class WorldMapModule extends Module {
@@ -78,7 +78,7 @@ public final class WorldMapModule extends Module {
     public void onInitialize() {
         instance = this;
         ClientChunkEvents.CHUNK_LOAD.register((level, chunk) -> {
-            if (isEnabled()) {
+            if (scanning()) {
                 enqueue(chunk.getPos());
             }
         });
@@ -92,7 +92,14 @@ public final class WorldMapModule extends Module {
 
     @Override
     protected void onDisable() {
-        closeStore();
+        if (!MinimapModule.on()) {
+            closeStore();
+        }
+    }
+
+    /** Tiles are drawn while the map or the minimap is on. */
+    private boolean scanning() {
+        return isEnabled() || MinimapModule.on();
     }
 
     private void closeStore() {
@@ -144,6 +151,12 @@ public final class WorldMapModule extends Module {
                 mc.setScreen(new WorldMapScreen(null));
             }
         }
+        scanTick();
+    }
+
+    /** Colours the queued chunks into tiles and saves now and then; the minimap runs it while the map is off. */
+    void scanTick() {
+        Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) {
             return;
         }

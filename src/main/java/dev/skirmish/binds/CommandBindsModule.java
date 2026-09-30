@@ -22,7 +22,8 @@ import java.util.List;
  * is an ordinary key binding («Команда 1» … in Options → Controls and in the binds screen) with the text you typed.
  * One press sends it once, like typing it and pressing Enter (or, if you choose, only puts it into the chat box for
  * you to send). Nothing is sent on its own: no timers, no repeats, nothing in answer to the game. The server can
- * switch this off through Feature Control ({@code command_binds}).
+ * switch this off through Feature Control ({@code command_binds}). Commands without a key of their own are reached
+ * from the command wheel: hold its key, point, let go.
  */
 public final class CommandBindsModule extends Module {
     public static final String ID = "command_binds";
@@ -31,6 +32,8 @@ public final class CommandBindsModule extends Module {
     static final long GUARD_MS = 600;
     public static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("skirmish", "commands"));
     private static final List<KeyMapping> KEYS = new ArrayList<>();
+    /** Hold for the command wheel (see {@link CommandWheelScreen}). Unbound by default. */
+    static @Nullable KeyMapping WHEEL;
     private static @Nullable CommandBindsModule instance;
 
     /** One slot: its command, whether a press sends it at once, and its key. */
@@ -62,6 +65,8 @@ public final class CommandBindsModule extends Module {
             KeyBindingHelper.registerKeyBinding(key);
             KEYS.add(key);
         }
+        WHEEL = new KeyMapping("key.skirmish.command_wheel", InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), CATEGORY);
+        KeyBindingHelper.registerKeyBinding(WHEEL);
     }
 
     @Override
@@ -96,6 +101,11 @@ public final class CommandBindsModule extends Module {
     @Override
     public void tick() {
         Minecraft mc = Minecraft.getInstance();
+        while (WHEEL != null && WHEEL.consumeClick()) {
+            if (mc.screen == null && mc.player != null) {
+                mc.setScreen(new CommandWheelScreen(this));
+            }
+        }
         for (Slot s : slots) {
             if (s.key() == null) {
                 continue;
@@ -108,7 +118,7 @@ public final class CommandBindsModule extends Module {
         }
     }
 
-    private void run(Minecraft mc, Slot s) {
+    void run(Minecraft mc, Slot s) {
         String text = s.command().get().strip();
         if (text.isEmpty() || mc.player == null) {
             return;

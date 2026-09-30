@@ -83,6 +83,7 @@
   "key.skirmish.toggle.transitions": "Toggle: Loading & Transitions",
   "key.skirmish.toggle.waypoints": "Toggle: Waypoints",
   "key.skirmish.toggle.weapon_stats": "Toggle: Weapon Stats",
+  "key.skirmish.toggle.minimap": "Toggle: Minimap",
   "key.skirmish.toggle.world_map": "Toggle: World Map",
   "key.skirmish.toggle.zoom": "Toggle: Zoom",
   "skirmish.binds.filter.commands": "Commands",
@@ -109,5 +110,12 @@
   "key.skirmish.command.10": "Command 10",
   "key.skirmish.command.11": "Command 11",
   "key.skirmish.command.12": "Command 12",
-  "key.skirmish.toggle.command_binds": "Toggle: Command Binds"
+  "key.skirmish.toggle.command_binds": "Toggle: Command Binds",
+  "key.skirmish.command_wheel": "Command wheel (hold)",
+  "skirmish.binds.wheel.title": "Command wheel",
+  "skirmish.binds.wheel.send": "Let go to send",
+  "skirmish.binds.wheel.to_chat": "Let go to put in chat",
+  "skirmish.binds.wheel.hint": "Point at a command and let go of the key (or click) · middle or Esc cancels",
+  "skirmish.binds.wheel.empty": "No commands yet — add them in the binds screen, «Commands»",
+  "skirmish.binds.wheel.open_binds": "Open binds"
 }

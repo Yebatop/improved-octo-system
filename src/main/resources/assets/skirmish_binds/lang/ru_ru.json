@@ -83,6 +83,7 @@
   "key.skirmish.toggle.transitions": "Вкл/выкл: Loading & Transitions",
   "key.skirmish.toggle.waypoints": "Вкл/выкл: Waypoints",
   "key.skirmish.toggle.weapon_stats": "Вкл/выкл: Weapon Stats",
+  "key.skirmish.toggle.minimap": "Вкл/выкл: Minimap",
   "key.skirmish.toggle.world_map": "Вкл/выкл: World Map",
   "key.skirmish.toggle.zoom": "Вкл/выкл: Zoom",
   "skirmish.binds.filter.commands": "Команды",
@@ -109,5 +110,12 @@
   "key.skirmish.command.10": "Команда 10",
   "key.skirmish.command.11": "Команда 11",
   "key.skirmish.command.12": "Команда 12",
-  "key.skirmish.toggle.command_binds": "Вкл/выкл: Command Binds"
+  "key.skirmish.toggle.command_binds": "Вкл/выкл: Command Binds",
+  "key.skirmish.command_wheel": "Колесо команд (держать)",
+  "skirmish.binds.wheel.title": "Колесо команд",
+  "skirmish.binds.wheel.send": "Отпусти — отправить",
+  "skirmish.binds.wheel.to_chat": "Отпусти — вставить в чат",
+  "skirmish.binds.wheel.hint": "Наведи мышь на команду и отпусти клавишу (или кликни) · в центре или Esc — отмена",
+  "skirmish.binds.wheel.empty": "Команд пока нет — добавь их в биндах, раздел «Команды»",
+  "skirmish.binds.wheel.open_binds": "Открыть бинды"
 }

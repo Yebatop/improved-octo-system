@@ -42,6 +42,12 @@ final class EventToast extends HudBlock {
         return Math.round(Theme.get().num(EventRows.L + "toast_ms"));
     }
 
+    /** Under the top right column (minimap, kill card, kill feed). */
+    @Override
+    public @org.jspecify.annotations.Nullable String stackUnder() {
+        return "kill_feed";
+    }
+
     @Override
     public boolean enabled() {
         return module.isEnabled() && module.toastScope() != EventsModule.ToastScope.OFF;

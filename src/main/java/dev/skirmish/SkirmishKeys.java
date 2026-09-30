@@ -61,6 +61,9 @@ public final class SkirmishKeys {
     /** The binds screen. Unbound by default. */
     public static final KeyMapping BINDS_OPEN = key("key.skirmish.binds.open", InputConstants.UNKNOWN.getValue());
 
+    /** «Minimap»: the next zoom level. Unbound by default. */
+    public static final KeyMapping MINIMAP_ZOOM = key("key.skirmish.minimap.zoom", InputConstants.UNKNOWN.getValue());
+
     private SkirmishKeys() {
     }
 
@@ -71,7 +74,7 @@ public final class SkirmishKeys {
     static void register() {
         for (KeyMapping mapping : new KeyMapping[]{OPEN_MENU, WAYPOINT_ADD, WAYPOINT_CYCLE, KILLCAM_REPLAY, KILLCAM_CLIP, KILLCAM_LIBRARY, WORLD_MAP, NAVIGATOR_HOME, BASE_OS, COMMANDER_GO, HWOS_OPEN,
                 CLANSHARE_SHARE, GEARINSPECTOR_LOCK, ANVILCALC_CALCULATE, KILLCARD_OPEN_FOLDER, DETAILS, ZOOM, FULLBRIGHT_TOGGLE, AUTO_SPRINT_TOGGLE,
-                FRIEND_TOGGLE, FIGHT_REVIEW, PLAYER_MENU, HUNT_STOP, BINDS_OPEN}) {
+                FRIEND_TOGGLE, FIGHT_REVIEW, PLAYER_MENU, HUNT_STOP, BINDS_OPEN, MINIMAP_ZOOM}) {
             KeyBindingHelper.registerKeyBinding(mapping);
         }
     }

@@ -43,6 +43,8 @@
       "ghost_pad_x": 14,
       "marker": 6,
       "arrow": 7,
+      "entity_dot": 6,
+      "entity_face": 14,
       "chunks_per_tick": 6,
       "rescan_ticks": 40,
       "rescan_radius": 2,

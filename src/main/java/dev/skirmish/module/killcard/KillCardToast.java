@@ -59,6 +59,12 @@ final class KillCardToast extends HudBlock {
         shownAt = Util.getMillis();
     }
 
+    /** Under the minimap (or the replay indicator when it is off). */
+    @Override
+    public @org.jspecify.annotations.Nullable String stackUnder() {
+        return "minimap";
+    }
+
     @Override
     public boolean enabled() {
         return module.isEnabled() && module.toast.get();

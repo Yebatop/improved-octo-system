@@ -137,6 +137,7 @@ public final class WorldMapScreen extends UiScreen {
         }
         java.util.List<SearchZones.Zone> zones = SearchZones.in(ServerContext.dimension(), now);
         drawZones(ui, zones, w, h);
+        drawEntities(ui, w, h);
         drawWaypoints(ui, w, h);
         drawPlayer(ui, w, h);
 
@@ -327,6 +328,55 @@ public final class WorldMapScreen extends UiScreen {
             float lh = ui.lineHeight("wm_marker");
             ui.rect(x - nw / 2 - 5, y + size * 1.4f, nw + 10, lh + 2, lh / 2f, ui.color("panel"));
             ui.text("wm_marker", name, x - nw / 2, y + size * 1.4f + 1);
+        }
+    }
+
+    /** With the Minimap on, the same players and mobs as on it (its settings decide which). */
+    private void drawEntities(Ui ui, float w, float h) {
+        MinimapModule mini = MinimapModule.active();
+        if (mini == null || minecraft.level == null || minecraft.player == null) {
+            return;
+        }
+        float pt = minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true);
+        float dot = ui.num(L + "entity_dot");
+        float face = ui.num(L + "entity_face");
+        var connection = minecraft.getConnection();
+        for (net.minecraft.world.entity.Entity e : minecraft.level.entitiesForRendering()) {
+            MinimapModule.Kind kind = mini.kind(e, minecraft.player);
+            if (kind == null) {
+                continue;
+            }
+            var p = e.getPosition(pt);
+            float x = sx(p.x, w);
+            float y = sy(p.z, h);
+            if (x < -20 || y < -20 || x > w + 20 || y > h + 20) {
+                continue;
+            }
+            if (kind != MinimapModule.Kind.PLAYER) {
+                ui.circle(x, y, dot + 2f, ui.color("minimap_outline"));
+                ui.circle(x, y, dot, ui.color(kind == MinimapModule.Kind.HOSTILE ? "minimap_hostile" : "minimap_passive"));
+                continue;
+            }
+            var player = (net.minecraft.world.entity.player.Player) e;
+            int friend = dev.skirmish.module.friends.FriendsModule.nametagColor(player);
+            int ring = friend >= 0 ? 0xFF000000 | friend : ui.color("minimap_player");
+            float half = face / 2f;
+            ui.rect(x - half - 1.5f, y - half - 1.5f, face + 3f, face + 3f, 3f, ring);
+            var info = connection == null ? null : connection.getPlayerInfo(player.getUUID());
+            if (info != null) {
+                var pose = ui.graphics().pose();
+                pose.pushMatrix();
+                pose.translate(x - half, y - half);
+                pose.scale(face / 8f, face / 8f);
+                net.minecraft.client.gui.components.PlayerFaceRenderer.draw(ui.graphics(), info.getSkin().body().texturePath(), 0, 0, 8,
+                        info.showHat(), false, ui.fade(0xFFFFFFFF));
+                pose.popMatrix();
+            }
+            String name = ui.ellipsize("wm_marker", player.getGameProfile().name(), 120f);
+            float nw = ui.textWidth("wm_marker", name);
+            float lh = ui.lineHeight("wm_marker");
+            ui.rect(x - nw / 2 - 5, y + half + 3, nw + 10, lh + 2, lh / 2f, ui.color("panel"));
+            ui.text("wm_marker", name, x - nw / 2, y + half + 4, friend >= 0 ? ring : ui.color("text"));
         }
     }
 

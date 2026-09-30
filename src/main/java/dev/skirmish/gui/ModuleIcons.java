@@ -299,6 +299,11 @@ public final class ModuleIcons {
                 ui.border(x + 3f * s, y + 4f * s, 18f * s, 16f * s, 3f * s, STROKE * s, c);
                 p(ui, x, y, s, c, 13.5f, 8f, 10.5f, 16f);
             }
+            case "minimap" -> { // a round map with an arrow in the middle and a dot
+                ui.ring(x + 12f * s, y + 12f * s, 19f * s, STROKE * s, c);
+                p(ui, x, y, s, c, 12f, 7.5f, 15f, 15.5f, 12f, 13.5f, 9f, 15.5f, 12f, 7.5f);
+                ui.circle(x + 17.5f * s, y + 8f * s, 2.5f * s, c);
+            }
             case "hunt" -> { // diamond (the prize) with a magnifier
                 p(ui, x, y, s, c, 10f, 3f, 16f, 9f, 10f, 15f, 4f, 9f, 10f, 3f);
                 ui.ring(x + 16f * s, y + 16f * s, 7f * s, STROKE * s, c);

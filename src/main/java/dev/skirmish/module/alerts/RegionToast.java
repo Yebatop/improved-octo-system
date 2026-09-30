@@ -24,6 +24,12 @@ final class RegionToast extends HudBlock {
         this.module = module;
     }
 
+    /** Under the top right column (minimap, kill card, kill feed). */
+    @Override
+    public @org.jspecify.annotations.Nullable String stackUnder() {
+        return "kill_feed";
+    }
+
     @Override
     public boolean enabled() {
         return module.isEnabled() && module.regionAlerts.get();

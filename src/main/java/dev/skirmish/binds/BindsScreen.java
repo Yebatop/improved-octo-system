@@ -88,7 +88,7 @@ public final class BindsScreen extends UiScreen {
     private static List<Bind> modBinds() {
         List<Bind> out = new ArrayList<>();
         for (KeyMapping m : Minecraft.getInstance().options.keyMappings) {
-            if (m.getCategory() == SkirmishKeys.CATEGORY) {
+            if (m.getCategory() == SkirmishKeys.CATEGORY || m == CommandBindsModule.WHEEL) {
                 out.add(new Bind(m, Component.translatable(m.getName()).getString(), false));
             }
         }

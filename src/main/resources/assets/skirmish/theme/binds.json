@@ -3,7 +3,8 @@
     "bind_free": "#FFFFFF0A",
     "bind_game": "#FFFFFF24",
     "bind_mod": "#7C5CFF80",
-    "bind_conflict": "#FF6B7888"
+    "bind_conflict": "#FF6B7888",
+    "wheel_dim": "#05050AC4"
   },
   "layout": {
     "binds": {
@@ -24,6 +25,18 @@
       "toast_h": 34,
       "reset_icon": 14,
       "mode_w": 74
+    },
+    "wheel": {
+      "radius": 170,
+      "center": 112,
+      "dead": 28,
+      "ring": 1.5,
+      "pill_h": 32,
+      "pill_pad": 12,
+      "pill_max": 190,
+      "button_height": 34,
+      "primary_pad_x": 16,
+      "ghost_pad_x": 14
     }
   },
   "text": {
@@ -51,6 +64,27 @@
       "size": 12,
       "weight": 700,
       "color": "text"
+    },
+    "wheel_item": {
+      "size": 13,
+      "weight": 700,
+      "color": "text"
+    },
+    "wheel_num": {
+      "size": 11,
+      "weight": 800,
+      "color": "text_3",
+      "mono": true
+    },
+    "wheel_center": {
+      "size": 12,
+      "weight": 700,
+      "color": "text"
+    },
+    "wheel_hint": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_2"
     }
   }
 }
