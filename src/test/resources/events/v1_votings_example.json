@@ -1,0 +1,29 @@
+{
+  "LITE_ANARCHY_46": [
+    {
+      "instanceId": "3f2504e0-4f89-11d3-9a0c-0305e82c3301",
+      "id": "SHIP_1704897",
+      "candidates": [
+        {
+          "id": "SHIP_1704897",
+          "name": "Таинственный корабль",
+          "votes": 42,
+          "metadata": {
+            "displayName": "Таинственный корабль",
+            "rare": "ship_roskoshni_f"
+          }
+        },
+        {
+          "id": "TOURNAMENT_582013",
+          "name": "Турнир",
+          "votes": 17,
+          "metadata": {
+            "displayName": "Турнир",
+            "rare": "default"
+          }
+        }
+      ],
+      "metadata": {}
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "skirmish.module.damage_numbers.name": "Damage Numbers",
+  "skirmish.module.damage_numbers.description": "Всплывающие цифры над существами рядом, у которых меняется здоровье: урон, криты, срабатывание тотема и лечение разными цветами. Сквозь блоки не видны; у невидимых игроков цифр нет.",
+  "skirmish.module.damage_numbers.setting.scale": "Размер",
+  "skirmish.module.damage_numbers.setting.scale.tooltip": "Размер цифр",
+  "skirmish.module.damage_numbers.setting.lifetime": "Время показа",
+  "skirmish.module.damage_numbers.setting.lifetime.tooltip": "Сколько секунд цифра поднимается и гаснет",
+  "skirmish.module.damage_numbers.setting.only_mine": "Только мои удары",
+  "skirmish.module.damage_numbers.setting.only_mine.tooltip": "Показывать урон только после ваших ударов (лечение — только у тех, кого вы недавно били)",
+  "skirmish.module.damage_numbers.setting.heals": "Лечение",
+  "skirmish.module.damage_numbers.setting.heals.tooltip": "Зелёные цифры, когда здоровье растёт (регенерация, поглощение)",
+  "skirmish.module.damage_numbers.setting.players": "Игроки",
+  "skirmish.module.damage_numbers.setting.players.tooltip": "Цифры над игроками",
+  "skirmish.module.damage_numbers.setting.mobs": "Мобы",
+  "skirmish.module.damage_numbers.setting.mobs.tooltip": "Цифры над мобами и боссами"
+}

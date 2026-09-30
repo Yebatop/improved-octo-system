@@ -1,0 +1,10 @@
+{
+  "skirmish.module.enemy_cooldowns.name": "Enemy Cooldowns",
+  "skirmish.module.enemy_cooldowns.description": "When you see an opponent throw a pearl, eat a golden apple or get their shield knocked out by an axe, their cooldown counts down above their head. The length comes from your own cooldowns (the server sends them to you) and is remembered; until then HolyWorld's announced values are used (pearl 6 s, golden apple 5 s). Only players in plain sight.",
+  "skirmish.module.enemy_cooldowns.setting.pearl": "Pearl",
+  "skirmish.module.enemy_cooldowns.setting.pearl.tooltip": "Cooldown after an ender pearl throw",
+  "skirmish.module.enemy_cooldowns.setting.gapple": "Golden apples",
+  "skirmish.module.enemy_cooldowns.setting.gapple.tooltip": "Cooldown after a golden or enchanted golden apple",
+  "skirmish.module.enemy_cooldowns.setting.shield": "Shield",
+  "skirmish.module.enemy_cooldowns.setting.shield.tooltip": "How long the shield stays knocked out after an axe hit"
+}

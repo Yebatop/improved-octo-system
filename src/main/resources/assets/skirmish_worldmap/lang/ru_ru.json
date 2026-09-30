@@ -1,0 +1,19 @@
+{
+  "skirmish.module.world_map.name": "World Map",
+  "skirmish.module.world_map.description": "Полноэкранная карта мест, где ты побывал (клавиша M): поверхность в цветах настоящих блоков с рельефом и прозрачной у берега водой (или как на ванильной карте), твои метки и ты сам. Сохраняется для каждого сервера и измерения. Только поверхность, без пещер; игроки и мобы — на миникарте и здесь, если включён модуль Minimap. Ад с крышей не рисуется.",
+  "skirmish.module.world_map.setting.key": "Клавиша",
+  "skirmish.module.world_map.setting.key.tooltip": "Открыть карту",
+  "key.skirmish.world_map": "Карта мира",
+  "skirmish.worldmap.title": "Карта",
+  "skirmish.worldmap.no_roof": "Это измерение с крышей — карта не рисуется",
+  "skirmish.worldmap.center": "К себе",
+  "skirmish.worldmap.to_zone": "К зоне",
+  "skirmish.worldmap.zone_cells": "клеток: %s",
+  "skirmish.worldmap.hint": "ЛКМ — тащить · колесо — масштаб · ПКМ — поставить метку",
+  "skirmish.worldmap.scale": "Масштаб %s",
+  "skirmish.worldmap.waypoint": "Метка %s %s",
+  "skirmish.module.world_map.setting.look": "Вид карты",
+  "skirmish.module.world_map.setting.look.tooltip": "Текстуры — цвета настоящих блоков с оттенком биома, плавный рельеф и прозрачная у берега вода. Ванильная — плоские цвета, как на карте-предмете",
+  "skirmish.module.world_map.setting.look.textures": "Текстуры",
+  "skirmish.module.world_map.setting.look.vanilla": "Ванильная"
+}

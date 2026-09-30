@@ -1,0 +1,40 @@
+{
+  "colors": {
+    "good_16": "#3DDC9729"
+  },
+  "text": {
+    "replays_badge": {
+      "size": 10,
+      "weight": 800,
+      "color": "text",
+      "tracking": 0.6
+    }
+  },
+  "layout": {
+    "replays": {
+      "width": 780,
+      "height": 540,
+      "min_width": 600,
+      "min_height": 360,
+      "toolbar_gap": 14,
+      "search_min_width": 120,
+      "row_height": 52,
+      "badge_height": 22,
+      "badge_pad_x": 10,
+      "badge_gap": 14,
+      "star": 12,
+      "star_gap": 6,
+      "action_size": 30,
+      "action_icon": 16,
+      "action_gap": 4,
+      "spinner": 28,
+      "spinner_small": 14,
+      "spinner_dot": 4,
+      "modal_width": 440
+    },
+    "death_button": {
+      "library_gap": 10,
+      "library_height": 30
+    }
+  }
+}

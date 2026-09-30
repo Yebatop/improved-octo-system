@@ -1,0 +1,11 @@
+{
+  "key.skirmish.fullbright.toggle": "Fullbright: on/off",
+  "skirmish.module.fullbright.name": "Fullbright",
+  "skirmish.module.fullbright.description": "Brighter caves and nights: lighting is computed with a brightness above vanilla's maximum. Game options are not changed. The Darkness and Blindness effects still work as usual.",
+  "skirmish.module.fullbright.setting.strength": "Strength",
+  "skirmish.module.fullbright.setting.strength.tooltip": "10% is slightly above vanilla \"Bright\", 100% is fully lit",
+  "skirmish.module.fullbright.setting.key": "Key",
+  "skirmish.module.fullbright.setting.key.tooltip": "Turn fullbright on or off (unbound by default)",
+  "skirmish.fullbright.toggled_on": "Fullbright on",
+  "skirmish.fullbright.toggled_off": "Fullbright off"
+}

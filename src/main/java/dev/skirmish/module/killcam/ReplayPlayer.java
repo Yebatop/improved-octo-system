@@ -30,6 +30,7 @@ final class ReplayPlayer extends RemotePlayer {
     final int track;
     final UUID originalUuid;
     private final PlayerSkin fallbackSkin;
+    private final java.util.function.@Nullable Supplier<PlayerSkin> skinLookup;
     private final @Nullable Object[] shownEquipment = new Object[ReplayBuffer.EQUIPMENT_SLOTS];
     boolean present;
     String skinSource = "default";
@@ -40,11 +41,13 @@ final class ReplayPlayer extends RemotePlayer {
         this.track = track;
         this.originalUuid = meta.uuid;
         this.fallbackSkin = meta.skin != null ? meta.skin : DefaultPlayerSkin.get(meta.uuid);
+        this.skinLookup = meta.skinLookup;
         setSilent(true);
         setMainArm(meta.mainArm);
         getEntityData().set(DATA_PLAYER_MODE_CUSTOMISATION, meta.modelParts);
         PlayerInfo info = originalInfo();
-        skinSource = info != null ? "PlayerInfo of " + meta.uuid : meta.skin != null ? "recorded skin" : "default skin";
+        skinSource = info != null ? "PlayerInfo of " + meta.uuid : meta.skin != null ? "recorded skin"
+                : skinLookup != null ? "saved profile textures" : "default skin";
     }
 
     static byte sharedFlags(Entity entity) {
@@ -67,7 +70,10 @@ final class ReplayPlayer extends RemotePlayer {
     @Override
     public PlayerSkin getSkin() {
         PlayerInfo info = originalInfo();
-        return info != null ? info.getSkin() : fallbackSkin;
+        if (info != null) {
+            return info.getSkin();
+        }
+        return skinLookup != null ? skinLookup.get() : fallbackSkin;
     }
 
     @Override

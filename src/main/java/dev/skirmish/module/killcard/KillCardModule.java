@@ -1,5 +1,6 @@
 package dev.skirmish.module.killcard;
 
+import dev.skirmish.module.Category;
 import dev.skirmish.SkirmishKeys;
 import dev.skirmish.combat.CombatListener;
 import dev.skirmish.combat.CombatTracker;
@@ -61,6 +62,11 @@ public final class KillCardModule extends Module {
     private final AtomicInteger cardCounter = new AtomicInteger();
     private @Nullable ExecutorService executor;
     private final KillCardToast cardToast = new KillCardToast(this);
+
+    @Override
+    public Category category() {
+        return Category.COMBAT;
+    }
 
     public KillCardModule() {
         super(ID, true);

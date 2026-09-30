@@ -2,6 +2,7 @@ package dev.skirmish.module;
 
 import dev.skirmish.config.ConfigManager;
 import dev.skirmish.debug.DebugLog;
+import dev.skirmish.setting.FeatureGate;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +24,7 @@ public final class ModuleManager {
     }
 
     public <M extends Module> M register(M module) {
+        FeatureGate.declare(module.featureId());
         if (modules.putIfAbsent(module.id(), module) != null) {
             throw new IllegalStateException("Duplicate module id " + module.id());
         }
@@ -63,13 +65,12 @@ public final class ModuleManager {
     }
 
     public void initializeAll() {
+        FeatureGate.onChange(() -> modules.values().forEach(Module::syncActive));
         for (Module module : modules.values()) {
             try {
                 module.onInitialize();
                 module.markInitialized();
-                if (module.isEnabled()) {
-                    module.onEnable();
-                }
+                module.syncActive();
                 DebugLog.log("core", "module " + module.id() + " initialized, enabled=" + module.isEnabled());
             } catch (Throwable t) {
                 module.markInitialized();

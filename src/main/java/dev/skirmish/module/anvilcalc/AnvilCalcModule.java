@@ -1,7 +1,10 @@
 package dev.skirmish.module.anvilcalc;
 
+import dev.skirmish.holyworld.HolyWorld;
 import dev.skirmish.module.Module;
+import dev.skirmish.module.anvilcalc.calc.RulesProfile;
 import dev.skirmish.setting.BoolSetting;
+import dev.skirmish.setting.EnumSetting;
 import dev.skirmish.setting.NumberSetting;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.minecraft.client.gui.screens.inventory.AnvilScreen;
@@ -21,6 +24,7 @@ public final class AnvilCalcModule extends Module {
     final BoolSetting slotLabels = add(new BoolSetting("slot_labels", true));
     final NumberSetting exactLimit = add(new NumberSetting("exact_limit", 10, 1, 12, 1));
     final NumberSetting tooExpensiveAt = add(new NumberSetting("too_expensive_at", 40, 2, 200, 1));
+    final EnumSetting<AnvilProfile> rules = add(new EnumSetting<>("rules", AnvilProfile.AUTO));
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(runnable -> {
         Thread thread = new Thread(runnable, "Skirmish AnvilCalc");
@@ -31,6 +35,11 @@ public final class AnvilCalcModule extends Module {
 
     public AnvilCalcModule() {
         super(ID, true);
+    }
+
+    /** The rules the next calculation uses (AUTO resolved against the current server). */
+    RulesProfile rulesProfile() {
+        return rules.get().resolve(HolyWorld.isConnected());
     }
 
     @Override

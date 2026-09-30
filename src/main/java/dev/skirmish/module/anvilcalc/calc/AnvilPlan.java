@@ -58,7 +58,9 @@ public record AnvilPlan(Status status, List<Step> steps, int total, Piece result
         /** Left out so that every step stays below the limit. */
         OVER_LIMIT,
         /** Merging it costs more than it adds (e.g. a lower level of an enchantment that is raised anyway). */
-        NOT_NEEDED
+        NOT_NEEDED,
+        /** A «сомнительная» book (HolyWorld Prime): random level merges, applied only on its own. */
+        DUBIOUS
     }
 
     /** {@code enchant}: for CONFLICT, the enchantment on the result it conflicts with. */

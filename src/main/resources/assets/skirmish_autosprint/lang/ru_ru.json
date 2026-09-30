@@ -1,0 +1,9 @@
+{
+  "key.skirmish.auto_sprint.toggle": "Автоспринт: вкл/выкл",
+  "skirmish.module.auto_sprint.name": "Auto Sprint",
+  "skirmish.module.auto_sprint.description": "Бег сразу, как только идёшь вперёд, без Ctrl. Всё остальное как в ванилле: назад и вбок не бежит, не бежит при голоде, приседании и пока ешь или держишь щит.",
+  "skirmish.module.auto_sprint.setting.key": "Клавиша",
+  "skirmish.module.auto_sprint.setting.key.tooltip": "Включить или выключить автоспринт (по умолчанию не назначена)",
+  "skirmish.auto_sprint.toggled_on": "Автоспринт включён",
+  "skirmish.auto_sprint.toggled_off": "Автоспринт выключен"
+}

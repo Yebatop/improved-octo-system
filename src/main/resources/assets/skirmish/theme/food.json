@@ -1,0 +1,25 @@
+{
+  "colors": {
+    "food_saturation": "#FFD24A",
+    "food_fill": "#F0913A",
+    "food_low": "#FF5A4E",
+    "food_hunger": "#8DB600",
+    "food_track": "#0000008C",
+    "food_tick": "#00000033",
+    "food_stroke": "#FFFFFF1F"
+  },
+  "text": {
+    "food_label": {
+      "size": 11,
+      "weight": 700,
+      "color": "food_saturation",
+      "mono": true
+    }
+  },
+  "layout": {
+    "food": {
+      "pulse_ms": 900,
+      "bar_height": 5
+    }
+  }
+}

@@ -17,7 +17,8 @@ import java.util.Map;
 
 /**
  * Drawing context of the UI kit. All coordinates are design px (the mockup's pixels); {@link #begin} scales the
- * GUI pose by {@code layout.design_scale} so one design px is one screen pixel at GUI scale 2.
+ * GUI pose by {@link #designScale()} so one design px is one screen pixel at GUI scale 2 (and at GUI scale 1, where
+ * the theme's 0.5 would halve everything).
  * Colors are theme tokens; {@link #pushAlpha} fades everything drawn inside (panel appear/hide).
  */
 public final class Ui {
@@ -29,19 +30,48 @@ public final class Ui {
     private final Theme theme;
     private final Font font;
     private final ArrayDeque<Float> alphas = new ArrayDeque<>();
+    private final float scale;
     private float alpha = 1f;
 
-    private Ui(GuiGraphics graphics) {
+    private Ui(GuiGraphics graphics, float scale) {
         this.graphics = graphics;
+        this.scale = scale;
         this.theme = Theme.get();
         this.font = Minecraft.getInstance().font;
     }
 
+    /** HUD and the mod's own screens: {@link #designScale()}. */
     public static Ui begin(GuiGraphics graphics) {
+        return begin(graphics, designScale());
+    }
+
+    /**
+     * Widgets drawn on a vanilla screen (death screen, anvil, containers) keep the theme's fixed scale so they stay
+     * in proportion with vanilla's own widgets at every GUI scale; pair with {@link #toDesignOnVanilla}.
+     */
+    public static Ui beginOnVanilla(GuiGraphics graphics) {
+        return begin(graphics, baseScale());
+    }
+
+    private static Ui begin(GuiGraphics graphics, float scale) {
         graphics.pose().pushMatrix();
-        float scale = Theme.get().num("layout.design_scale");
         graphics.pose().scale(scale, scale);
-        return new Ui(graphics);
+        return new Ui(graphics, scale);
+    }
+
+    /** {@code layout.design_scale}: GUI px per design px on vanilla screens. */
+    public static float baseScale() {
+        return Theme.get().num("layout.design_scale");
+    }
+
+    /**
+     * GUI px per design px: {@code layout.design_scale} (0.5, one design px = one screen pixel at GUI scale 2), but
+     * never below one screen pixel, so GUI scale 1 keeps the HUD and menus at their real size and text crisp.
+     */
+    public static float designScale() {
+        float base = baseScale();
+        int gui = Minecraft.getInstance().getWindow().getGuiScale();
+        return gui > 0 ? Math.max(base, 1f / gui) : base;
     }
 
     public void end() {
@@ -50,16 +80,21 @@ public final class Ui {
 
     /** GUI px (mouse coordinates) to design px. */
     public static double toDesign(double guiCoordinate) {
-        return guiCoordinate / Theme.get().num("layout.design_scale");
+        return guiCoordinate / designScale();
+    }
+
+    /** GUI px (vanilla screen coordinates) to design px for widgets drawn with {@link #beginOnVanilla}. */
+    public static double toDesignOnVanilla(double guiCoordinate) {
+        return guiCoordinate / baseScale();
     }
 
     /** Screen size in design px. */
     public float width() {
-        return (float) toDesign(graphics.guiWidth());
+        return graphics.guiWidth() / scale;
     }
 
     public float height() {
-        return (float) toDesign(graphics.guiHeight());
+        return graphics.guiHeight() / scale;
     }
 
     public GuiGraphics graphics() {

@@ -38,6 +38,11 @@ public final class KillCamHooks {
         return POSE;
     }
 
+    /** The replay's fake players are drawn even where the chunk is not loaded (saved replays watched elsewhere). */
+    public static boolean showAnywhere(Entity entity) {
+        return entity instanceof ReplayPlayer fake && fake.present && ReplaySession.current() != null;
+    }
+
     public static boolean hides(Entity entity) {
         ReplaySession session = ReplaySession.current();
         return session != null && session.hides(entity);

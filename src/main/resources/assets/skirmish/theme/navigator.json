@@ -1,0 +1,77 @@
+{
+  "colors": {
+    "nav_portal": "#B07CFF",
+    "nav_nether": "#FF6B5C",
+    "nav_world": "#3DDC84",
+    "nav_path": "#58C8FF"
+  },
+  "text": {
+    "nav_cardinal": {
+      "size": 12,
+      "weight": 800,
+      "color": "text"
+    },
+    "nav_inter": {
+      "size": 10,
+      "weight": 700,
+      "color": "text_2"
+    },
+    "nav_title": {
+      "size": 12,
+      "weight": 700,
+      "color": "text"
+    },
+    "nav_eta": {
+      "size": 12,
+      "weight": 600,
+      "color": "accent",
+      "mono": true
+    },
+    "nav_row": {
+      "size": 11,
+      "weight": 600,
+      "color": "text"
+    },
+    "nav_dist": {
+      "size": 11,
+      "weight": 600,
+      "color": "text",
+      "mono": true
+    }
+  },
+  "layout": {
+    "navigator": {
+      "walk_speed": 5.6,
+      "portal_seconds": 4,
+      "portal_cost": 16,
+      "speed_window_ms": 10000,
+      "arrival_ticks": 10,
+      "portal_contact_ticks": 5,
+      "crumb_step": 3,
+      "crumb_keep_ms": 3600000,
+      "crumb_max": 4000,
+      "compass_width": 440,
+      "compass_height": 26,
+      "compass_span": 180,
+      "compass_pad": 14,
+      "compass_tick": 6,
+      "compass_marker": 4,
+      "compass_all_up_to": 12,
+      "compass_caret": 4,
+      "card_width": 250,
+      "card_pad": 10,
+      "card_gap": 6,
+      "row_gap": 3,
+      "row_icon": 12,
+      "row_icon_gap": 8,
+      "beam_height": 280,
+      "beam_core": 0.25,
+      "beam_core_per_block": 0.004,
+      "beam_glow_factor": 3.5,
+      "beam_clamp": 0.8,
+      "beam_glow_alpha": 60,
+      "beam_core_alpha": 170,
+      "beam_shine_alpha": 150
+    }
+  }
+}

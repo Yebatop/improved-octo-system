@@ -1,0 +1,22 @@
+{
+  "skirmish.module.tnt_timer.name": "TNT Timer",
+  "skirmish.module.tnt_timer.description": "Seconds to the blast above primed TNT, plus its HolyWorld type (A, B, C4, B2, waves, stealers, long fuse) when the server gives it away. Only TNT in plain view: nothing shows through walls.",
+  "skirmish.module.tnt_timer.setting.decimals": "Tenths",
+  "skirmish.module.tnt_timer.setting.decimals.tooltip": "\"2.4 s\" instead of \"3 s\"",
+  "skirmish.module.tnt_timer.setting.show_type": "TNT type",
+  "skirmish.module.tnt_timer.setting.show_type.tooltip": "The type's name next to the timer when it could be recognised",
+  "skirmish.module.tnt_timer.setting.max_distance": "Range",
+  "skirmish.module.tnt_timer.setting.max_distance.tooltip": "No label on TNT farther than this",
+  "skirmish.module.tnt_timer.setting.radius_ring": "Blast radius",
+  "skirmish.module.tnt_timer.setting.radius_ring.tooltip": "A ring on the ground around TNT in plain view: the wiki's blast power (plain 4, A 12, B 40, B2 a 25-block cube). Approximate, walls are not taken into account",
+  "skirmish.tnttimer.seconds": "%s s",
+  "skirmish.tnttimer.type.reliable_stealer": "Reliable Stealer",
+  "skirmish.tnttimer.type.stealer": "Stealer",
+  "skirmish.tnttimer.type.ice_wave": "Ice Wave",
+  "skirmish.tnttimer.type.blast_wave": "Blast Wave",
+  "skirmish.tnttimer.type.b2": "TNT B2",
+  "skirmish.tnttimer.type.c4": "C4",
+  "skirmish.tnttimer.type.tnt_b": "TNT B",
+  "skirmish.tnttimer.type.tnt_a": "TNT A",
+  "skirmish.tnttimer.type.long": "Long fuse"
+}

@@ -1,0 +1,19 @@
+{
+  "skirmish.module.rune_window.name": "Rune Window",
+  "skirmish.module.rune_window.description": "When your opponent pops a totem with the «Immortality» rune, a countdown of their invulnerability (3 s per the wiki) appears next to the crosshair so you don't waste hits. The rune is read from the totem in their hand; invisible players are never shown.",
+  "skirmish.module.rune_window.setting.use_fallback": "When the item wasn't seen",
+  "skirmish.module.rune_window.setting.use_fallback.tooltip": "Show a countdown even if the opponent's totem couldn't be read before the pop (marked with «?»)",
+  "skirmish.module.rune_window.setting.fallback": "Default length",
+  "skirmish.module.rune_window.setting.fallback.tooltip": "Seconds to count when the rune is unknown",
+  "skirmish.module.rune_window.setting.restored": "«Restoration» rune",
+  "skirmish.module.rune_window.setting.restored.tooltip": "Briefly show «FULL HP» when the opponent's restoration rune fires",
+  "skirmish.module.rune_window.setting.self": "My totem",
+  "skirmish.module.rune_window.setting.self.tooltip": "Also count down your own «Immortality» rune",
+  "skirmish.module.rune_window.setting.end_sound": "Sound at the end",
+  "skirmish.module.rune_window.setting.end_sound.tooltip": "A short sound only you hear when the invulnerability ends",
+  "skirmish.module.rune_window.setting.volume": "Volume",
+  "skirmish.module.rune_window.setting.volume.tooltip": "Volume of the end sound",
+  "skirmish.hud.element.rune_window": "Rune Window",
+  "skirmish.rune_window.invulnerable": "INVULNERABLE",
+  "skirmish.rune_window.restored": "FULL HP"
+}

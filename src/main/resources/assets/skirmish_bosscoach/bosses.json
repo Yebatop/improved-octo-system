@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "about": "HolyWorld bosses (wiki.holyworld.me: lite/events/boss.md, prime/events/bosses.md, prime/events/iventy.md). A boss bar is matched when its normalised name (colour codes and small caps removed, lower case, ё → е) contains one of 'names' and none of 'exclude'. How the server words the bar is not documented: names are the wiki's boss names, so check a capture. 'hp' is the wiki's health figure (omitted when the wiki gives none); 'phases' use the wiki's HP-percent bounds, highest first. Texts live in the lang files under skirmish.boss_coach.boss.<id>. A copy at config/skirmish/tables/boss_coach.json overrides this file.",
+  "bosses": [
+    {"id": "suicider", "mode": "lite", "names": ["суицидник"]},
+    {"id": "kung_fu", "mode": "lite", "names": ["кунг-фу", "кунг фу", "кунгфу"]},
+    {"id": "rooster", "mode": "lite", "names": ["петух"]},
+    {"id": "karlson", "mode": "lite", "names": ["карлсон"]},
+    {"id": "mad_cow", "mode": "lite", "names": ["коровка", "бешенств"]},
+    {"id": "ice_troll", "mode": "lite", "names": ["ледяной тролль", "тролль"]},
+    {
+      "id": "leonardo", "mode": "lite", "names": ["леонардо"],
+      "phases": [
+        {"from": 100, "to": 50},
+        {"from": 50, "to": 0}
+      ]
+    },
+    {"id": "illusionist", "mode": "lite", "names": ["иллюзионист"]},
+    {"id": "speedrunner", "mode": "lite", "names": ["спидранер", "спидраннер"]},
+    {"id": "wanderer", "mode": "lite", "names": ["странник"]},
+    {"id": "deathbringer", "mode": "lite", "names": ["смертник"]},
+    {"id": "coat_horse", "mode": "lite", "names": ["конь в пальто"]},
+    {"id": "louse", "mode": "lite", "names": ["вошь"]},
+    {"id": "potter", "mode": "lite", "names": ["поттер", "генрих"]},
+    {"id": "slippery_joe", "mode": "lite", "names": ["скользкий джо"]},
+    {"id": "baba_yaga", "mode": "lite", "names": ["бабка яга", "баба яга", "яга"]},
+    {
+      "id": "detonator", "mode": "prime", "names": ["детонатор"], "hp": 9000, "top3": true,
+      "phases": [
+        {"from": 90, "to": 70},
+        {"from": 70, "to": 40},
+        {"from": 40, "to": 5},
+        {"from": 5, "to": 0}
+      ]
+    },
+    {
+      "id": "air_lord", "mode": "prime", "names": ["воздухан"], "hp": 12000, "top3": true,
+      "phases": [
+        {"from": 90, "to": 70},
+        {"from": 70, "to": 40},
+        {"from": 40, "to": 5},
+        {"from": 5, "to": 0}
+      ]
+    },
+    {
+      "id": "tough_nuts", "mode": "prime", "names": ["крепкие орехи", "медный голем", "железный голем"], "hp": 7000, "pair": true,
+      "phases": [
+        {"from": 100, "to": 90},
+        {"from": 89, "to": 50},
+        {"from": 49, "to": 0}
+      ]
+    },
+    {
+      "id": "devilry", "mode": "prime", "names": ["чертовщин"], "hp": 6000,
+      "phases": [
+        {"from": 100, "to": 50},
+        {"from": 50, "to": 0}
+      ]
+    },
+    {
+      "id": "alien", "mode": "prime", "names": ["инопланетян"], "hp": 8000,
+      "phases": [
+        {"from": 100, "to": 90},
+        {"from": 89, "to": 50},
+        {"from": 49, "to": 0}
+      ]
+    },
+    {"id": "keeper", "mode": "prime", "names": ["зловещий хранитель", "зловещий варден", "хранитель", "варден"], "exclude": ["опыт"]}
+  ]
+}

@@ -237,4 +237,18 @@ class CombatLogicTest {
         assertEquals(FightEndReason.WORLD_CHANGE, logic.lastFinished().endReason());
         assertEquals(0, logic.trackedHealthCount());
     }
+
+    @Test
+    void killerNamedByTheServerWhenNoHitPointsAtAnyone() {
+        OwnDeath death = logic.onOwnDeath(null, 5_000, OTHER);
+        assertEquals(OTHER, death.killer());
+    }
+
+    @Test
+    void anonymousHitsAttributedToMeStillMakeAKill() {
+        // What CombatTracker produces on HolyWorld once the attacker is inferred from my click.
+        logic.onDamage(new DamageInfo(FOE, ME, null, "minecraft:generic (inferred)", 1_000));
+        logic.onDeath(FOE, "entity event 3", 1_400);
+        assertTrue(events.contains("kill Foe"), events.toString());
+    }
 }

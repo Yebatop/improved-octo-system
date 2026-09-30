@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.skirmish.module.zoom.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ZoomGameRendererMixin",
+    "ZoomItemInHandRendererMixin",
+    "ZoomMouseHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

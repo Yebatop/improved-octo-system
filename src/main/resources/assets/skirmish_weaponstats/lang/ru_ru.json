@@ -1,0 +1,15 @@
+{
+  "skirmish.module.weapon_stats.name": "Weapon Stats",
+  "skirmish.module.weapon_stats.description": "В подсказке оружия — настоящие цифры: урон с Остротой (и твоей Силой), крит, удары в секунду и урон в секунду, бонусы Небесной кары, Бича членистоногих и Разящего клинка, и сравнение с оружием в руке.",
+  "skirmish.module.weapon_stats.setting.compare": "Сравнение",
+  "skirmish.module.weapon_stats.setting.compare.tooltip": "Строка «лучше/хуже твоего оружия» по урону в секунду",
+  "skirmish.module.weapon_stats.setting.effects": "Учитывать эффекты",
+  "skirmish.module.weapon_stats.setting.effects.tooltip": "Прибавлять Силу и вычитать Слабость, которые сейчас на тебе",
+  "skirmish.weapon_stats.damage": "⚔ Урон %s · крит %s",
+  "skirmish.weapon_stats.speed": "⏱ %s уд/с · удар каждые %s с · %s урона/с",
+  "skirmish.weapon_stats.smite": "✝ По нежити +%s",
+  "skirmish.weapon_stats.bane": "✝ По членистоногим +%s",
+  "skirmish.weapon_stats.sweep": "〰 Взмах по соседним %s",
+  "skirmish.weapon_stats.better": "▲ +%s урона/с к оружию в руке",
+  "skirmish.weapon_stats.worse": "▼ −%s урона/с к оружию в руке"
+}

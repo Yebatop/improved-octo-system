@@ -1,0 +1,17 @@
+{
+  "skirmish.module.invisible_highlight.name": "Invisible Highlight",
+  "skirmish.module.invisible_highlight.description": "Highlights the top of the block an invisible player stands on (HolyWorld's rules allow this). Not through walls; while they jump, their last block stays lit for a second.",
+  "skirmish.module.invisible_highlight.setting.color": "Colour",
+  "skirmish.module.invisible_highlight.setting.color.tooltip": "Outline and fill colour",
+  "skirmish.module.invisible_highlight.setting.color.violet": "Violet",
+  "skirmish.module.invisible_highlight.setting.color.red": "Red",
+  "skirmish.module.invisible_highlight.setting.color.aqua": "Aqua",
+  "skirmish.module.invisible_highlight.setting.color.gold": "Gold",
+  "skirmish.module.invisible_highlight.setting.color.white": "White",
+  "skirmish.module.invisible_highlight.setting.fill": "Fill",
+  "skirmish.module.invisible_highlight.setting.fill.tooltip": "A translucent fill of the top face besides the outline",
+  "skirmish.module.invisible_highlight.setting.pulse": "Pulse",
+  "skirmish.module.invisible_highlight.setting.pulse.tooltip": "The highlight gently pulses so it is easier to notice",
+  "skirmish.module.invisible_highlight.setting.range": "Range",
+  "skirmish.module.invisible_highlight.setting.range.tooltip": "No highlight beyond this distance"
+}

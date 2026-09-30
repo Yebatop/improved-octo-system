@@ -52,7 +52,7 @@ final class TargetTracker {
         }
 
         double maxDistance = module.maxDistance.get();
-        TargetFinder.Hit hit = TargetFinder.find(mc, maxDistance, module.hitboxMargin.get(), module.throughWalls.get());
+        TargetFinder.Hit hit = TargetFinder.find(mc, maxDistance, module.hitboxMargin.get());
         aimed = hit == null ? null : hit.player();
         long now = Util.getMillis();
         String dropReason = null;
@@ -161,11 +161,12 @@ final class TargetTracker {
 
     private void logSlots(Player target) {
         boolean assume = module.assumeUndamaged.get();
+        boolean holy = module.holyActive();
         boolean allEmpty = true;
         for (EquipmentSlot slot : EquipmentSnapshot.SLOTS) {
             var stack = target.getItemBySlot(slot);
             allEmpty &= stack.isEmpty();
-            String description = GearReader.describe(stack, assume);
+            String description = GearReader.describe(slot, stack, assume, holy);
             if (!description.equals(loggedSlots.put(slot, description))) {
                 module.log("slot %s of %s: %s", GearReader.slotName(slot), name(target), description);
             }

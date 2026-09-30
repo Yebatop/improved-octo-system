@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "about": "HolyWorld TNT types (wiki.holyworld.me: lite/region/tnt.md, prime/items/custom_items.md). A primed TNT is identified by its (possibly hidden) custom name, then its block state, then its starting fuse. 'match' patterns are Java regexes on the normalised name (colour codes and small caps removed, lower case, ё → е) and are guesses until a capture confirms how the server names primed TNT. 'radius' is the explosion power the optional ring shows (vanilla TNT = 4); 'cube' is the edge of a cubic blast. A copy at config/skirmish/tables/tnt_timer.json overrides this file.",
+  "vanilla_fuse_ticks": 80,
+  "vanilla_radius": 4,
+  "types": [
+    {
+      "id": "reliable_stealer",
+      "mode": "lite",
+      "match": ["надежн[\\p{L}]* стиллер"],
+      "radius": 0,
+      "wiki": "«Надёжный стиллер — Не взрывает территорию вокруг себя. Если взорвать рядом со спавнером, то с 75% шансом спавнер выпадет»"
+    },
+    {
+      "id": "stealer",
+      "mode": "lite",
+      "match": ["стиллер"],
+      "radius": 0,
+      "wiki": "«Стиллер — Не взрывает территорию вокруг себя. Если взорвать рядом со спавнером, то с 50% шансом спавнер выпадет»"
+    },
+    {
+      "id": "ice_wave",
+      "mode": "lite",
+      "match": ["ледян[\\p{L}]* волн"],
+      "radius": 2,
+      "wiki": "«Ледяная волна — Не взрывает территорию вокруг себя. При взрыве образует сферу из льда на 5 секунд радиусом 2 блока»"
+    },
+    {
+      "id": "blast_wave",
+      "mode": "lite",
+      "match": ["разрывн[\\p{L}]* волн"],
+      "radius": 4,
+      "wiki": "«Разрывная волна — Радиус взрыва как у обычного динамита. Взрыв позволяет уничтожать блоки в воде, обсидиан и блок незеритового привата. Сносит 2 единицы прочности привату. … рейд блок на 5 минут»"
+    },
+    {
+      "id": "b2",
+      "mode": "lite",
+      "match": ["(?<![\\p{L}\\p{N}])[бb]2(?![\\p{L}\\p{N}])"],
+      "cube": 25,
+      "wiki": "«Динамит Б2 — Взрывает ровный куб 25х25х25. Не работает на всех стандартных заприваченных территориях»"
+    },
+    {
+      "id": "c4",
+      "mode": "lite",
+      "match": ["(?<![\\p{L}\\p{N}])[cс]4(?![\\p{L}\\p{N}])"],
+      "radius": 4,
+      "wiki": "«C4 Взрывчатка — Радиус взрыва как у обычного динамита. Взрыв позволяет уничтожать обсидиан и блок незеритового привата»"
+    },
+    {
+      "id": "tnt_b",
+      "mode": "lite",
+      "match": ["динамит[\\p{L}]* [bв](?![\\p{L}\\p{N}])"],
+      "radius": 40,
+      "wiki": "«Динамит B — Имеет в 10 раза больше радиус взрыва обычного динамита»"
+    },
+    {
+      "id": "tnt_a",
+      "mode": "lite",
+      "match": ["динамит[\\p{L}]* [aа](?![\\p{L}\\p{N}])"],
+      "radius": 12,
+      "wiki": "«Динамит A — Имеет в 3 раза больше радиус взрыва обычного динамита»"
+    },
+    {
+      "id": "long",
+      "mode": "prime",
+      "match": ["удлинен"],
+      "fuse_ticks": 160,
+      "radius": 4,
+      "wiki": "prime/items/custom_items.md: «Удлиненный динамит … взрывается через 8 секунд после поджига, тогда как обычный — через 4 секунды»"
+    }
+  ]
+}

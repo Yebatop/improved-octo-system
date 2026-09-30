@@ -1,0 +1,17 @@
+{
+  "skirmish.module.invisible_highlight.name": "Invisible Highlight",
+  "skirmish.module.invisible_highlight.description": "Подсвечивает верх блока, на котором стоит игрок под невидимостью (правила HolyWorld это разрешают). Сквозь стены не видно; в прыжке его последний блок горит ещё секунду.",
+  "skirmish.module.invisible_highlight.setting.color": "Цвет",
+  "skirmish.module.invisible_highlight.setting.color.tooltip": "Цвет рамки и заливки",
+  "skirmish.module.invisible_highlight.setting.color.violet": "Фиолетовый",
+  "skirmish.module.invisible_highlight.setting.color.red": "Красный",
+  "skirmish.module.invisible_highlight.setting.color.aqua": "Бирюзовый",
+  "skirmish.module.invisible_highlight.setting.color.gold": "Золотой",
+  "skirmish.module.invisible_highlight.setting.color.white": "Белый",
+  "skirmish.module.invisible_highlight.setting.fill": "Заливка",
+  "skirmish.module.invisible_highlight.setting.fill.tooltip": "Полупрозрачная заливка верхней грани, кроме рамки",
+  "skirmish.module.invisible_highlight.setting.pulse": "Пульсация",
+  "skirmish.module.invisible_highlight.setting.pulse.tooltip": "Подсветка плавно мерцает, чтобы её было легче заметить",
+  "skirmish.module.invisible_highlight.setting.range": "Дальность",
+  "skirmish.module.invisible_highlight.setting.range.tooltip": "Дальше этого расстояния блоки не подсвечиваются"
+}

@@ -1,14 +1,19 @@
 package dev.skirmish.hud;
 
+import dev.skirmish.module.Category;
 import dev.skirmish.module.Module;
 import dev.skirmish.setting.ActionSetting;
+import dev.skirmish.setting.BoolSetting;
 import dev.skirmish.setting.EnumSetting;
 import dev.skirmish.ui.Theme;
 import net.minecraft.client.Minecraft;
 
 import java.util.Locale;
 
-/** Core module «Интерфейс»: accent color of the UI kit and the HUD layout editor. */
+/**
+ * Core module «Интерфейс»: accent color of the UI kit, the HUD layout editor and the fight focus (panels not needed
+ * in a fight step aside while you are tagged or fighting a player).
+ */
 public final class InterfaceModule extends Module {
     public static final String ID = "interface";
 
@@ -23,15 +28,40 @@ public final class InterfaceModule extends Module {
         mc.setScreen(new HudEditScreen(mc.screen));
     }));
     final ActionSetting resetHud = add(new ActionSetting("reset_hud", () -> Hud.get().resetAll()));
+    final BoolSetting holyworldSafe = add(new BoolSetting("holyworld_safe", true));
+    final BoolSetting holyworldApi = add(new BoolSetting("holyworld_api", true));
+    final BoolSetting fightFocus = add(new BoolSetting("fight_focus", true));
+
+    @Override
+    public Category category() {
+        return Category.INTERFACE;
+    }
 
     public InterfaceModule() {
         super(ID, true);
+        holyworldSafe.onChange(value -> dev.skirmish.holyworld.FeatureControl.apply());
         accent.onChange(value -> Theme.get().setAccent(value.name().toLowerCase(Locale.ROOT)));
     }
 
     @Override
     public void onInitialize() {
         Theme.get().setAccent(accent.get().name().toLowerCase(Locale.ROOT));
+        Hud.fightFocus(() -> fightFocus.get() && dev.skirmish.module.survival.PvpState.inPvp());
+    }
+
+    /** Hide features HolyWorld's rules make risky while playing there (see FeatureControl.SAFE_MODE_FEATURES). */
+    public boolean holyworldSafeMode() {
+        return holyworldSafe.get();
+    }
+
+    /** Allow GET requests to api.holyworld.me. */
+    public boolean holyworldApi() {
+        return holyworldApi.get();
+    }
+
+    @Override
+    public String featureId() {
+        return null;
     }
 
     @Override

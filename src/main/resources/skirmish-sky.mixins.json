@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.skirmish.module.sky.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "AtmosphericFogMixin",
+    "CloudRendererMixin",
+    "SkyRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

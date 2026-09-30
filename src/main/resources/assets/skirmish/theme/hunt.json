@@ -1,0 +1,53 @@
+{
+  "colors": {
+    "hunt_gold": "#FFC857"
+  },
+  "layout": {
+    "hunt": {
+      "width": 268,
+      "gap": 6,
+      "tile_h": 22,
+      "tile_w": 16,
+      "tile_gap": 3,
+      "tile_r": 5,
+      "arrow": 18,
+      "bar_h": 4,
+      "bar_gap": 4
+    }
+  },
+  "text": {
+    "hunt_axis": {
+      "size": 11,
+      "weight": 700,
+      "color": "text_3"
+    },
+    "hunt_digit": {
+      "size": 14,
+      "weight": 700,
+      "color": "text",
+      "mono": true
+    },
+    "hunt_label": {
+      "size": 12,
+      "weight": 600,
+      "color": "text"
+    },
+    "hunt_dist": {
+      "size": 14,
+      "weight": 700,
+      "color": "text",
+      "mono": true
+    },
+    "hunt_small": {
+      "size": 10,
+      "weight": 500,
+      "color": "text_3",
+      "mono": true
+    },
+    "hunt_note": {
+      "size": 11,
+      "weight": 700,
+      "color": "text"
+    }
+  }
+}

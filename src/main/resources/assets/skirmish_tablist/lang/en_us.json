@@ -1,0 +1,17 @@
+{
+  "skirmish.module.tab_list.name": "Tab List",
+  "skirmish.module.tab_list.description": "The player list (Tab) as a Skirmish panel: the server's header and footer as they are, how many are online and your ping, then the players in columns — head, name with the server's prefixes and colours, the list score when the server shows one, and ping in milliseconds coloured green to red. Your row and your friends' rows are marked. The game still decides when the list shows.",
+  "skirmish.module.tab_list.setting.heads": "Heads",
+  "skirmish.module.tab_list.setting.heads.tooltip": "The skin's face in front of the name",
+  "skirmish.module.tab_list.setting.friends": "Mark friends",
+  "skirmish.module.tab_list.setting.friends.tooltip": "Rows of friends from the Friends module in green",
+  "skirmish.module.tab_list.setting.opacity": "Opacity",
+  "skirmish.module.tab_list.setting.opacity.tooltip": "How dense the panel's background is",
+  "skirmish.tablist.online": "Online: %s",
+  "skirmish.tablist.your_ping": "Your ping: %s ms",
+  "skirmish.module.tab_list.setting.sort": "Order",
+  "skirmish.module.tab_list.setting.sort.tooltip": "As the server sends it (ranks, teams), by nick or by ping",
+  "skirmish.module.tab_list.setting.sort.server": "Server",
+  "skirmish.module.tab_list.setting.sort.name": "Nick",
+  "skirmish.module.tab_list.setting.sort.ping": "Ping"
+}

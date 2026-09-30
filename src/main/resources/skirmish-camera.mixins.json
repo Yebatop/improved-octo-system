@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.skirmish.module.camera.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "LowFireMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

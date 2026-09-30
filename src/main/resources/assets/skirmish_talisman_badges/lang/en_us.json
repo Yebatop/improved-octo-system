@@ -1,0 +1,18 @@
+{
+  "skirmish.module.talisman_badges.name": "Item Badges",
+  "skirmish.module.talisman_badges.description": "Labels on inventory and hotbar slots for HolyWorld items: sphere and talisman effects (\"D3 A2\"), rune, backpack level, TNT type (A, B, C4, BW, B2…). Read from the item's own name and lore.",
+  "skirmish.module.talisman_badges.setting.holyworld_only": "HolyWorld only",
+  "skirmish.module.talisman_badges.setting.holyworld_only.tooltip": "No badges on other servers",
+  "skirmish.module.talisman_badges.setting.stats": "Spheres and talismans",
+  "skirmish.module.talisman_badges.setting.stats.tooltip": "Effects in short: D damage, A armour, S speed, AS attack speed, HP health, H haste",
+  "skirmish.module.talisman_badges.setting.runes": "Runes",
+  "skirmish.module.talisman_badges.setting.runes.tooltip": "Top right: IM Immortality, RS Restoration",
+  "skirmish.module.talisman_badges.setting.backpacks": "Backpacks",
+  "skirmish.module.talisman_badges.setting.backpacks.tooltip": "Backpack level (1–4 or Infinity)",
+  "skirmish.module.talisman_badges.setting.tnt": "TNT",
+  "skirmish.module.talisman_badges.setting.tnt.tooltip": "Type: A, B, C4, BW blast wave, B2, St stealer, RSt reliable stealer, IW ice wave",
+  "skirmish.module.talisman_badges.setting.hotbar": "In the hotbar",
+  "skirmish.module.talisman_badges.setting.hotbar.tooltip": "Badges on the hotbar too, not only in inventories",
+  "skirmish.module.talisman_badges.setting.text_scale": "Text size",
+  "skirmish.module.talisman_badges.setting.text_scale.tooltip": "How much larger than a normal badge"
+}
