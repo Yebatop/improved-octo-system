@@ -62,6 +62,16 @@ final class AppIcons {
                 ui.rect(x + 13 * s, y + 7 * s, 5 * s, 2 * s, 1 * s, c);
                 ui.rect(x + 6 * s, y + 14 * s, 12 * s, 3 * s, 1 * s, c);
             }
+            case "studio" -> { // a figure with a sparkle
+                ui.ring(x + 10 * s, y + 7.5f * s, 7 * s, W, c);
+                l(ui, x, y, s, c, 3.5f, 21, 4.5f, 16.5f);
+                l(ui, x, y, s, c, 4.5f, 16.5f, 7.5f, 13.5f);
+                l(ui, x, y, s, c, 7.5f, 13.5f, 12.5f, 13.5f);
+                l(ui, x, y, s, c, 12.5f, 13.5f, 15.5f, 16.5f);
+                l(ui, x, y, s, c, 15.5f, 16.5f, 16.5f, 21);
+                l(ui, x, y, s, c, 19.5f, 3, 19.5f, 9);
+                l(ui, x, y, s, c, 16.5f, 6, 22.5f, 6);
+            }
             case "keys" -> { // keyboard
                 ui.border(x + 2 * s, y + 6 * s, 20 * s, 13 * s, 2.5f * s, W, c);
                 for (float kx : new float[]{6, 10, 14, 18}) {

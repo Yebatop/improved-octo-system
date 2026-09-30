@@ -121,6 +121,8 @@ public final class SkirmishScreen extends UiScreen {
                 () -> minecraft.setScreen(new WaypointListScreen(this)), () -> moduleVisible(WaypointsModule.ID)));
         shortcuts.add(new Shortcut("skirmish.menu.shortcut.binds", CategoryIcons::keyboard,
                 () -> minecraft.setScreen(new dev.skirmish.binds.BindsScreen(this)), () -> true));
+        shortcuts.add(new Shortcut("skirmish.menu.shortcut.studio", CategoryIcons::studio,
+                () -> minecraft.setScreen(new dev.skirmish.studio.StudioScreen(this)), () -> true));
         this.search = new TextField(query, () -> gridScroll = 0f).placeholder(() -> Ui.tr("skirmish.menu.search"));
         this.clearSearch = new IconButton(IconButton.CLEAR, () -> {
             query.set("");

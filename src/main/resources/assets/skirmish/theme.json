@@ -35,6 +35,7 @@
     "theme/tablist.json",
     "theme/hunt.json",
     "theme/minimap.json",
+    "theme/studio.json",
     "theme/binds.json"
   ],
   "colors": {

@@ -67,6 +67,10 @@ public final class SkirmishCommand {
                     SkirmishClient.openScreenNextTick(() -> new dev.skirmish.binds.BindsScreen(null));
                     return 1;
                 }))
+                .then(literal("studio").executes(ctx -> {
+                    SkirmishClient.openScreenNextTick(() -> new dev.skirmish.studio.StudioScreen(null));
+                    return 1;
+                }))
                 .then(literal("hunt").then(literal("stop").executes(ctx -> {
                     dev.skirmish.module.hunt.HuntModule.stop();
                     ctx.getSource().sendFeedback(Component.translatable("skirmish.hunt.stopped"));

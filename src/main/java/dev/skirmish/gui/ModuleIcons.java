@@ -299,6 +299,11 @@ public final class ModuleIcons {
                 ui.border(x + 3f * s, y + 4f * s, 18f * s, 16f * s, 3f * s, STROKE * s, c);
                 p(ui, x, y, s, c, 13.5f, 8f, 10.5f, 16f);
             }
+            case "player_fx" -> { // a four-point sparkle with two small ones
+                p(ui, x, y, s, c, 11f, 3f, 13f, 9f, 19f, 11f, 13f, 13f, 11f, 19f, 9f, 13f, 3f, 11f, 9f, 9f, 11f, 3f);
+                ui.circle(x + 19f * s, y + 4.5f * s, 2.2f * s, c);
+                ui.circle(x + 5f * s, y + 19.5f * s, 2.2f * s, c);
+            }
             case "minimap" -> { // a round map with an arrow in the middle and a dot
                 ui.ring(x + 12f * s, y + 12f * s, 19f * s, STROKE * s, c);
                 p(ui, x, y, s, c, 12f, 7.5f, 15f, 15.5f, 12f, 13.5f, 9f, 15.5f, 12f, 7.5f);

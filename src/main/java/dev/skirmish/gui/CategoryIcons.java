@@ -84,6 +84,15 @@ final class CategoryIcons {
         path(ui, x, y, size, color, 8f, 15.5f, 16f, 15.5f);
     }
 
+    /** A figure with a sparkle (Studio shortcut). */
+    static void studio(Ui ui, float x, float y, float size, int color) {
+        float s = size / 24f;
+        ui.ring(x + 10f * s, y + 7.5f * s, 7f * s, STROKE * s, color);
+        path(ui, x, y, size, color, 3.5f, 21f, 4.5f, 16.5f, 7.5f, 13.5f, 12.5f, 13.5f, 15.5f, 16.5f, 16.5f, 21f);
+        path(ui, x, y, size, color, 19.5f, 3f, 19.5f, 9f);
+        path(ui, x, y, size, color, 16.5f, 6f, 22.5f, 6f);
+    }
+
     /** Map pin (waypoints shortcut). */
     static void pin(Ui ui, float x, float y, float size, int color) {
         float s = size / 24f;

@@ -117,5 +117,6 @@
   "skirmish.binds.wheel.to_chat": "Отпусти — вставить в чат",
   "skirmish.binds.wheel.hint": "Наведи мышь на команду и отпусти клавишу (или кликни) · в центре или Esc — отмена",
   "skirmish.binds.wheel.empty": "Команд пока нет — добавь их в биндах, раздел «Команды»",
-  "skirmish.binds.wheel.open_binds": "Открыть бинды"
+  "skirmish.binds.wheel.open_binds": "Открыть бинды",
+  "key.skirmish.toggle.player_fx": "Вкл/выкл: Player FX"
 }

@@ -44,7 +44,8 @@
     "skirmish-invtheme.mixins.json",
     "skirmish-sky.mixins.json",
     "skirmish-chat.mixins.json",
-    "skirmish-tablist.mixins.json"
+    "skirmish-tablist.mixins.json",
+    "skirmish-playerfx.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_min_version}",

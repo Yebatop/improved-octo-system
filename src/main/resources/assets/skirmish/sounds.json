@@ -1,0 +1,218 @@
+{
+  "fx.crit_heavy": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/crit_heavy",
+        "stream": false
+      }
+    ]
+  },
+  "fx.crit_sparkle": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/crit_sparkle",
+        "stream": false
+      }
+    ]
+  },
+  "fx.crit_zap": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/crit_zap",
+        "stream": false
+      }
+    ]
+  },
+  "fx.hit_bubble": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/hit_bubble",
+        "stream": false
+      }
+    ]
+  },
+  "fx.hit_coin": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/hit_coin",
+        "stream": false
+      }
+    ]
+  },
+  "fx.hit_glass": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/hit_glass",
+        "stream": false
+      }
+    ]
+  },
+  "fx.hit_laser": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/hit_laser",
+        "stream": false
+      }
+    ]
+  },
+  "fx.hit_metal": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/hit_metal",
+        "stream": false
+      }
+    ]
+  },
+  "fx.hit_punch": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/hit_punch",
+        "stream": false
+      }
+    ]
+  },
+  "fx.hit_snap": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/hit_snap",
+        "stream": false
+      }
+    ]
+  },
+  "fx.hit_tick": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/hit_tick",
+        "stream": false
+      }
+    ]
+  },
+  "fx.kill_arcade": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/kill_arcade",
+        "stream": false
+      }
+    ]
+  },
+  "fx.kill_bass": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/kill_bass",
+        "stream": false
+      }
+    ]
+  },
+  "fx.kill_chime": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/kill_chime",
+        "stream": false
+      }
+    ]
+  },
+  "fx.kill_choir": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/kill_choir",
+        "stream": false
+      }
+    ]
+  },
+  "fx.kill_fanfare": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/kill_fanfare",
+        "stream": false
+      }
+    ]
+  },
+  "fx.kill_gong": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/kill_gong",
+        "stream": false
+      }
+    ]
+  },
+  "fx.kill_shatter": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/kill_shatter",
+        "stream": false
+      }
+    ]
+  },
+  "fx.kill_soul": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/kill_soul",
+        "stream": false
+      }
+    ]
+  },
+  "fx.studio_whoosh": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/studio_whoosh",
+        "stream": false
+      }
+    ]
+  },
+  "fx.totem_bell": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/totem_bell",
+        "stream": false
+      }
+    ]
+  },
+  "fx.totem_choir": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/totem_choir",
+        "stream": false
+      }
+    ]
+  },
+  "fx.totem_phoenix": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/totem_phoenix",
+        "stream": false
+      }
+    ]
+  },
+  "fx.totem_shimmer": {
+    "subtitle": "subtitles.skirmish.fx",
+    "sounds": [
+      {
+        "name": "skirmish:fx/totem_shimmer",
+        "stream": false
+      }
+    ]
+  }
+}

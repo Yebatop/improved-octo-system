@@ -1,0 +1,69 @@
+{
+  "colors": {
+    "totem_gold": "#FFC857"
+  },
+  "layout": {
+    "studio": {
+      "width": 1240,
+      "height": 720,
+      "min_width": 900,
+      "min_height": 560,
+      "pad": 22,
+      "gap": 12,
+      "stage_share": 0.6,
+      "hp_w": 64,
+      "hp_h": 6,
+      "scene_w": 132,
+      "tab_h": 30,
+      "tab_pad": 13,
+      "indent": 16,
+      "slider_w": 120,
+      "dropdown_w": 150,
+      "row_min_h": 38
+    },
+    "player_fx": {
+      "pill_h": 34,
+      "pill_pad": 14,
+      "pill_icon": 16,
+      "pill_gap": 8
+    }
+  },
+  "text": {
+    "studio_hp": {
+      "size": 11,
+      "weight": 700,
+      "color": "text",
+      "mono": true
+    },
+    "studio_streak": {
+      "size": 22,
+      "weight": 800,
+      "color": "warn"
+    },
+    "studio_hint": {
+      "size": 10,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "studio_tab": {
+      "size": 12,
+      "weight": 700,
+      "color": "text_2"
+    },
+    "studio_row_desc": {
+      "size": 10,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "pfx_totem_title": {
+      "size": 13,
+      "weight": 800,
+      "color": "totem_gold"
+    },
+    "pfx_totem_left": {
+      "size": 12,
+      "weight": 600,
+      "color": "text_2"
+    }
+  }
+}

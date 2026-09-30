@@ -2,9 +2,14 @@ package dev.skirmish.module.killfx;
 
 import dev.skirmish.combat.CombatListener;
 import dev.skirmish.combat.CombatTracker;
-import dev.skirmish.combat.DamageInfo;
 import dev.skirmish.combat.Fight;
 import dev.skirmish.combat.OwnDeath;
+import dev.skirmish.fx.FxPalette;
+import dev.skirmish.fx.FxPresets;
+import dev.skirmish.fx.FxSounds;
+import dev.skirmish.fx.FxStyles;
+import dev.skirmish.fx.FxWorld;
+import dev.skirmish.fx.MyHits;
 import dev.skirmish.hud.Hud;
 import dev.skirmish.module.Category;
 import dev.skirmish.module.Module;
@@ -43,11 +48,15 @@ public final class KillFxModule extends Module {
     public static final String ID = "kill_fx";
 
     public enum KillSound {
-        LEVEL_UP, ORB, PLING, BELL, CHIME, ANVIL, THUNDER;
+        LEVEL_UP, ORB, PLING, BELL, CHIME, ANVIL, THUNDER,
+        ARPEGGIO, BASS_DROP, ARCADE, CHOIR, SHATTER, GONG, FANFARE, SOUL;
 
         /** Resolved lazily so the enum can be loaded without the game's registries (menu tests). */
         SoundEvent event() {
             return switch (this) {
+                case ARPEGGIO -> FxSounds.of("kill_chime");
+                case BASS_DROP -> FxSounds.of("kill_bass");
+                case ARCADE, CHOIR, SHATTER, GONG, FANFARE, SOUL -> FxSounds.of("kill_" + name().toLowerCase(java.util.Locale.ROOT));
                 case LEVEL_UP -> SoundEvents.PLAYER_LEVELUP;
                 case ORB -> SoundEvents.EXPERIENCE_ORB_PICKUP;
                 case PLING -> SoundEvents.NOTE_BLOCK_PLING.value();
@@ -68,10 +77,11 @@ public final class KillFxModule extends Module {
     }
 
     public enum HitSound {
-        CLICK, CRIT, ORB, HAT;
+        CLICK, CRIT, ORB, HAT, TICK, PUNCH, GLASS, LASER, BUBBLE, COIN, METAL, SNAP;
 
         SoundEvent event() {
             return switch (this) {
+                case TICK, PUNCH, GLASS, LASER, BUBBLE, COIN, METAL, SNAP -> FxSounds.of("hit_" + name().toLowerCase(java.util.Locale.ROOT));
                 case CLICK -> SoundEvents.UI_BUTTON_CLICK.value();
                 case CRIT -> SoundEvents.PLAYER_ATTACK_CRIT;
                 case ORB -> SoundEvents.EXPERIENCE_ORB_PICKUP;
@@ -80,15 +90,35 @@ public final class KillFxModule extends Module {
         }
 
         float pitch() {
-            return this == ORB ? 1.8f : this == HAT ? 1.4f : 1.2f;
+            return this == ORB ? 1.8f : this == HAT ? 1.4f : this.ordinal() >= TICK.ordinal() ? 1f : 1.2f;
+        }
+    }
+
+    /** The sound of a critical hit: the hit sound itself, or one of its own. */
+    public enum CritSound {
+        SAME, SPARKLE, HEAVY, ZAP, VANILLA;
+
+        @Nullable SoundEvent event() {
+            return switch (this) {
+                case SAME -> null;
+                case VANILLA -> SoundEvents.PLAYER_ATTACK_CRIT;
+                default -> FxSounds.of("crit_" + name().toLowerCase(java.util.Locale.ROOT));
+            };
         }
     }
 
     public enum Burst {
-        TOTEM, FLAME, SOUL, HEARTS, SPARKS, FIREWORK;
+        TOTEM, FLAME, SOUL, HEARTS, SPARKS, FIREWORK,
+        SUPERNOVA, CONFETTI, SHATTER, SOUL_RISE, BLOOD_BURST, VORTEX, BLOOM, PILLAR;
+
+        /** The Player FX recipe for the drawn bursts, null for the vanilla-particle ones. */
+        public FxStyles.@Nullable Kill fx() {
+            return ordinal() >= SUPERNOVA.ordinal() ? FxStyles.Kill.valueOf(name()) : null;
+        }
 
         SimpleParticleType particle() {
             return switch (this) {
+                case SUPERNOVA, CONFETTI, SHATTER, SOUL_RISE, BLOOD_BURST, VORTEX, BLOOM, PILLAR -> ParticleTypes.END_ROD;
                 case TOTEM -> ParticleTypes.TOTEM_OF_UNDYING;
                 case FLAME -> ParticleTypes.FLAME;
                 case SOUL -> ParticleTypes.SOUL_FIRE_FLAME;
@@ -113,9 +143,12 @@ public final class KillFxModule extends Module {
             .under(sound).visibleWhen(sound::get);
     final NumberSetting volume = (NumberSetting) add(new NumberSetting("volume", 70, 5, 100, 5).unit("%"))
             .under(sound).visibleWhen(sound::get);
+    final BoolSetting streakPitch = (BoolSetting) add(new BoolSetting("streak_pitch", true)).under(sound).visibleWhen(sound::get);
     final BoolSetting particles = add(new BoolSetting("particles", true));
     final EnumSetting<Burst> burst = (EnumSetting<Burst>) add(new EnumSetting<>("burst", Burst.TOTEM))
             .under(particles).visibleWhen(particles::get);
+    final EnumSetting<FxPalette> burstColor = (EnumSetting<FxPalette>) add(new EnumSetting<>("burst_color", FxPalette.ACCENT))
+            .under(particles).visibleWhen(() -> particles.get() && burst.get().fx() != null);
     final NumberSetting amount = (NumberSetting) add(new NumberSetting("amount", 40, 10, 120, 5))
             .under(particles).visibleWhen(particles::get);
     final BoolSetting lightning = add(new BoolSetting("lightning", false));
@@ -128,9 +161,12 @@ public final class KillFxModule extends Module {
             .under(hitSound).visibleWhen(hitSound::get);
     final NumberSetting hitVolume = (NumberSetting) add(new NumberSetting("hit_volume", 40, 5, 100, 5).unit("%"))
             .under(hitSound).visibleWhen(hitSound::get);
+    final EnumSetting<CritSound> critSound = (EnumSetting<CritSound>) add(new EnumSetting<>("crit_sound", CritSound.SAME))
+            .under(hitSound).visibleWhen(hitSound::get);
 
     final KillStreak streakCounter = new KillStreak();
     private final BoltRenderer bolts = new BoltRenderer();
+    private static @Nullable KillFxModule instance;
     /** Last position of each fight opponent while visible to me. */
     private final Map<UUID, Vec3> lastSeen = new HashMap<>();
 
@@ -156,6 +192,13 @@ public final class KillFxModule extends Module {
 
     @Override
     public void onInitialize() {
+        instance = this;
+        FxWorld.install();
+        MyHits.listen((victim, crit) -> {
+            if (isEnabled() && hitSound.get()) {
+                playHitSound(crit);
+            }
+        });
         Hud.get().register(new KillBanner(this));
         CombatTracker.get().addListener(new Listener());
         WorldRenderEvents.BEFORE_ENTITIES.register(context -> {
@@ -238,7 +281,64 @@ public final class KillFxModule extends Module {
         return lastSeen.get(fight.opponent().uuid());
     }
 
+    public static @Nullable KillFxModule instance() {
+        return instance;
+    }
+
+    /** The hit sound (a crit's own sound when one is chosen). Also used by the Studio. */
+    public void playHitSound(boolean crit) {
+        SoundEvent critEvent = crit ? critSound.get().event() : null;
+        if (critEvent != null) {
+            play(critEvent, 1f, hitVolume.get());
+        } else {
+            play(hitSoundType.get().event(), hitSoundType.get().pitch() * (crit ? 1.15f : 1f), hitVolume.get());
+        }
+    }
+
+    /** The kill sound, a little higher with each kill of a streak when chosen. Also used by the Studio. */
+    public void playKillSound(int streakCount) {
+        float pitch = soundType.get().pitch();
+        if (streakPitch.get() && streakCount > 1) {
+            pitch *= (float) Math.min(1.5, 1 + 0.07 * (streakCount - 1));
+        }
+        play(soundType.get().event(), pitch, volume.get());
+    }
+
+    public boolean hitSoundOn() {
+        return hitSound.get();
+    }
+
+    public boolean killSoundOn() {
+        return sound.get();
+    }
+
+    public boolean particlesOn() {
+        return particles.get();
+    }
+
+    public boolean lightningOn() {
+        return lightning.get();
+    }
+
+    public Burst burst() {
+        return burst.get();
+    }
+
+    public FxPalette burstColor() {
+        return burstColor.get();
+    }
+
+    /** Burst size from «Количество» (40 is 1×). */
+    public float burstScale() {
+        return (float) (amount.get() / 40.0);
+    }
+
     private void burstAt(ClientLevel level, Vec3 pos) {
+        FxStyles.Kill fx = burst.get().fx();
+        if (fx != null) {
+            FxPresets.kill(FxWorld.field(), fx, burstColor.get(), pos.x, pos.y, pos.z, (float) Math.max(0.5, Math.min(2, burstScale())));
+            return;
+        }
         RandomSource random = level.getRandom();
         Burst type = burst.get();
         double speed = type.speed();
@@ -264,7 +364,7 @@ public final class KillFxModule extends Module {
             Vec3 pos = victimPosition(fight);
             log("kill of %s, streak %d, position %s", fight.opponent().name(), count, pos == null ? "hidden/unknown" : "known");
             if (sound.get()) {
-                play(soundType.get().event(), soundType.get().pitch(), volume.get());
+                playKillSound(count);
             }
             if (pos != null && mc.level != null) {
                 if (particles.get()) {
@@ -285,17 +385,5 @@ public final class KillFxModule extends Module {
             streakCounter.death();
         }
 
-        @Override
-        public void onDamage(DamageInfo info) {
-            if (!isEnabled() || !hitSound.get() || !info.byMe() || info.onMe()) {
-                return;
-            }
-            Minecraft mc = Minecraft.getInstance();
-            Entity victim = mc.level == null ? null : mc.level.getEntity(info.victim().entityId());
-            if (victim == null || hidden(victim)) {
-                return;
-            }
-            play(hitSoundType.get().event(), hitSoundType.get().pitch(), hitVolume.get());
-        }
     }
 }

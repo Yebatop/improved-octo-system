@@ -117,5 +117,6 @@
   "skirmish.binds.wheel.to_chat": "Let go to put in chat",
   "skirmish.binds.wheel.hint": "Point at a command and let go of the key (or click) · middle or Esc cancels",
   "skirmish.binds.wheel.empty": "No commands yet — add them in the binds screen, «Commands»",
-  "skirmish.binds.wheel.open_binds": "Open binds"
+  "skirmish.binds.wheel.open_binds": "Open binds",
+  "key.skirmish.toggle.player_fx": "Toggle: Player FX"
 }

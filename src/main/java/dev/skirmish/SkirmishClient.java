@@ -96,6 +96,7 @@ public final class SkirmishClient implements ClientModInitializer {
         modules.register(new dev.skirmish.module.runewindow.RuneWindowModule());
         modules.register(new dev.skirmish.module.damagenumbers.DamageNumbersModule());
         modules.register(new dev.skirmish.module.killfx.KillFxModule());
+        modules.register(new dev.skirmish.module.playerfx.PlayerFxModule());
         modules.register(new dev.skirmish.module.playermenu.PlayerMenuModule());
         modules.register(new dev.skirmish.module.hwitems.badges.TalismanBadgesModule());
         modules.register(new dev.skirmish.module.hwitems.tooltips.HwTooltipsModule());
@@ -137,6 +138,9 @@ public final class SkirmishClient implements ClientModInitializer {
         dev.skirmish.binds.CommandBindsModule.registerKeys();
         Hud.install(dir.resolve("hud.json"));
         dev.skirmish.binds.BindToast.install();
+        dev.skirmish.studio.StudioScreen.install();
+        dev.skirmish.module.menus.SkirmishPauseScreen.registerShortcut(new dev.skirmish.module.menus.SkirmishPauseScreen.Shortcut(
+                "skirmish.menu.shortcut.studio", "studio", 72, parent -> Minecraft.getInstance().setScreen(new dev.skirmish.studio.StudioScreen(parent)), () -> true));
         dev.skirmish.module.menus.SkirmishPauseScreen.registerShortcut(new dev.skirmish.module.menus.SkirmishPauseScreen.Shortcut(
                 "skirmish.menu.shortcut.binds", "keys", 70, parent -> Minecraft.getInstance().setScreen(new dev.skirmish.binds.BindsScreen(parent)), () -> true));
         FeatureControl.install(iface::holyworldSafeMode);

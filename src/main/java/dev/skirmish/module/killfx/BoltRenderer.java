@@ -17,7 +17,7 @@ import java.util.List;
  * branches, four nested glow layers, {@code RenderTypes.lightning()}), shorter and fading out. No entity is created,
  * nothing is sent, no sound or sky flash is caused; it is geometry submitted from {@code BEFORE_ENTITIES}.
  */
-final class BoltRenderer {
+public final class BoltRenderer {
     private static final String L = "layout.kill_fx.";
 
     private record Bolt(double x, double y, double z, long seed, long bornMs) {
@@ -67,7 +67,7 @@ final class BoltRenderer {
     }
 
     /** The vanilla LightningBoltRenderer geometry with a configurable segment height (vanilla: 16 blocks). */
-    private static void geometry(Matrix4f matrix, VertexConsumer consumer, long seed, float segment, float r, float g, float b, float a) {
+    public static void geometry(Matrix4f matrix, VertexConsumer consumer, long seed, float segment, float r, float g, float b, float a) {
         float[] xs = new float[8];
         float[] zs = new float[8];
         float x = 0f;
