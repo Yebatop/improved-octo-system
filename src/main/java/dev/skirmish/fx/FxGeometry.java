@@ -3,146 +3,151 @@ package dev.skirmish.fx;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-
-import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /**
- * Turns effect particles into quads (position + colour) facing the viewer: {@code right}/{@code up} are the view's
- * axes in the particles' space, {@code ox, oy, oz} is subtracted from positions (the camera in the world, 0 in the
- * Studio). Glowing shapes go to {@code glow} (additive), painted ones to {@code paint}. Triangles are quads with a
- * repeated corner.
+ * Turns an effects field into textured quads: sprites facing the viewer (or stretched along their motion, flat on
+ * the ground, or in their own plane), ribbons as soft bands through their points, electric arcs as glowing bands with
+ * a white core. {@code right/up/forward} are the view's axes in the field's space; {@code ox, oy, oz} is subtracted
+ * from positions (the camera in the world, 0 in the Studio); {@code eye} is the camera position for ribbons in
+ * perspective, or null in the Studio's flat view. Glowing things go to the additive pass, painted ones to the other,
+ * which also lays a faint coat of the glowing ones so they keep their colour on snow and sky.
  */
 public final class FxGeometry {
-    private static final int SEGMENTS = 20;
-    private static final float[] COS = new float[SEGMENTS + 1];
-    private static final float[] SIN = new float[SEGMENTS + 1];
-    private static final int RING_SEGMENTS = 28;
-    /** How strongly glowing shapes are also painted (see {@link #draw}). */
-    private static final float TINT = 0.4f;
-
-    static {
-        for (int i = 0; i <= SEGMENTS; i++) {
-            double a = i * Math.PI * 2 / SEGMENTS;
-            COS[i] = (float) Math.cos(a);
-            SIN[i] = (float) Math.sin(a);
-        }
-    }
+    /** How strongly glowing sprites are also painted. */
+    private static final float COAT = 0.32f;
+    /** A texel inside the atlas's solid white area, for plain coloured shapes drawn with the effect render types. */
+    public static final float SOLID_U = FxSprite.RIBBON.u0 + FxSprite.RIBBON.du * 0.5f;
+    public static final float SOLID_V = FxSprite.RIBBON.v0 + FxSprite.RIBBON.dv * 0.5f;
 
     private FxGeometry() {
     }
 
-    public static void draw(List<Fx> particles, boolean additive, Matrix4f m, VertexConsumer c,
-                            double ox, double oy, double oz, Vector3f right, Vector3f up, Vector3f forward) {
-        for (Fx fx : particles) {
-            // The painted pass also lays a faint coat of the glowing shapes, so they keep their colour on bright
-            // backgrounds (snow, sky) where added light alone washes out.
-            boolean coat = !additive && fx.shape.additive;
-            if (fx.shape.additive != additive && !coat) {
+    public static void draw(FxField field, boolean additive, Matrix4f m, VertexConsumer c, double ox, double oy, double oz,
+                            Vector3f right, Vector3f up, Vector3f forward, double @Nullable [] eye) {
+        for (Fx fx : field.live()) {
+            boolean coat = !additive && fx.add;
+            if (fx.add != additive && !coat) {
                 continue;
             }
-            int color = coat ? FxColor.alpha(fx.color(), ((fx.color() >>> 24) / 255f) * TINT) : fx.color();
+            int color = fx.color();
+            if (coat) {
+                color = FxColor.alpha(color, ((color >>> 24) / 255f) * COAT);
+            }
             if ((color >>> 24) < 2) {
+                continue;
+            }
+            float s = fx.size();
+            if (s <= 0.0005f) {
                 continue;
             }
             float x = (float) (fx.x - ox);
             float y = (float) (fx.y - oy);
             float z = (float) (fx.z - oz);
-            float s = fx.size();
-            if (s <= 0.0005f) {
-                continue;
+            sprite(m, c, fx, x, y, z, s, color, right, up, forward);
+            if (fx.core > 0 && !coat) {
+                sprite(m, c, fx, x, y, z, s * fx.core, FxColor.lighten(color, 0.75f), right, up, forward);
             }
-            switch (fx.shape) {
-                case GLOW -> {
-                    // A soft falloff: bright inside, a long faint skirt, so even big glows have no visible edge.
-                    int mid = FxColor.alpha(color, 0.38f);
-                    disc(m, c, x, y, z, right, up, s * 0.45f, color, mid);
-                    ringBand(m, c, x, y, z, right, up, s * 0.45f, s, mid, color & 0x00FFFFFF);
-                    disc(m, c, x, y, z, right, up, s * 0.22f, FxColor.lighten(color, 0.6f), FxColor.alpha(FxColor.lighten(color, 0.6f), 0f));
+        }
+        for (FxRibbon r : field.ribbons()) {
+            if (r.add == additive || (!additive && r.add)) {
+                boolean coat = !additive && r.add;
+                ribbon(m, c, r, ox, oy, oz, forward, eye, coat ? COAT : 1f, 1f, false);
+                if (r.core > 0 && !coat) {
+                    ribbon(m, c, r, ox, oy, oz, forward, eye, 1f, r.core, true);
                 }
-                case DOT -> {
-                    disc(m, c, x, y, z, right, up, s * 0.55f, color, color);
-                    ringBand(m, c, x, y, z, right, up, s * 0.55f, s, color, color & 0x00FFFFFF);
-                }
-                case SMOKE -> disc(m, c, x, y, z, right, up, s, color, color & 0x00FFFFFF);
-                case SPARK -> spark(m, c, fx, x, y, z, right, up, forward, s, color);
-                case STAR -> star(m, c, x, y, z, right, up, s, fx.rot, color);
-                case RING -> flatRing(m, c, x, y, z, s, color);
-                case FACE_RING -> ringBand(m, c, x, y, z, right, up, s * 0.82f, s, color & 0x00FFFFFF, color);
-                case SHARD -> shard(m, c, x, y, z, right, up, s, fx.rot, (float) Math.cos(fx.rot * 1.7f), color);
-                case SQUARE -> square(m, c, x, y, z, right, up, s, fx.rot, (float) Math.cos(fx.rot * 2.3f), color);
+            }
+        }
+        if (additive) {
+            for (FxBolt b : field.bolts()) {
+                bolt(m, c, b, ox, oy, oz, forward, eye);
             }
         }
     }
 
-    private static void v(Matrix4f m, VertexConsumer c, float x, float y, float z, int color) {
-        c.addVertex(m, x, y, z).setColor(color);
+    private static void v(VertexConsumer c, Matrix4f m, float x, float y, float z, float u, float vv, int color) {
+        c.addVertex(m, x, y, z).setUv(u, vv).setColor(color);
     }
 
-    /** A disc as a fan of quads: {@code inner} colour in the middle, {@code outer} at the rim. */
-    private static void disc(Matrix4f m, VertexConsumer c, float x, float y, float z, Vector3f r, Vector3f u, float radius,
-                             int inner, int outer) {
-        int step = radius < 0.25f ? 2 : 1;
-        for (int i = 0; i < SEGMENTS; i += step) {
-            int j = i + step;
-            float ax = (COS[i] * r.x + SIN[i] * u.x) * radius;
-            float ay = (COS[i] * r.y + SIN[i] * u.y) * radius;
-            float az = (COS[i] * r.z + SIN[i] * u.z) * radius;
-            float bx = (COS[j] * r.x + SIN[j] * u.x) * radius;
-            float by = (COS[j] * r.y + SIN[j] * u.y) * radius;
-            float bz = (COS[j] * r.z + SIN[j] * u.z) * radius;
-            v(m, c, x, y, z, inner);
-            v(m, c, x + ax, y + ay, z + az, outer);
-            v(m, c, x + bx, y + by, z + bz, outer);
-            v(m, c, x, y, z, inner);
+    private static void sprite(Matrix4f m, VertexConsumer c, Fx fx, float x, float y, float z, float s, int color,
+                               Vector3f r, Vector3f u, Vector3f f) {
+        FxSprite sp = fx.sprite;
+        float u0 = sp.u0 + sp.du * fx.frame();
+        float u1 = u0 + sp.du;
+        float v0 = sp.v0;
+        float v1 = sp.v0 + sp.dv;
+        if (fx.orient == Fx.Orient.STRETCH) {
+            stretch(m, c, fx, x, y, z, s, color, u, f, u0, u1, v0, v1);
+            return;
         }
-    }
-
-    /** A band between two radii facing the viewer. */
-    private static void ringBand(Matrix4f m, VertexConsumer c, float x, float y, float z, Vector3f r, Vector3f u,
-                                 float inner, float outer, int innerColor, int outerColor) {
-        int step = outer < 0.25f ? 2 : 1;
-        for (int i = 0; i < SEGMENTS; i += step) {
-            int j = i + step;
-            float cx0 = COS[i] * r.x + SIN[i] * u.x;
-            float cy0 = COS[i] * r.y + SIN[i] * u.y;
-            float cz0 = COS[i] * r.z + SIN[i] * u.z;
-            float cx1 = COS[j] * r.x + SIN[j] * u.x;
-            float cy1 = COS[j] * r.y + SIN[j] * u.y;
-            float cz1 = COS[j] * r.z + SIN[j] * u.z;
-            v(m, c, x + cx0 * inner, y + cy0 * inner, z + cz0 * inner, innerColor);
-            v(m, c, x + cx0 * outer, y + cy0 * outer, z + cz0 * outer, outerColor);
-            v(m, c, x + cx1 * outer, y + cy1 * outer, z + cz1 * outer, outerColor);
-            v(m, c, x + cx1 * inner, y + cy1 * inner, z + cz1 * inner, innerColor);
+        // The quad's two in-plane axes.
+        float ax;
+        float ay;
+        float az;
+        float bx;
+        float by;
+        float bz;
+        switch (fx.orient) {
+            case FLAT -> {
+                ax = 1;
+                ay = 0;
+                az = 0;
+                bx = 0;
+                by = 0;
+                bz = 1;
+            }
+            case PLANE -> {
+                float nx = fx.nx;
+                float ny = fx.ny;
+                float nz = fx.nz;
+                // a = n × worldUp (or × X when n is nearly vertical), b = a × n.
+                if (Math.abs(ny) < 0.95f) {
+                    ax = -nz;
+                    ay = 0;
+                    az = nx;
+                } else {
+                    ax = 0;
+                    ay = nz;
+                    az = -ny;
+                }
+                float al = (float) Math.sqrt(ax * ax + ay * ay + az * az);
+                ax /= al;
+                ay /= al;
+                az /= al;
+                bx = ay * nz - az * ny;
+                by = az * nx - ax * nz;
+                bz = ax * ny - ay * nx;
+            }
+            default -> {
+                ax = r.x;
+                ay = r.y;
+                az = r.z;
+                bx = u.x;
+                by = u.y;
+                bz = u.z;
+            }
         }
+        float cos = (float) Math.cos(fx.rot);
+        float sin = (float) Math.sin(fx.rot);
+        float wobble = fx.tumble > 0 ? 1f - fx.tumble * (1f - Math.abs((float) Math.cos(fx.rot * 1.7f))) : 1f;
+        float hw = s * fx.aspect * wobble;
+        float hh = s;
+        // Rotated axes.
+        float rx = ax * cos + bx * sin;
+        float ry = ay * cos + by * sin;
+        float rz = az * cos + bz * sin;
+        float ux = bx * cos - ax * sin;
+        float uy = by * cos - ay * sin;
+        float uz = bz * cos - az * sin;
+        v(c, m, x - rx * hw - ux * hh, y - ry * hw - uy * hh, z - rz * hw - uz * hh, u0, v1, color);
+        v(c, m, x + rx * hw - ux * hh, y + ry * hw - uy * hh, z + rz * hw - uz * hh, u1, v1, color);
+        v(c, m, x + rx * hw + ux * hh, y + ry * hw + uy * hh, z + rz * hw + uz * hh, u1, v0, color);
+        v(c, m, x - rx * hw + ux * hh, y - ry * hw + uy * hh, z - rz * hw + uz * hh, u0, v0, color);
     }
 
-    /** A flat ring on the ground: a bright band fading both ways, radius {@code radius}. */
-    private static void flatRing(Matrix4f m, VertexConsumer c, float x, float y, float z, float radius, int color) {
-        float width = Math.max(0.04f, radius * 0.12f);
-        int clear = color & 0x00FFFFFF;
-        for (int i = 0; i < RING_SEGMENTS; i++) {
-            double a0 = i * Math.PI * 2 / RING_SEGMENTS;
-            double a1 = (i + 1) * Math.PI * 2 / RING_SEGMENTS;
-            float c0 = (float) Math.cos(a0);
-            float s0 = (float) Math.sin(a0);
-            float c1 = (float) Math.cos(a1);
-            float s1 = (float) Math.sin(a1);
-            float rIn = Math.max(0f, radius - width);
-            float rOut = radius + width;
-            v(m, c, x + c0 * rIn, y, z + s0 * rIn, clear);
-            v(m, c, x + c0 * radius, y, z + s0 * radius, color);
-            v(m, c, x + c1 * radius, y, z + s1 * radius, color);
-            v(m, c, x + c1 * rIn, y, z + s1 * rIn, clear);
-            v(m, c, x + c0 * radius, y, z + s0 * radius, color);
-            v(m, c, x + c0 * rOut, y, z + s0 * rOut, clear);
-            v(m, c, x + c1 * rOut, y, z + s1 * rOut, clear);
-            v(m, c, x + c1 * radius, y, z + s1 * radius, color);
-        }
-    }
-
-    /** A streak from the particle back along its motion as seen by the viewer. */
-    private static void spark(Matrix4f m, VertexConsumer c, Fx fx, float x, float y, float z, Vector3f r, Vector3f u,
-                              Vector3f f, float width, int color) {
+    /** Facing the viewer, stretched from behind the particle to just ahead of it along its motion. */
+    private static void stretch(Matrix4f m, VertexConsumer c, Fx fx, float x, float y, float z, float w, int color,
+                                Vector3f up, Vector3f f, float u0, float u1, float v0, float v1) {
         float vx = (float) fx.vx;
         float vy = (float) fx.vy;
         float vz = (float) fx.vz;
@@ -155,98 +160,164 @@ public final class FxGeometry {
         float dy;
         float dz;
         if (speed < 1e-3f) {
-            dx = u.x;
-            dy = u.y;
-            dz = u.z;
-            speed = 0f;
+            dx = up.x;
+            dy = up.y;
+            dz = up.z;
         } else {
             dx = vx / speed;
             dy = vy / speed;
             dz = vz / speed;
         }
-        float len = Math.max(width * 2f, speed * fx.stretch);
-        // Side vector: the direction turned a quarter in the view plane.
+        float len = Math.max(w * 2f, speed * fx.stretch);
         float sx = dy * f.z - dz * f.y;
         float sy = dz * f.x - dx * f.z;
         float sz = dx * f.y - dy * f.x;
         float sl = (float) Math.sqrt(sx * sx + sy * sy + sz * sz);
-        if (sl < 1e-4f) {
-            sx = r.x;
-            sy = r.y;
-            sz = r.z;
-            sl = 1f;
+        if (sl < 1e-5f) {
+            return;
         }
-        sx = sx / sl * width;
-        sy = sy / sl * width;
-        sz = sz / sl * width;
-        int clear = color & 0x00FFFFFF;
-        int head = FxColor.lighten(color, 0.5f);
-        v(m, c, x + sx, y + sy, z + sz, color);
-        v(m, c, x + dx * width, y + dy * width, z + dz * width, head);
-        v(m, c, x - sx, y - sy, z - sz, color);
-        v(m, c, x - dx * len, y - dy * len, z - dz * len, clear);
-    }
-
-    private static void star(Matrix4f m, VertexConsumer c, float x, float y, float z, Vector3f r, Vector3f u, float size,
-                             float rot, int color) {
-        float cos = (float) Math.cos(rot);
-        float sin = (float) Math.sin(rot);
-        // Rotated axes in the view plane.
-        float ax = r.x * cos + u.x * sin;
-        float ay = r.y * cos + u.y * sin;
-        float az = r.z * cos + u.z * sin;
-        float bx = u.x * cos - r.x * sin;
-        float by = u.y * cos - r.y * sin;
-        float bz = u.z * cos - r.z * sin;
-        float thin = size * 0.18f;
-        int tip = color & 0x00FFFFFF | 0x30000000;
-        int core = FxColor.lighten(color, 0.7f);
-        // Two long thin diamonds crossed.
-        diamond(m, c, x, y, z, ax, ay, az, bx, by, bz, size, thin, core, tip);
-        diamond(m, c, x, y, z, bx, by, bz, ax, ay, az, size, thin, core, tip);
-        disc(m, c, x, y, z, r, u, size * 0.45f, FxColor.alpha(color, 0.8f), color & 0x00FFFFFF);
-    }
-
-    private static void diamond(Matrix4f m, VertexConsumer c, float x, float y, float z, float ax, float ay, float az,
-                                float bx, float by, float bz, float len, float thin, int core, int tip) {
-        v(m, c, x + ax * len, y + ay * len, z + az * len, tip);
-        v(m, c, x + bx * thin, y + by * thin, z + bz * thin, core);
-        v(m, c, x - ax * len, y - ay * len, z - az * len, tip);
-        v(m, c, x - bx * thin, y - by * thin, z - bz * thin, core);
-    }
-
-    private static void shard(Matrix4f m, VertexConsumer c, float x, float y, float z, Vector3f r, Vector3f u, float size,
-                              float rot, float flip, int color) {
-        float cos = (float) Math.cos(rot);
-        float sin = (float) Math.sin(rot);
-        float[] px = {0f, 0.85f * flip, -0.6f * flip};
-        float[] py = {1f, -0.55f, -0.4f};
-        float[][] pts = new float[3][3];
-        for (int i = 0; i < 3; i++) {
-            float lx = (px[i] * cos - py[i] * sin) * size;
-            float ly = (px[i] * sin + py[i] * cos) * size;
-            pts[i][0] = x + r.x * lx + u.x * ly;
-            pts[i][1] = y + r.y * lx + u.y * ly;
-            pts[i][2] = z + r.z * lx + u.z * ly;
+        float hw = w * fx.aspect;
+        sx = sx / sl * hw;
+        sy = sy / sl * hw;
+        sz = sz / sl * hw;
+        float hx = x + dx * w;
+        float hy = y + dy * w;
+        float hz = z + dz * w;
+        float tx = x - dx * len;
+        float ty = y - dy * len;
+        float tz = z - dz * len;
+        if (fx.sprite == FxSprite.DROP || fx.sprite == FxSprite.BEAM || fx.sprite == FxSprite.FEATHER) {
+            // Upright sprites: their top (v0) trails, their bottom (v1) leads.
+            v(c, m, tx - sx, ty - sy, tz - sz, u0, v0, color);
+            v(c, m, hx - sx, hy - sy, hz - sz, u0, v1, color);
+            v(c, m, hx + sx, hy + sy, hz + sz, u1, v1, color);
+            v(c, m, tx + sx, ty + sy, tz + sz, u1, v0, color);
+        } else {
+            // Sideways sprites (sparks): the left (u0) trails, the right (u1) leads.
+            v(c, m, tx - sx, ty - sy, tz - sz, u0, v1, color);
+            v(c, m, hx - sx, hy - sy, hz - sz, u1, v1, color);
+            v(c, m, hx + sx, hy + sy, hz + sz, u1, v0, color);
+            v(c, m, tx + sx, ty + sy, tz + sz, u0, v0, color);
         }
-        int edge = FxColor.lighten(color, 0.45f);
-        v(m, c, pts[0][0], pts[0][1], pts[0][2], edge);
-        v(m, c, pts[1][0], pts[1][1], pts[1][2], color);
-        v(m, c, pts[2][0], pts[2][1], pts[2][2], color);
-        v(m, c, pts[2][0], pts[2][1], pts[2][2], color);
     }
 
-    private static void square(Matrix4f m, VertexConsumer c, float x, float y, float z, Vector3f r, Vector3f u, float size,
-                               float rot, float flip, int color) {
-        float cos = (float) Math.cos(rot);
-        float sin = (float) Math.sin(rot);
-        float hw = size * flip;
-        float hh = size * 0.6f;
-        float[][] corners = {{-hw, -hh}, {hw, -hh}, {hw, hh}, {-hw, hh}};
-        for (float[] k : corners) {
-            float lx = k[0] * cos - k[1] * sin;
-            float ly = k[0] * sin + k[1] * cos;
-            v(m, c, x + r.x * lx + u.x * ly, y + r.y * lx + u.y * ly, z + r.z * lx + u.z * ly, color);
+    private static void ribbon(Matrix4f m, VertexConsumer c, FxRibbon r, double ox, double oy, double oz, Vector3f f,
+                               double @Nullable [] eye, float alphaScale, float widthScale, boolean hot) {
+        int n = r.count;
+        if (n < 2) {
+            return;
+        }
+        FxSprite sp = r.sprite;
+        float uc = sp.u0 + sp.du * 0.5f;
+        float v0 = sp.v0 + sp.dv * 0.04f;
+        float v1 = sp.v0 + sp.dv * 0.96f;
+        float[] lx = new float[n];
+        float[] ly = new float[n];
+        float[] lz = new float[n];
+        for (int k = 0; k < n; k++) {
+            int i = (r.start + k) % r.px.length;
+            lx[k] = (float) (r.px[i] - ox);
+            ly[k] = (float) (r.py[i] - oy);
+            lz[k] = (float) (r.pz[i] - oz);
+        }
+        float[] sx = new float[n];
+        float[] sy = new float[n];
+        float[] sz = new float[n];
+        int[] cols = new int[n];
+        for (int k = 0; k < n; k++) {
+            int a = Math.max(0, k - 1);
+            int b = Math.min(n - 1, k + 1);
+            float tx = lx[b] - lx[a];
+            float ty = ly[b] - ly[a];
+            float tz = lz[b] - lz[a];
+            float wx;
+            float wy;
+            float wz;
+            if (eye != null) {
+                wx = lx[k] + (float) (ox - eye[0]);
+                wy = ly[k] + (float) (oy - eye[1]);
+                wz = lz[k] + (float) (oz - eye[2]);
+            } else {
+                wx = f.x;
+                wy = f.y;
+                wz = f.z;
+            }
+            float cx = ty * wz - tz * wy;
+            float cy = tz * wx - tx * wz;
+            float cz = tx * wy - ty * wx;
+            float cl = (float) Math.sqrt(cx * cx + cy * cy + cz * cz);
+            float age = r.ageOf(k);
+            float width = r.width * widthScale * (float) Math.pow(1f - age, 0.6) * (k == n - 1 ? 0.85f : 1f);
+            if (cl < 1e-6f) {
+                sx[k] = sy[k] = sz[k] = 0;
+            } else {
+                sx[k] = cx / cl * width * 0.5f;
+                sy[k] = cy / cl * width * 0.5f;
+                sz[k] = cz / cl * width * 0.5f;
+            }
+            int i = (r.start + k) % r.px.length;
+            int col = hot ? FxColor.lighten(r.col[i], 0.7f) : r.col[i];
+            float alpha = (float) Math.pow(1f - age, 1.3) * alphaScale;
+            cols[k] = FxColor.alpha(col, ((col >>> 24) / 255f) * alpha);
+        }
+        for (int k = 0; k + 1 < n; k++) {
+            v(c, m, lx[k] - sx[k], ly[k] - sy[k], lz[k] - sz[k], uc, v1, cols[k]);
+            v(c, m, lx[k + 1] - sx[k + 1], ly[k + 1] - sy[k + 1], lz[k + 1] - sz[k + 1], uc, v1, cols[k + 1]);
+            v(c, m, lx[k + 1] + sx[k + 1], ly[k + 1] + sy[k + 1], lz[k + 1] + sz[k + 1], uc, v0, cols[k + 1]);
+            v(c, m, lx[k] + sx[k], ly[k] + sy[k], lz[k] + sz[k], uc, v0, cols[k]);
+        }
+    }
+
+    private static void bolt(Matrix4f m, VertexConsumer c, FxBolt b, double ox, double oy, double oz, Vector3f f,
+                             double @Nullable [] eye) {
+        float a = b.alpha();
+        if (a <= 0.01f) {
+            return;
+        }
+        int glow = FxColor.alpha(b.color, ((b.color >>> 24) / 255f) * a * 0.6f);
+        int core = FxColor.alpha(FxColor.lighten(b.color, 0.85f), a);
+        polyline(m, c, b.pts, FxBolt.SEGMENTS + 1, ox, oy, oz, b.width * 3.2f, glow, f, eye);
+        polyline(m, c, b.pts, FxBolt.SEGMENTS + 1, ox, oy, oz, b.width, core, f, eye);
+        if (b.hasBranch) {
+            polyline(m, c, b.branch, 5, ox, oy, oz, b.width * 2f, glow, f, eye);
+            polyline(m, c, b.branch, 5, ox, oy, oz, b.width * 0.6f, core, f, eye);
+        }
+    }
+
+    private static void polyline(Matrix4f m, VertexConsumer c, double[] pts, int n, double ox, double oy, double oz,
+                                 float width, int color, Vector3f f, double @Nullable [] eye) {
+        FxSprite sp = FxSprite.RIBBON;
+        float uc = sp.u0 + sp.du * 0.5f;
+        float v0 = sp.v0 + sp.dv * 0.04f;
+        float v1 = sp.v0 + sp.dv * 0.96f;
+        for (int k = 0; k + 1 < n; k++) {
+            float x0 = (float) (pts[k * 3] - ox);
+            float y0 = (float) (pts[k * 3 + 1] - oy);
+            float z0 = (float) (pts[k * 3 + 2] - oz);
+            float x1 = (float) (pts[k * 3 + 3] - ox);
+            float y1 = (float) (pts[k * 3 + 4] - oy);
+            float z1 = (float) (pts[k * 3 + 5] - oz);
+            float tx = x1 - x0;
+            float ty = y1 - y0;
+            float tz = z1 - z0;
+            float wx = eye == null ? f.x : x0 + (float) (ox - eye[0]);
+            float wy = eye == null ? f.y : y0 + (float) (oy - eye[1]);
+            float wz = eye == null ? f.z : z0 + (float) (oz - eye[2]);
+            float cx = ty * wz - tz * wy;
+            float cy = tz * wx - tx * wz;
+            float cz = tx * wy - ty * wx;
+            float cl = (float) Math.sqrt(cx * cx + cy * cy + cz * cz);
+            if (cl < 1e-6f) {
+                continue;
+            }
+            float h = width * 0.5f / cl;
+            cx *= h;
+            cy *= h;
+            cz *= h;
+            v(c, m, x0 - cx, y0 - cy, z0 - cz, uc, v1, color);
+            v(c, m, x1 - cx, y1 - cy, z1 - cz, uc, v1, color);
+            v(c, m, x1 + cx, y1 + cy, z1 + cz, uc, v0, color);
+            v(c, m, x0 + cx, y0 + cy, z0 + cz, uc, v0, color);
         }
     }
 }

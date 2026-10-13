@@ -62,7 +62,7 @@ public final class FxWorld {
             }
         }
         FIELD.update(dt);
-        if (FIELD.live().isEmpty()) {
+        if (FIELD.isEmpty()) {
             return;
         }
         Vec3 cam = context.worldState().cameraRenderState.pos;
@@ -70,10 +70,11 @@ public final class FxWorld {
         Vector3f right = orientation.transform(new Vector3f(1, 0, 0));
         Vector3f up = orientation.transform(new Vector3f(0, 1, 0));
         Vector3f forward = orientation.transform(new Vector3f(0, 0, -1));
+        double[] eye = {cam.x, cam.y, cam.z};
         PoseStack pose = context.matrices();
-        context.commandQueue().submitCustomGeometry(pose, FxPipelines.paint(),
-                (p, consumer) -> FxGeometry.draw(FIELD.live(), false, p.pose(), consumer, cam.x, cam.y, cam.z, right, up, forward));
+        context.commandQueue().submitCustomGeometry(pose, FxPipelines.PAINT,
+                (p, consumer) -> FxGeometry.draw(FIELD, false, p.pose(), consumer, cam.x, cam.y, cam.z, right, up, forward, eye));
         context.commandQueue().submitCustomGeometry(pose, FxPipelines.GLOW,
-                (p, consumer) -> FxGeometry.draw(FIELD.live(), true, p.pose(), consumer, cam.x, cam.y, cam.z, right, up, forward));
+                (p, consumer) -> FxGeometry.draw(FIELD, true, p.pose(), consumer, cam.x, cam.y, cam.z, right, up, forward, eye));
     }
 }

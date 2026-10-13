@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.skirmish.fx.FxColor;
 import dev.skirmish.fx.FxGeometry;
 import dev.skirmish.fx.FxPipelines;
+import dev.skirmish.fx.FxSprite;
 import dev.skirmish.module.killfx.BoltRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
@@ -55,6 +56,11 @@ final class StudioSceneRenderer extends PictureInPictureRenderer<StudioSceneStat
         pose.mulPose(view);
         pose.translate(0f, -stage.centerY, 0f);
 
+        Quaternionf back = new Quaternionf(view).conjugate();
+        Vector3f right = back.transform(new Vector3f(1, 0, 0));
+        Vector3f up = back.transform(new Vector3f(0, 1, 0));
+        Vector3f forward = back.transform(new Vector3f(0, 0, 1));
+        backlight(pose, stage, right, up, forward);
         floor(pose, stage);
         bufferSource.endBatch();
 
@@ -71,14 +77,9 @@ final class StudioSceneRenderer extends PictureInPictureRenderer<StudioSceneStat
         }
         features.renderAllFeatures();
 
-        Quaternionf back = new Quaternionf(view).conjugate();
-        Vector3f right = back.transform(new Vector3f(1, 0, 0));
-        Vector3f up = back.transform(new Vector3f(0, 1, 0));
-        Vector3f forward = back.transform(new Vector3f(0, 0, 1));
         Matrix4f m = pose.last().pose();
-        var live = stage.field.live();
-        FxGeometry.draw(live, false, m, bufferSource.getBuffer(FxPipelines.paint()), 0, 0, 0, right, up, forward);
-        FxGeometry.draw(live, true, m, bufferSource.getBuffer(FxPipelines.GLOW), 0, 0, 0, right, up, forward);
+        FxGeometry.draw(stage.field, false, m, bufferSource.getBuffer(FxPipelines.PAINT), 0, 0, 0, right, up, forward, null);
+        FxGeometry.draw(stage.field, true, m, bufferSource.getBuffer(FxPipelines.GLOW), 0, 0, 0, right, up, forward, null);
 
         float boltAge = stage.clock - stage.boltAt;
         if (boltAge >= 0 && boltAge < 0.45f) {
@@ -92,14 +93,20 @@ final class StudioSceneRenderer extends PictureInPictureRenderer<StudioSceneStat
         }
     }
 
-    /** A round floor fading out at its edge, lines that slide back under a running model, and a glowing ring. */
+    /**
+     * A round floor fading out at its edge, lines that slide back under a running model, a soft shadow under each
+     * model, a slowly turning ring of light around the stage.
+     */
     private void floor(PoseStack pose, StudioStage stage) {
         int[] c = StudioStage.colors(stage.scene);
         Matrix4f m = pose.last().pose();
         float radius = stage.floorRadius;
+        VertexConsumer v = bufferSource.getBuffer(FxPipelines.PAINT);
         if (stage.floorDisc && (c[2] >>> 24) > 0) {
-            VertexConsumer v = bufferSource.getBuffer(FxPipelines.paint());
             int segments = 48;
+            int mid = FxColor.alpha(c[2], 1f);
+            int edge = FxColor.alpha(c[2], 0f);
+            float r0 = radius * 0.62f;
             for (int i = 0; i < segments; i++) {
                 double a0 = i * Math.PI * 2 / segments;
                 double a1 = (i + 1) * Math.PI * 2 / segments;
@@ -107,19 +114,16 @@ final class StudioSceneRenderer extends PictureInPictureRenderer<StudioSceneStat
                 float z0 = (float) Math.sin(a0);
                 float x1 = (float) Math.cos(a1);
                 float z1 = (float) Math.sin(a1);
-                int mid = FxColor.alpha(c[2], 1f);
-                int edge = FxColor.alpha(c[2], 0f);
-                float r0 = radius * 0.62f;
-                v.addVertex(m, 0, 0, 0).setColor(mid);
-                v.addVertex(m, x0 * r0, 0, z0 * r0).setColor(mid);
-                v.addVertex(m, x1 * r0, 0, z1 * r0).setColor(mid);
-                v.addVertex(m, 0, 0, 0).setColor(mid);
-                v.addVertex(m, x0 * r0, 0, z0 * r0).setColor(mid);
-                v.addVertex(m, x0 * radius, 0, z0 * radius).setColor(edge);
-                v.addVertex(m, x1 * radius, 0, z1 * radius).setColor(edge);
-                v.addVertex(m, x1 * r0, 0, z1 * r0).setColor(mid);
+                solid(v, m, 0, 0, 0, mid);
+                solid(v, m, x0 * r0, 0, z0 * r0, mid);
+                solid(v, m, x1 * r0, 0, z1 * r0, mid);
+                solid(v, m, 0, 0, 0, mid);
+                solid(v, m, x0 * r0, 0, z0 * r0, mid);
+                solid(v, m, x0 * radius, 0, z0 * radius, edge);
+                solid(v, m, x1 * radius, 0, z1 * radius, edge);
+                solid(v, m, x1 * r0, 0, z1 * r0, mid);
             }
-            // Grid lines along the run, sliding with the treadmill.
+            // Grid lines across the run, sliding with the treadmill.
             if ((c[3] >>> 24) > 0) {
                 double[] f = StudioStage.facing(stage.meYaw);
                 float fx = (float) f[0];
@@ -135,39 +139,85 @@ final class StudioSceneRenderer extends PictureInPictureRenderer<StudioSceneStat
                         continue;
                     }
                     int col = FxColor.alpha(c[3], 1f - Math.abs(d) / radius);
-                    // Across the run: lines perpendicular to the facing, moving backwards.
                     float cx = -fx * d;
                     float cz = -fz * d;
-                    v.addVertex(m, cx - sx * half - fx * w, 0.002f, cz - sz * half - fz * w).setColor(col);
-                    v.addVertex(m, cx + sx * half - fx * w, 0.002f, cz + sz * half - fz * w).setColor(col);
-                    v.addVertex(m, cx + sx * half + fx * w, 0.002f, cz + sz * half + fz * w).setColor(col);
-                    v.addVertex(m, cx - sx * half + fx * w, 0.002f, cz - sz * half + fz * w).setColor(col);
+                    solid(v, m, cx - sx * half - fx * w, 0.002f, cz - sz * half - fz * w, col);
+                    solid(v, m, cx + sx * half - fx * w, 0.002f, cz + sz * half - fz * w, col);
+                    solid(v, m, cx + sx * half + fx * w, 0.002f, cz + sz * half + fz * w, col);
+                    solid(v, m, cx - sx * half + fx * w, 0.002f, cz - sz * half + fz * w, col);
                 }
             }
         }
-        // The glowing rim.
+        // Contact shadows: soft dark pools under the feet, smaller and fainter the higher the model is.
+        int shade = stage.scene == StudioStage.Scene.VOID ? 0x00000000 : 0xFF000000;
+        if (stage.showMe) {
+            float lift = (float) stage.feetY();
+            float k = Math.max(0.25f, 1f - lift * 0.55f);
+            flat(v, m, FxSprite.GLOW, (float) stage.meX(), 0.003f, 0f, 0.62f * k, 0.48f * k, 0f,
+                    FxColor.alpha(shade, 0.62f * k));
+        }
+        if (stage.showDummy && !stage.dummyGone()) {
+            float k = stage.dummyDead() ? 1.25f : 1f;
+            flat(v, m, FxSprite.GLOW, (float) stage.dummyX, 0.003f, 0f, 0.62f * k, 0.48f * k, 0f, FxColor.alpha(shade, 0.62f));
+        }
+        // The stage ring: a crisp line of light with a soft glow, and a faint magic circle turning under the models.
         VertexConsumer g = bufferSource.getBuffer(FxPipelines.GLOW);
         int rim = c[4];
-        int segments = 64;
-        for (int i = 0; i < segments; i++) {
-            double a0 = i * Math.PI * 2 / segments;
-            double a1 = (i + 1) * Math.PI * 2 / segments;
-            float x0 = (float) Math.cos(a0);
-            float z0 = (float) Math.sin(a0);
-            float x1 = (float) Math.cos(a1);
-            float z1 = (float) Math.sin(a1);
-            float r = radius * 0.78f;
-            float w = 0.05f * Math.max(0.6f, radius / 2.9f);
-            int on = FxColor.alpha(rim, 0.55f);
-            int off = FxColor.alpha(rim, 0f);
-            g.addVertex(m, x0 * (r - w), 0.004f, z0 * (r - w)).setColor(off);
-            g.addVertex(m, x0 * r, 0.004f, z0 * r).setColor(on);
-            g.addVertex(m, x1 * r, 0.004f, z1 * r).setColor(on);
-            g.addVertex(m, x1 * (r - w), 0.004f, z1 * (r - w)).setColor(off);
-            g.addVertex(m, x0 * r, 0.004f, z0 * r).setColor(on);
-            g.addVertex(m, x0 * (r + w * 3), 0.004f, z0 * (r + w * 3)).setColor(off);
-            g.addVertex(m, x1 * (r + w * 3), 0.004f, z1 * (r + w * 3)).setColor(off);
-            g.addVertex(m, x1 * r, 0.004f, z1 * r).setColor(on);
+        float r = radius * 0.8f;
+        flat(g, m, FxSprite.HALO, 0f, 0.004f, 0f, r * 1.04f, r * 1.04f, stage.clock * 0.05f, FxColor.alpha(rim, 0.55f));
+        flat(g, m, FxSprite.THIN_RING, 0f, 0.005f, 0f, r * 0.94f, r * 0.94f, 0f, FxColor.alpha(rim, 0.5f));
+        if (stage.floorDisc) {
+            flat(g, m, FxSprite.MAGIC_CIRCLE, 0f, 0.003f, 0f, r * 0.9f, r * 0.9f, -stage.clock * 0.08f,
+                    FxColor.alpha(rim, 0.13f));
         }
+    }
+
+    /** A soft light behind the models in the scene's colour, so they stand out of the backdrop. */
+    private void backlight(PoseStack pose, StudioStage stage, Vector3f right, Vector3f up, Vector3f forward) {
+        int[] c = StudioStage.colors(stage.scene);
+        Matrix4f m = pose.last().pose();
+        VertexConsumer g = bufferSource.getBuffer(FxPipelines.GLOW);
+        float k = stage.floorRadius / 2.9f;
+        float d = 3.5f * k;
+        float x = forward.x * d;
+        float y = stage.centerY + 0.15f + forward.y * d;
+        float z = forward.z * d;
+        billboard(g, m, FxSprite.GLOW, x, y, z, 2.3f * k, 2.0f * k, right, up, FxColor.alpha(c[4], 0.2f));
+        billboard(g, m, FxSprite.GLOW, x, y - 0.3f * k, z, 1.2f * k, 1.1f * k, right, up, FxColor.alpha(c[4], 0.12f));
+    }
+
+    private static void billboard(VertexConsumer v, Matrix4f m, FxSprite sp, float x, float y, float z, float hw, float hh,
+                                  Vector3f r, Vector3f u, int color) {
+        float u0 = sp.u0;
+        float u1 = sp.u0 + sp.du;
+        float v0 = sp.v0;
+        float v1 = sp.v0 + sp.dv;
+        v.addVertex(m, x - r.x * hw - u.x * hh, y - r.y * hw - u.y * hh, z - r.z * hw - u.z * hh).setUv(u0, v1).setColor(color);
+        v.addVertex(m, x + r.x * hw - u.x * hh, y + r.y * hw - u.y * hh, z + r.z * hw - u.z * hh).setUv(u1, v1).setColor(color);
+        v.addVertex(m, x + r.x * hw + u.x * hh, y + r.y * hw + u.y * hh, z + r.z * hw + u.z * hh).setUv(u1, v0).setColor(color);
+        v.addVertex(m, x - r.x * hw + u.x * hh, y - r.y * hw + u.y * hh, z - r.z * hw + u.z * hh).setUv(u0, v0).setColor(color);
+    }
+
+    private static void solid(VertexConsumer v, Matrix4f m, float x, float y, float z, int color) {
+        v.addVertex(m, x, y, z).setUv(FxGeometry.SOLID_U, FxGeometry.SOLID_V).setColor(color);
+    }
+
+    /** A sprite lying on the floor, {@code hw × hd} half-size, turned by {@code rot}. */
+    private static void flat(VertexConsumer v, Matrix4f m, FxSprite sp, float x, float y, float z, float hw, float hd, float rot,
+                             int color) {
+        float cos = (float) Math.cos(rot);
+        float sin = (float) Math.sin(rot);
+        float ax = cos * hw;
+        float az = sin * hw;
+        float bx = -sin * hd;
+        float bz = cos * hd;
+        float u0 = sp.u0;
+        float u1 = sp.u0 + sp.du;
+        float v0 = sp.v0;
+        float v1 = sp.v0 + sp.dv;
+        v.addVertex(m, x - ax - bx, y, z - az - bz).setUv(u0, v1).setColor(color);
+        v.addVertex(m, x + ax - bx, y, z + az - bz).setUv(u1, v1).setColor(color);
+        v.addVertex(m, x + ax + bx, y, z + az + bz).setUv(u1, v0).setColor(color);
+        v.addVertex(m, x - ax + bx, y, z - az + bz).setUv(u0, v0).setColor(color);
     }
 }

@@ -83,7 +83,7 @@ public final class PlayerFxModule extends Module {
     public final EnumSetting<CapeArt.Style> cape = add(new EnumSetting<>("cape", CapeArt.Style.OFF));
     public final BoolSetting capeElytra = (BoolSetting) add(new BoolSetting("cape_elytra", true)).under(cape);
 
-    private float trailDebt;
+    private final FxPresets.Emitter emitter = new FxPresets.Emitter();
     private float clock;
     /** My last totem pop: when, and how many totems are left. */
     long totemAt = -1;
@@ -140,24 +140,18 @@ public final class PlayerFxModule extends Module {
     // ---- trail and aura, every frame ----
 
     private void frame(FxField field, float dt, float pt) {
-        if (!isEnabled()) {
-            return;
-        }
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer me = mc.player;
-        if (me == null || me.isSpectator() || me.isInvisible()) {
+        if (!isEnabled() || me == null || me.isSpectator() || me.isInvisible()) {
+            emitter.stop();
             return;
         }
         clock += dt;
         Vec3 pos = me.getPosition(pt);
         boolean firstPerson = mc.options.getCameraType() == CameraType.FIRST_PERSON;
-        if (aura.get() != FxStyles.Aura.OFF && (!firstPerson || auraFirstPerson.get())) {
-            FxPresets.aura(field, aura.get(), auraColor.get(), pos.x, pos.y, pos.z, me.getBbHeight(), clock, dt, auraSize.getFloat());
-        }
-        FxStyles.Trail style = trail.get();
-        if (style == FxStyles.Trail.OFF) {
-            return;
-        }
+        boolean auraOn = !firstPerson || auraFirstPerson.get();
+        FxPresets.aura(field, emitter, auraOn ? aura.get() : FxStyles.Aura.OFF, auraColor.get(), pos.x, pos.y, pos.z,
+                me.getBbHeight(), clock, dt, auraSize.getFloat());
         Vec3 motion = me.getDeltaMovement();
         double speed = Math.sqrt(motion.x * motion.x + motion.z * motion.z) * 20;
         boolean flying = me.isFallFlying();
@@ -166,16 +160,9 @@ public final class PlayerFxModule extends Module {
             case SPRINTING -> me.isSprinting() || flying;
             case FLYING -> flying;
         };
-        if (!on) {
-            trailDebt = 0;
-            return;
-        }
-        trailDebt += dt * FxPresets.trailRate(style) * trailDensity.getFloat() * (flying ? 1.6f : 1f);
-        while (trailDebt >= 1f) {
-            trailDebt -= 1f;
-            double y = flying ? pos.y + 0.2 : pos.y;
-            FxPresets.trail(field, style, trailColor.get(), pos.x, y, pos.z, motion.x * 20, motion.z * 20, 1f);
-        }
+        double y = flying ? pos.y + 0.2 : pos.y;
+        FxPresets.trail(field, emitter, trail.get(), trailColor.get(), pos.x, y, pos.z, motion.x * 20, motion.z * 20, dt,
+                trailDensity.getFloat() * (flying ? 1.6f : 1f), on);
     }
 
     // ---- hits ----
@@ -193,7 +180,7 @@ public final class PlayerFxModule extends Module {
         // On the victim's side facing me, so its own body doesn't hide the effect.
         Vec3 flat = new Vec3(dir.x, 0, dir.z);
         Vec3 at = flat.lengthSqr() < 1e-6 ? center : center.subtract(flat.normalize().scale(victim.getBbWidth() * 0.55 + 0.05));
-        FxPresets.hit(FxWorld.field(), hit.get(), hitColor.get(), critColor.get(), crit, at.x, at.y, at.z, dir.x, dir.z,
+        FxPresets.hit(FxWorld.field(), hit.get(), hitColor.get(), critColor.get(), crit, at.x, at.y, at.z, victim.getY(), dir.x, dir.z,
                 hitSize.getFloat() * Math.max(0.6f, victim.getBbWidth() / 0.6f));
     }
 
@@ -215,7 +202,7 @@ public final class PlayerFxModule extends Module {
         if (!me && (!totemOthers.get() || entity.isInvisibleTo(mc.player))) {
             return;
         }
-        FxPresets.totem(FxWorld.field(), totem.get(), entity.getX(), entity.getY(), entity.getZ(), 1f);
+        FxPresets.totem(FxWorld.field(), totem.get(), entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), 1f);
         if (me) {
             SoundEvent sound = totemSound.get().event();
             if (sound != null) {

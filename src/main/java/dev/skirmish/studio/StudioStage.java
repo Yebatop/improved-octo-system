@@ -1,15 +1,15 @@
 package dev.skirmish.studio;
 
+import dev.skirmish.fx.FxColor;
 import dev.skirmish.fx.FxField;
 import dev.skirmish.fx.FxPresets;
-import dev.skirmish.fx.FxShape;
 import dev.skirmish.fx.FxSounds;
+import dev.skirmish.fx.FxSprite;
 import dev.skirmish.fx.FxStyles;
 import dev.skirmish.module.killfx.KillFxModule;
 import dev.skirmish.module.playerfx.CapeArt;
 import dev.skirmish.module.playerfx.PlayerFxModule;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.ClientMannequin;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
@@ -20,6 +20,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.PlayerModelType;
 import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -46,13 +47,21 @@ public final class StudioStage {
         NONE, TRAIL, AURA, HIT, KILL, TOTEM, CAPE
     }
 
-    static final double ME_X = 0.9;
-    static final double DUMMY_X = -0.9;
+    static final double ME_X = 0.85;
+    static final double DUMMY_X = -0.8;
     static final float ME_YAW = 135f;
     static final float DUMMY_YAW = -135f;
     static final float MAX_HP = 20f;
+    /** The body turn a killed dummy falls at: back into the scene, a little to the right. */
+    private static final float FALL_YAW = 110f;
+    /** The training dummy: a stuffed burlap sack with a target on its chest (made by {@code tools/fx/dummy_skin.py}). */
+    private static final Identifier DUMMY_TEXTURE = Identifier.fromNamespaceAndPath("skirmish", "textures/studio/dummy.png");
+    private static final PlayerSkin DUMMY_SKIN = new PlayerSkin(new ClientAsset.ResourceTexture(DUMMY_TEXTURE, DUMMY_TEXTURE),
+            null, null, PlayerModelType.WIDE, false);
 
+    private static final RandomSource AMBIENT = RandomSource.create();
     final FxField field;
+    final FxPresets.Emitter emitter = new FxPresets.Emitter();
     StudioLook look = new StudioLook();
     Pose3 pose = Pose3.STAND;
     Scene scene = Scene.ARENA;
@@ -60,9 +69,11 @@ public final class StudioStage {
     float clock;
     /** Camera: turn around the scene, tilt, zoom (1 = fit), and the height it looks at. */
     float yaw;
-    float pitch = 10f;
+    float pitch = 14f;
     float zoom = 1f;
     float centerY = 1f;
+    /** A card's scene: how many blocks its height shows. */
+    float cardBlocks = 2.6f;
     /** How far the floor has moved under a running model (the treadmill). */
     double scroll;
 
@@ -90,7 +101,6 @@ public final class StudioStage {
     float lastKillAt = -100f;
     float boltAt = -10f;
     long boltSeed;
-    private float trailDebt;
     private float swingAt = -10f;
     private float demoAt = -10f;
     private int demoCount;
@@ -107,25 +117,40 @@ public final class StudioStage {
         s.showcase = true;
         s.floorRadius = 1.25f;
         s.floorDisc = false;
-        s.pitch = 12f;
+        s.pitch = 17f;
         s.showMe = demo != Demo.HIT && demo != Demo.KILL;
         s.showDummy = !s.showMe;
         s.meBaseX = 0;
         s.dummyX = 0;
-        s.dummyYaw = 180f;
+        s.dummyYaw = 160f;
         s.hitFromX = 1.5;
+        s.centerY = 1.0f;
         switch (demo) {
             case TRAIL -> {
+                // Running to the left with room behind for the trail.
                 s.pose = Pose3.RUN;
                 s.meYaw = -90f;
+                s.meBaseX = 0.55;
+                s.cardBlocks = 2.7f;
             }
             case CAPE -> {
                 s.pose = Pose3.RUN;
                 s.meYaw = 25f;
+                s.cardBlocks = 2.5f;
             }
-            case KILL -> s.centerY = 1.3f;
-            case HIT -> s.centerY = 1.15f;
-            default -> s.meYaw = 165f;
+            case KILL -> {
+                // A little to the left: it falls back and to the right.
+                s.dummyX = 0.25;
+                s.hitFromX = 2.0;
+                s.centerY = 1.2f;
+                s.cardBlocks = 3.4f;
+            }
+            case HIT -> s.cardBlocks = 2.5f;
+            default -> {
+                s.meYaw = 165f;
+                s.centerY = 1.1f;
+                s.cardBlocks = 2.8f;
+            }
         }
         return s;
     }
@@ -144,37 +169,25 @@ public final class StudioStage {
         clock += dt;
         boolean moving = pose == Pose3.RUN || pose == Pose3.FLY;
         double feetY = feetY();
-        if (showMe && look.aura != FxStyles.Aura.OFF) {
-            FxPresets.aura(field, look.aura, look.auraColor, meX(), feetY, 0, 1.8f, clock, dt, look.auraSize);
-        }
-        FxStyles.Trail style = look.trail;
-        boolean trailOn = showMe && style != FxStyles.Trail.OFF && (demo == Demo.TRAIL || switch (look.trailWhen) {
+        FxPresets.aura(field, emitter, showMe ? look.aura : FxStyles.Aura.OFF, look.auraColor, meX(), feetY, 0, 1.8f, clock, dt,
+                look.auraSize);
+        boolean trailOn = demo == Demo.TRAIL || switch (look.trailWhen) {
             case MOVING -> moving || pose == Pose3.JUMP;
             case SPRINTING -> moving;
             case FLYING -> pose == Pose3.FLY;
-        });
-        if (trailOn) {
-            double[] f = facing(meYaw);
-            trailDebt += dt * FxPresets.trailRate(style) * look.trailDensity * (pose == Pose3.FLY ? 1.6f : 1f) * (showcase ? 1.8f : 1f);
-            while (trailDebt >= 1f) {
-                trailDebt -= 1f;
-                FxPresets.trail(field, style, look.trailColor, meX(), pose == Pose3.FLY ? feetY + 0.6 : feetY, 0,
-                        f[0] * 5.6, f[1] * 5.6, 1f);
-            }
-        } else {
-            trailDebt = 0f;
-        }
+        };
+        double[] f = facing(meYaw);
+        double speed = pose == Pose3.FLY ? 9 : 5.6;
+        FxPresets.trail(field, emitter, showMe ? look.trail : FxStyles.Trail.OFF, look.trailColor, meX(),
+                pose == Pose3.FLY ? feetY + 0.6 : feetY, 0, f[0] * speed, f[1] * speed, dt,
+                look.trailDensity * (pose == Pose3.FLY ? 1.6f : 1f) * (showcase ? 1.8f : 1f), trailOn);
         if (moving) {
             // The world slides back under a model that runs on the spot.
-            double[] f = facing(meYaw);
-            double speed = pose == Pose3.FLY ? 9 : 5.6;
-            double dx = -f[0] * speed * dt;
-            double dz = -f[1] * speed * dt;
-            for (var fx : field.live()) {
-                fx.x += dx;
-                fx.z += dz;
-            }
+            field.shift(-f[0] * speed * dt, -f[1] * speed * dt);
             scroll += speed * dt;
+        }
+        if (!showcase) {
+            ambient(dt);
         }
         runDemo();
         if (deadAt > 0 && clock - deadAt > 2.2f) {
@@ -185,6 +198,30 @@ public final class StudioStage {
             dummyHp = Math.min(MAX_HP, dummyHp + dt * 8);
         }
         field.update(dt);
+    }
+
+    /** Slow motes drifting over the floor, in the scene's mood: dust in the arena, snow, embers at sunset, pollen. */
+    private void ambient(float dt) {
+        var r = AMBIENT;
+        if (r.nextFloat() > dt * 7f) {
+            return;
+        }
+        double a = r.nextDouble() * Math.PI * 2;
+        double d = Math.sqrt(r.nextDouble()) * floorRadius;
+        double x = Math.cos(a) * d;
+        double z = Math.sin(a) * d;
+        int accent = colors(scene)[4];
+        switch (scene) {
+            case SNOW -> field.spawn(FxSprite.SNOWFLAKE).at(x, 3.2, z).vel(0, -0.35, 0).painted().sway(0.3f, 1.5f)
+                    .spin(r.nextFloat() * 6, 0.8f).life(7f).size(0.05f, 0.05f).fadeIn(0.1f).color(0xE0FFFFFF, 0x00FFFFFF);
+            case SUNSET -> field.spawn(FxSprite.EMBER).at(x, r.nextDouble() * 0.4, z).vel(0, 0.3, 0).sway(0.3f, 2f)
+                    .life(4f).size(0.035f, 0.01f).flicker(0.5f).fadeIn(0.2f).fade(0xFFFFB060);
+            case MEADOW -> field.spawn(FxSprite.GLOW).at(x, 0.3 + r.nextDouble() * 1.6, z).vel(0, 0.05, 0).sway(0.35f, 1.2f)
+                    .life(4f).size(0.04f, 0.04f).flicker(0.4f).fadeIn(0.25f).fade(0xFFFFF2A0).core(0.5f);
+            default -> field.spawn(FxSprite.DUST).at(x, r.nextDouble() * 0.3, z).vel(0, 0.18 + r.nextDouble() * 0.2, 0)
+                    .sway(0.2f, 1.2f).life(5f).size(0.025f, 0.012f).flicker(0.35f).fadeIn(0.25f)
+                    .fade(FxColor.alpha(FxColor.lighten(accent, 0.35f), 0.8f));
+        }
     }
 
     /** The demo's beat: a hit every 0.8 s (every third a crit), a kill every 3 s, a totem every 2.5 s. */
@@ -263,8 +300,10 @@ public final class StudioStage {
             double from = showMe ? meX() : hitFromX;
             // On the side facing the attacker (and a little towards the viewer), not inside the body that would hide it.
             double side = Math.signum(from - dummyX);
-            FxPresets.hit(field, look.hit, look.hitColor, look.critColor, crit, dummyX + side * 0.38, 1.15, -0.18, dummyX - from, 0,
-                    look.hitSize * (showcase ? 1.4f : 1f));
+            // The swing is turned towards the viewer as well, so flat effects (slashes, shock waves) aren't seen edge-on.
+            double dx = dummyX - from;
+            FxPresets.hit(field, look.hit, look.hitColor, look.critColor, crit, dummyX + side * 0.38, 1.15, -0.18, 0, dx,
+                    Math.abs(dx) * 1.3 + 0.3, look.hitSize);
         }
         KillFxModule kfx = KillFxModule.instance();
         if (sound && !silent && kfx != null && kfx.hitSoundOn()) {
@@ -323,16 +362,18 @@ public final class StudioStage {
             double y = 0.2 + r.nextDouble() * 1.6;
             double z = (r.nextDouble() - 0.5) * 0.6;
             switch (burst) {
-                case TOTEM -> field.spawn(FxShape.DOT).at(x, y, z).vel(vx * 4, r.nextDouble() * 5, vz * 4).gravity(6f).drag(0.4f)
-                        .life(1.2f).size(0.05f, 0.02f).fade(r.nextBoolean() ? 0xFFE8D33F : 0xFF7CD85A);
-                case FLAME -> field.spawn(FxShape.GLOW).at(x, y, z).vel(vx * 0.5, 0.6, vz * 0.5).life(0.8f).size(0.1f, 0f)
-                        .color(0xFFFFD166, 0x00FF6A00);
-                case SOUL -> field.spawn(FxShape.GLOW).at(x, y, z).vel(vx * 0.5, 0.6, vz * 0.5).life(0.8f).size(0.1f, 0f)
-                        .color(0xFFB5F4FF, 0x002FD8FF);
-                case HEARTS -> field.spawn(FxShape.STAR).at(x, y, z).vel(0, 0.4, 0).life(1f).size(0.12f, 0.05f).fade(0xFFFF4D6D);
-                case SPARKS -> field.spawn(FxShape.DOT).at(x, y, z).vel(vx, 0.4, vz).life(1.2f).size(0.04f, 0f).fade(0xFFFFFFFF);
-                default -> field.spawn(FxShape.SPARK).at(x, y, z).vel(vx * 2, r.nextDouble() * 2, vz * 2).drag(0.3f).life(1f)
-                        .size(0.03f, 0f).fade(0xFFFFFFFF);
+                case TOTEM -> field.spawn(FxSprite.TWINKLE).at(x, y, z).vel(vx * 4, r.nextDouble() * 5, vz * 4).gravity(6f).drag(0.4f)
+                        .life(1.2f).size(0.06f, 0.02f).fade(r.nextBoolean() ? 0xFFE8D33F : 0xFF7CD85A);
+                case FLAME -> field.spawn(FxSprite.FLAME).at(x, y, z).vel(vx * 0.3, 0.5, vz * 0.3).fps(14).life(0.8f).size(0.1f, 0.02f)
+                        .ramp(0xFFFFF0B0, 0xFFFF9A2A, 0x00C21807);
+                case SOUL -> field.spawn(FxSprite.FLAME).at(x, y, z).vel(vx * 0.3, 0.5, vz * 0.3).fps(14).life(0.8f).size(0.1f, 0.02f)
+                        .ramp(0xFFE0FCFF, 0xFF2FD8FF, 0x000A5A80);
+                case HEARTS -> field.spawn(FxSprite.HEART).at(x, y, z).vel(0, 0.4, 0).painted().life(1f).size(0.1f, 0.06f)
+                        .grow(dev.skirmish.fx.Fx.Grow.POP).fade(0xFFFF3050);
+                case SPARKS -> field.spawn(FxSprite.TWINKLE).at(x, y, z).vel(vx, 0.4, vz).life(1.2f).size(0.06f, 0f).flicker(0.4f)
+                        .fade(0xFFFFFFFF);
+                default -> field.spawn(FxSprite.SPARK).at(x, y, z).vel(vx * 2, r.nextDouble() * 2, vz * 2).drag(0.3f).life(1f)
+                        .size(0.03f, 0f).stretch(0.06f).fade(FxColor.hsv(r.nextFloat(), 0.6f, 1f));
             }
         }
     }
@@ -345,11 +386,11 @@ public final class StudioStage {
         if (style == FxStyles.Totem.VANILLA) {
             var r = RandomSource.create();
             for (int i = 0; i < 40; i++) {
-                field.spawn(FxShape.DOT).at(meX(), feetY() + 1, 0).vel((r.nextDouble() - 0.5) * 6, r.nextDouble() * 5, (r.nextDouble() - 0.5) * 6)
-                        .gravity(5f).drag(0.35f).life(1.2f).size(0.05f, 0.02f).fade(r.nextBoolean() ? 0xFFE8D33F : 0xFF7CD85A);
+                field.spawn(FxSprite.TWINKLE).at(meX(), feetY() + 1, 0).vel((r.nextDouble() - 0.5) * 6, r.nextDouble() * 5, (r.nextDouble() - 0.5) * 6)
+                        .gravity(5f).drag(0.35f).life(1.2f).size(0.06f, 0.02f).fade(r.nextBoolean() ? 0xFFE8D33F : 0xFF7CD85A);
             }
         } else {
-            FxPresets.totem(field, style, meX(), feetY(), 0, 1f);
+            FxPresets.totem(field, style, meX(), feetY(), 0, meYaw, 1f);
         }
         PlayerFxModule pfx = PlayerFxModule.instance();
         if (sound && !silent && pfx != null) {
@@ -455,20 +496,25 @@ public final class StudioStage {
         return state;
     }
 
-    /** The mannequin: iron armour, a hurt tint just after a hit, falling over when killed. */
+    /** The training dummy: rocks back and forth after a hit, flashes red for a blink, falls over when killed. */
     AvatarRenderState dummy() {
         AvatarRenderState state = new AvatarRenderState();
         state.entityType = EntityType.PLAYER;
-        state.skin = ClientMannequin.DEFAULT_SKIN;
-        prepare(state, dummyYaw);
-        state.headEquipment = new ItemStack(Items.IRON_HELMET);
-        state.chestEquipment = new ItemStack(Items.IRON_CHESTPLATE);
-        state.legsEquipment = new ItemStack(Items.IRON_LEGGINGS);
-        state.feetEquipment = new ItemStack(Items.IRON_BOOTS);
-        state.hasRedOverlay = clock - hurtAt < 0.3f;
+        state.skin = DUMMY_SKIN;
+        float since = clock - hurtAt;
+        float wobble = since < 0.8f ? (float) Math.sin(since * 26) * 9f * (1f - since / 0.8f) : 0f;
+        prepare(state, dummyYaw + wobble);
+        state.yRot = -wobble * 0.6f;
+        state.xRot = since < 0.25f ? -12f * (1f - since / 0.25f) : 0f;
+        state.hasRedOverlay = since < 0.14f;
         if (dummyDead()) {
+            // A quick turn as it goes down, so it falls back into the scene instead of out of the picture.
+            float turn = Math.min(1f, (clock - deadAt) / 0.18f);
+            state.bodyRot = dummyYaw + net.minecraft.util.Mth.wrapDegrees(FALL_YAW - dummyYaw) * turn;
             state.deathTime = Math.min(20f, (clock - deadAt) * 20f);
             state.hasRedOverlay = true;
+            state.yRot = 0;
+            state.xRot = 0;
         }
         state.showCape = false;
         return state;

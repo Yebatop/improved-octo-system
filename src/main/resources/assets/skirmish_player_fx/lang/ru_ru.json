@@ -113,6 +113,8 @@
   "skirmish.module.player_fx.setting.trail.smoke": "Дым",
   "skirmish.module.player_fx.setting.trail.crystals": "Кристаллы",
   "skirmish.module.player_fx.setting.trail.electric": "Молнии",
+  "skirmish.module.player_fx.setting.trail.notes": "Ноты",
+  "skirmish.module.player_fx.setting.trail.hearts": "Сердечки",
   "skirmish.module.player_fx.setting.trail_when.moving": "Всегда",
   "skirmish.module.player_fx.setting.trail_when.sprinting": "При беге",
   "skirmish.module.player_fx.setting.trail_when.flying": "На элитрах",

@@ -113,6 +113,8 @@
   "skirmish.module.player_fx.setting.trail.smoke": "Smoke",
   "skirmish.module.player_fx.setting.trail.crystals": "Crystals",
   "skirmish.module.player_fx.setting.trail.electric": "Electric",
+  "skirmish.module.player_fx.setting.trail.notes": "Notes",
+  "skirmish.module.player_fx.setting.trail.hearts": "Hearts",
   "skirmish.module.player_fx.setting.trail_when.moving": "Always",
   "skirmish.module.player_fx.setting.trail_when.sprinting": "Sprinting",
   "skirmish.module.player_fx.setting.trail_when.flying": "Elytra",

@@ -74,6 +74,8 @@ public final class StudioScreen extends UiScreen {
     private static boolean slow;
     private static boolean auto = true;
     private static final StudioStage STAGE = new StudioStage(1800);
+    /** How many blocks the big scene's height shows at zoom 1. */
+    private static final float STAGE_BLOCKS = 4.1f;
 
     private final WindowFrame frame = new WindowFrame("studio", L);
     private final Segmented poses = new Segmented(Segmented.Spec.MENU,
@@ -140,7 +142,7 @@ public final class StudioScreen extends UiScreen {
     private void resetView() {
         targetYaw = STAGE.demo == StudioStage.Demo.CAPE ? 180f : 0f;
         turnedByHand = false;
-        STAGE.pitch = 10f;
+        STAGE.pitch = 14f;
         STAGE.zoom = 1f;
     }
 
@@ -226,7 +228,7 @@ public final class StudioScreen extends UiScreen {
 
     private void drawStage(Ui ui, double mx, double my) {
         backdrop(ui, STAGE, stageX, stageY, stageW, stageH, ui.theme().radius("panel"), true);
-        submitScene(ui, STAGE, stageX, stageY, stageW, stageH, stageH * Ui.designScale() / 3.6f * STAGE.zoom);
+        submitScene(ui, STAGE, stageX, stageY, stageW, stageH, stageH * Ui.designScale() / STAGE_BLOCKS * STAGE.zoom);
 
         // The mannequin's health over its head.
         if (STAGE.showDummy && !STAGE.dummyGone()) {
@@ -340,7 +342,7 @@ public final class StudioScreen extends UiScreen {
                 .rotateX((float) Math.toRadians(STAGE.pitch))
                 .rotateY((float) Math.toRadians(STAGE.yaw));
         Vector3f v = q.transform(new Vector3f((float) px, (float) py - STAGE.centerY, (float) pz));
-        float s = stageH / 3.6f * STAGE.zoom;
+        float s = stageH / STAGE_BLOCKS * STAGE.zoom;
         return new float[]{stageX + stageW / 2f + v.x * s, stageY + stageH / 2f + v.y * s};
     }
 
@@ -772,8 +774,7 @@ public final class StudioScreen extends UiScreen {
                 stage.look = look.only(demo);
                 // Hits are over in a blink: their cards run a little slower so the effect stays in view.
                 stage.update(demo == StudioStage.Demo.HIT ? frameDt * 0.6f : frameDt);
-                float blocks = demo == StudioStage.Demo.KILL ? 3.2f : demo == StudioStage.Demo.HIT ? 2.0f : 2.5f;
-                submitScene(ui, stage, px, py, pw, ph, ph * Ui.designScale() / blocks);
+                submitScene(ui, stage, px, py, pw, ph, ph * Ui.designScale() / stage.cardBlocks);
             }
             String label = ui.ellipsize("studio_card", option.label(), w - 12);
             float lw = ui.textWidth("studio_card", label);

@@ -6,7 +6,7 @@ public final class FxStyles {
     }
 
     public enum Trail {
-        OFF, SPARKS, STARS, RAINBOW, SOULS, FLAME, PETALS, SNOW, SMOKE, CRYSTALS, ELECTRIC
+        OFF, SPARKS, STARS, RAINBOW, SOULS, FLAME, PETALS, SNOW, SMOKE, CRYSTALS, ELECTRIC, NOTES, HEARTS
     }
 
     public enum Aura {
