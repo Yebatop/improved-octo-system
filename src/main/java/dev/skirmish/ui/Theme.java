@@ -91,13 +91,36 @@ public final class Theme {
     }
 
     static Theme load() {
-        try (InputStream in = Theme.class.getResourceAsStream(RESOURCE)) {
-            if (in == null) {
-                throw new IllegalStateException(RESOURCE + " is missing");
+        JsonObject root = read(RESOURCE);
+        // "include": fragments under assets/skirmish/ (one per feature area) deep-merged into the root.
+        if (root.has("include")) {
+            for (JsonElement path : root.getAsJsonArray("include")) {
+                merge(root, read("/assets/skirmish/" + path.getAsString()));
             }
-            return parse(JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject());
+        }
+        return parse(root);
+    }
+
+    private static JsonObject read(String resource) {
+        try (InputStream in = Theme.class.getResourceAsStream(resource)) {
+            if (in == null) {
+                throw new IllegalStateException(resource + " is missing");
+            }
+            return JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    /** Deep merge: objects merge key by key, anything else in {@code extra} replaces the value in {@code into}. */
+    static void merge(JsonObject into, JsonObject extra) {
+        for (Map.Entry<String, JsonElement> e : extra.entrySet()) {
+            JsonElement current = into.get(e.getKey());
+            if (current != null && current.isJsonObject() && e.getValue().isJsonObject()) {
+                merge(current.getAsJsonObject(), e.getValue().getAsJsonObject());
+            } else {
+                into.add(e.getKey(), e.getValue().deepCopy());
+            }
         }
     }
 

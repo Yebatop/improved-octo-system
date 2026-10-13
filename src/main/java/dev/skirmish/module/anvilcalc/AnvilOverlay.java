@@ -75,9 +75,9 @@ final class AnvilOverlay {
             return;
         }
         String l = "layout.anvil.";
-        float left = (float) Ui.toDesign((screen.width - IMAGE_WIDTH) / 2);
-        float top = (float) Ui.toDesign((screen.height - IMAGE_HEIGHT) / 2);
-        float right = left + (float) Ui.toDesign(IMAGE_WIDTH);
+        float left = (float) Ui.toDesignOnVanilla((screen.width - IMAGE_WIDTH) / 2);
+        float top = (float) Ui.toDesignOnVanilla((screen.height - IMAGE_HEIGHT) / 2);
+        float right = left + (float) Ui.toDesignOnVanilla(IMAGE_WIDTH);
         float gap = ui.num(l + "gap");
         float width = ui.num(l + "width");
         boolean rightSide = ui.width() - right - gap >= width || ui.width() - right >= left;
@@ -106,7 +106,8 @@ final class AnvilOverlay {
             return;
         }
         AnvilMenu menu = screen.getMenu();
-        Snapshot read = AnvilReader.read(menu, player, module.tooExpensiveAt.getInt(), module.exactLimit.getInt());
+        Snapshot read = AnvilReader.read(menu, player, module.tooExpensiveAt.getInt(), module.exactLimit.getInt(),
+                module.rulesProfile(), module.rules.get() == AnvilProfile.AUTO);
         snapshot = read;
         plan = null;
         pending = null;
@@ -222,8 +223,8 @@ final class AnvilOverlay {
             if (slot == null) {
                 continue;
             }
-            float sx = left + (float) Ui.toDesign(slot.x);
-            float sy = top + (float) Ui.toDesign(slot.y);
+            float sx = left + (float) Ui.toDesignOnVanilla(slot.x);
+            float sy = top + (float) Ui.toDesignOnVanilla(slot.y);
             float size = ui.num("layout.anvil.letter_size");
             ui.rect(sx, sy, size, size, ui.theme().radius("chip"), ui.color("card"));
             String letter = PlanText.letter(entry.getKey());

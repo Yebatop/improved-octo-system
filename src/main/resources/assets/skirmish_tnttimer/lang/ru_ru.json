@@ -1,0 +1,22 @@
+{
+  "skirmish.module.tnt_timer.name": "TNT Timer",
+  "skirmish.module.tnt_timer.description": "Секунды до взрыва над подожжённым динамитом и его тип HolyWorld (A, B, C4, Б2, волны, стиллеры, удлинённый), если сервер его выдаёт. Только динамит на виду: сквозь стены не показывается.",
+  "skirmish.module.tnt_timer.setting.decimals": "Десятые доли",
+  "skirmish.module.tnt_timer.setting.decimals.tooltip": "«2,4 с» вместо «3 с»",
+  "skirmish.module.tnt_timer.setting.show_type": "Тип динамита",
+  "skirmish.module.tnt_timer.setting.show_type.tooltip": "Название рядом с таймером, когда тип удалось узнать",
+  "skirmish.module.tnt_timer.setting.max_distance": "Дальность",
+  "skirmish.module.tnt_timer.setting.max_distance.tooltip": "Не подписывать динамит дальше этого расстояния",
+  "skirmish.module.tnt_timer.setting.radius_ring": "Радиус взрыва",
+  "skirmish.module.tnt_timer.setting.radius_ring.tooltip": "Кольцо на земле вокруг динамита на виду: сила взрыва по вики (обычный — 4, A — 12, B — 40, Б2 — куб 25). Примерно, стены не учитываются",
+  "skirmish.tnttimer.seconds": "%s с",
+  "skirmish.tnttimer.type.reliable_stealer": "Надёжный стиллер",
+  "skirmish.tnttimer.type.stealer": "Стиллер",
+  "skirmish.tnttimer.type.ice_wave": "Ледяная волна",
+  "skirmish.tnttimer.type.blast_wave": "Разрывная волна",
+  "skirmish.tnttimer.type.b2": "Динамит Б2",
+  "skirmish.tnttimer.type.c4": "C4",
+  "skirmish.tnttimer.type.tnt_b": "Динамит B",
+  "skirmish.tnttimer.type.tnt_a": "Динамит A",
+  "skirmish.tnttimer.type.long": "Удлинённый"
+}

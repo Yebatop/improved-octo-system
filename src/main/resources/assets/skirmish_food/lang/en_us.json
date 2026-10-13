@@ -1,0 +1,17 @@
+{
+  "skirmish.module.food_hud.name": "Food HUD",
+  "skirmish.module.food_hud.description": "Hunger as a bar in the mod's style where the drumsticks were: gold is saturation, orange is hunger, red and pulsing at 6 or less (no sprinting). Hold food and what it would bring glows on the bar, with «+3 · +3,6» next to it. Food tooltips get the same line.",
+  "skirmish.module.food_hud.setting.saturation": "Saturation",
+  "skirmish.module.food_hud.setting.saturation.tooltip": "How much saturation is left: gold on the bar or on the icons",
+  "skirmish.module.food_hud.setting.preview": "Food preview",
+  "skirmish.module.food_hud.setting.preview.tooltip": "While you hold food, what it would restore pulses on the bar",
+  "skirmish.module.food_hud.setting.label": "Numbers",
+  "skirmish.module.food_hud.setting.label.tooltip": "\"+3 · +3.6\" right of the bar while you hold food",
+  "skirmish.module.food_hud.setting.tooltip": "In tooltip",
+  "skirmish.module.food_hud.setting.tooltip.tooltip": "A hunger and saturation line in food tooltips",
+  "skirmish.food.tooltip": "🍗 +%s · saturation +%s",
+  "skirmish.module.food_hud.setting.style": "Look",
+  "skirmish.module.food_hud.setting.style.tooltip": "Bar — hunger as a bar in the mod's style (gold is saturation, red and pulsing at 6 or less). Icons — vanilla drumsticks with the saturated ones tinted gold",
+  "skirmish.module.food_hud.setting.style.bar": "Bar",
+  "skirmish.module.food_hud.setting.style.icons": "Icons"
+}

@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.skirmish.module.hwitems.badges.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "GuiHotbarMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "skirmish.module.damage_numbers.name": "Damage Numbers",
+  "skirmish.module.damage_numbers.description": "Floating numbers over nearby entities whose health changes: damage, crits, totem pops and heals in their own colours. Never visible through blocks; invisible players get no numbers.",
+  "skirmish.module.damage_numbers.setting.scale": "Size",
+  "skirmish.module.damage_numbers.setting.scale.tooltip": "Size of the numbers",
+  "skirmish.module.damage_numbers.setting.lifetime": "Lifetime",
+  "skirmish.module.damage_numbers.setting.lifetime.tooltip": "Seconds a number rises and fades",
+  "skirmish.module.damage_numbers.setting.only_mine": "Only my hits",
+  "skirmish.module.damage_numbers.setting.only_mine.tooltip": "Show damage only after your own hits (heals only on entities you hit recently)",
+  "skirmish.module.damage_numbers.setting.heals": "Heals",
+  "skirmish.module.damage_numbers.setting.heals.tooltip": "Green numbers when health goes up (regeneration, absorption)",
+  "skirmish.module.damage_numbers.setting.players": "Players",
+  "skirmish.module.damage_numbers.setting.players.tooltip": "Numbers over players",
+  "skirmish.module.damage_numbers.setting.mobs": "Mobs",
+  "skirmish.module.damage_numbers.setting.mobs.tooltip": "Numbers over mobs and bosses"
+}

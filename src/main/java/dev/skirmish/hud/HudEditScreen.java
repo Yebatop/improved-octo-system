@@ -1,5 +1,6 @@
 package dev.skirmish.hud;
 
+import dev.skirmish.ui.Theme;
 import dev.skirmish.ui.Ui;
 import dev.skirmish.ui.widget.Button;
 import dev.skirmish.ui.widget.UiScreen;
@@ -14,11 +15,23 @@ import java.util.List;
 /**
  * HUD edit mode: every enabled element is shown (with sample data when there is nothing live), outlined, and can be
  * dragged. Edges snap to the screen margin, the screen center and other elements; double-click resets one element.
+ * The handle on each frame's bottom-right corner scales the element (top-left corner stays put); double-click on
+ * the handle returns it to scale 1.
  */
 public final class HudEditScreen extends UiScreen {
-    private record Rect(HudBlock block, float x, float y, float w, float h) {
+    /** One element this frame: top-left, scaled size and scale. */
+    private record Rect(HudBlock block, float x, float y, float w, float h, float scale) {
         boolean contains(double mx, double my) {
             return mx >= x && mx < x + w && my >= y && my < y + h;
+        }
+
+        /** Unscaled size. */
+        float baseW() {
+            return w / scale;
+        }
+
+        float baseH() {
+            return h / scale;
         }
     }
 
@@ -32,7 +45,12 @@ public final class HudEditScreen extends UiScreen {
     private float dragY;
     private float guideX = Float.NaN;
     private float guideY = Float.NaN;
+    private @Nullable HudBlock resizing;
+    private float resizeGrabX;
+    private float resizeGrabY;
+    private float resizeScale = 1f;
     private @Nullable HudBlock lastClicked;
+    private boolean lastClickOnHandle;
     private long lastClickMs;
 
     public HudEditScreen(@Nullable Screen parent) {
@@ -69,10 +87,11 @@ public final class HudEditScreen extends UiScreen {
                 continue;
             }
             block.update(true);
-            float w = block.width(ui, true);
-            float h = block.height(ui, true);
-            float[] at = block == dragging ? new float[]{dragX, dragY} : Hud.get().position(block, w, h, sw, sh);
-            frame.add(new Rect(block, at[0], at[1], w, h));
+            float scale = block == resizing ? resizeScale : Hud.get().scale(block);
+            float w = block.width(ui, true) * scale;
+            float h = block.height(ui, true) * scale;
+            float[] at = block == dragging || block == resizing ? new float[]{dragX, dragY} : Hud.get().position(block, w, h, sw, sh);
+            frame.add(new Rect(block, at[0], at[1], w, h, scale));
         }
         rects = frame;
 
@@ -83,17 +102,28 @@ public final class HudEditScreen extends UiScreen {
             ui.rect(0, guideY, sw, ui.num("stroke.width"), 0, ui.color("accent"));
         }
 
-        Rect hovered = dragging == null ? topAt(mx, my) : null;
+        boolean idle = dragging == null && resizing == null;
+        Rect handleHover = idle ? handleAt(ui.theme(), mx, my) : null;
+        Rect hovered = idle ? handleHover != null ? handleHover : topAt(mx, my) : null;
         float pad = ui.num("layout.hud.edit_pad");
+        float handle = ui.num("layout.hud.edit_handle");
         for (Rect r : rects) {
-            r.block().render(ui, r.x(), r.y(), true);
-            boolean active = r.block() == dragging || r == hovered;
+            Hud.draw(ui, r.block(), r.x(), r.y(), r.scale(), true);
+            boolean active = r.block() == dragging || r.block() == resizing || r == hovered;
             float radius = ui.theme().radius("panel") + pad;
             ui.rect(r.x() - pad, r.y() - pad, r.w() + pad * 2, r.h() + pad * 2, radius, ui.color(active ? "accent_16" : "accent_10"));
             ui.border(r.x() - pad, r.y() - pad, r.w() + pad * 2, r.h() + pad * 2, radius, ui.num("stroke.width"),
                     ui.color(active ? "accent" : "accent_60"));
+            // Scale handle: a knob centered on the frame's bottom-right corner.
+            boolean handleActive = r.block() == resizing || r == handleHover;
+            float[] c = handleCenter(ui.theme(), r);
+            ui.box(c[0] - handle / 2f, c[1] - handle / 2f, handle, handle, ui.theme().radius("hud_handle"),
+                    ui.color(handleActive ? "accent" : "panel"), ui.color(active ? "accent" : "accent_60"));
             if (active) {
                 String name = Ui.tr(r.block().nameKey());
+                if (r.block() == resizing || r.scale() != 1f) {
+                    name = Ui.tr("skirmish.hud.edit.scaled", name, Math.round(r.scale() * 100f));
+                }
                 float lh = ui.lineHeight("hud_edit_label");
                 float ly = r.y() - pad - lh - ui.num("layout.hud.edit_label_gap");
                 if (ly < 0) {
@@ -123,6 +153,26 @@ public final class HudEditScreen extends UiScreen {
         ui.rect(bx, by, rw, bh, ui.theme().radius("button"), ui.color("panel"));
         widget(ui, resetAll, mx, my);
         widget(ui, done, mx, my);
+        if (handleHover != null || resizing != null) {
+            ui.graphics().requestCursor(com.mojang.blaze3d.platform.cursor.CursorTypes.RESIZE_ALL);
+        }
+    }
+
+    private static float[] handleCenter(Theme t, Rect r) {
+        float pad = t.num("layout.hud.edit_pad");
+        return new float[]{r.x() + r.w() + pad, r.y() + r.h() + pad};
+    }
+
+    /** Topmost element whose scale handle is under the pointer (the hit area is larger than the drawn knob). */
+    private @Nullable Rect handleAt(Theme t, double mx, double my) {
+        float half = t.num("layout.hud.edit_handle_hit") / 2f;
+        for (int i = rects.size() - 1; i >= 0; i--) {
+            float[] c = handleCenter(t, rects.get(i));
+            if (Math.abs(mx - c[0]) <= half && Math.abs(my - c[1]) <= half) {
+                return rects.get(i);
+            }
+        }
+        return null;
     }
 
     private @Nullable Rect topAt(double mx, double my) {
@@ -136,18 +186,38 @@ public final class HudEditScreen extends UiScreen {
 
     @Override
     protected boolean onBackgroundClick(double mx, double my, int button) {
-        Rect r = topAt(mx, my);
-        if (r == null || button != 0) {
+        if (button != 0) {
             return false;
         }
+        Rect handleRect = handleAt(Theme.get(), mx, my);
+        Rect r = handleRect != null ? handleRect : topAt(mx, my);
+        if (r == null) {
+            return false;
+        }
+        boolean onHandle = handleRect != null;
         long now = Util.getMillis();
-        if (r.block() == lastClicked && now - lastClickMs < 350) {
-            Hud.get().resetPlacement(r.block());
+        if (r.block() == lastClicked && onHandle == lastClickOnHandle && now - lastClickMs < 350) {
+            if (onHandle) {
+                resetScale(r);
+            } else {
+                Hud.get().resetPlacement(r.block());
+            }
             lastClicked = null;
             return true;
         }
         lastClicked = r.block();
+        lastClickOnHandle = onHandle;
         lastClickMs = now;
+        if (onHandle) {
+            resizing = r.block();
+            resizeScale = r.scale();
+            // Offset of the pointer from the element's scaled corner, so the corner does not jump to the pointer.
+            resizeGrabX = (float) mx - (r.x() + r.w());
+            resizeGrabY = (float) my - (r.y() + r.h());
+            dragX = r.x();
+            dragY = r.y();
+            return true;
+        }
         dragging = r.block();
         grabX = (float) mx - r.x();
         grabY = (float) my - r.y();
@@ -156,12 +226,42 @@ public final class HudEditScreen extends UiScreen {
         return true;
     }
 
+    private @Nullable Rect rect(HudBlock block) {
+        for (Rect r : rects) {
+            if (r.block() == block) {
+                return r;
+            }
+        }
+        return null;
+    }
+
+    /** Double-click on the handle: back to scale 1 around the same anchor (a default-placed element stays default). */
+    private void resetScale(Rect r) {
+        Hud hud = Hud.get();
+        if (hud.hasPlacement(r.block())) {
+            hud.setPlacement(r.block(), hud.placement(r.block()).withScale(1f));
+        }
+    }
+
     @Override
     public boolean mouseDragged(net.minecraft.client.input.MouseButtonEvent event, double dx, double dy) {
+        if (resizing != null) {
+            Rect r = rect(resizing);
+            if (r != null) {
+                float sw = (float) Ui.toDesign(width);
+                float sh = (float) Ui.toDesign(height);
+                float cornerX = (float) Ui.toDesign(event.x()) - resizeGrabX - dragX;
+                float cornerY = (float) Ui.toDesign(event.y()) - resizeGrabY - dragY;
+                // Never grows past the screen edge from the fixed top-left corner.
+                float fit = Math.min((sw - dragX) / r.baseW(), (sh - dragY) / r.baseH());
+                resizeScale = Placement.scaleForCorner(cornerX, cornerY, r.baseW(), r.baseH(), fit);
+            }
+            return true;
+        }
         if (dragging == null) {
             return super.mouseDragged(event, dx, dy);
         }
-        Rect r = rects.stream().filter(x -> x.block() == dragging).findFirst().orElse(null);
+        Rect r = rect(dragging);
         if (r == null) {
             return true;
         }
@@ -180,7 +280,7 @@ public final class HudEditScreen extends UiScreen {
 
     /** Snaps the start, center or end of a span to the screen margin/center or to other elements; returns {pos, guide}. */
     private float[] snap(float pos, float size, float screen, boolean horizontal) {
-        dev.skirmish.ui.Theme t = dev.skirmish.ui.Theme.get();
+        Theme t = Theme.get();
         float threshold = t.num("layout.hud.snap");
         float edge = t.num("layout.screen_edge");
         List<float[]> targets = new ArrayList<>();
@@ -216,12 +316,23 @@ public final class HudEditScreen extends UiScreen {
 
     @Override
     public boolean mouseReleased(net.minecraft.client.input.MouseButtonEvent event) {
-        if (dragging != null) {
-            Rect r = rects.stream().filter(x -> x.block() == dragging).findFirst().orElse(null);
+        if (resizing != null) {
+            Rect r = rect(resizing);
             if (r != null) {
                 float sw = (float) Ui.toDesign(width);
                 float sh = (float) Ui.toDesign(height);
-                Hud.get().setPlacement(dragging, Placement.at(dragX, dragY, r.w(), r.h(), sw, sh));
+                Hud.get().setPlacement(resizing, Placement.at(dragX, dragY, r.baseW() * resizeScale, r.baseH() * resizeScale,
+                        sw, sh, resizeScale));
+            }
+            resizing = null;
+            return true;
+        }
+        if (dragging != null) {
+            Rect r = rect(dragging);
+            if (r != null) {
+                float sw = (float) Ui.toDesign(width);
+                float sh = (float) Ui.toDesign(height);
+                Hud.get().setPlacement(dragging, Placement.at(dragX, dragY, r.w(), r.h(), sw, sh, r.scale()));
             }
             dragging = null;
             guideX = Float.NaN;

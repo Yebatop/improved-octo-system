@@ -1,0 +1,9 @@
+{
+  "key.skirmish.auto_sprint.toggle": "Auto Sprint: on/off",
+  "skirmish.module.auto_sprint.name": "Auto Sprint",
+  "skirmish.module.auto_sprint.description": "Sprint as soon as you walk forward, no Ctrl needed. Everything else is vanilla: no sprinting backwards or sideways, while hungry, sneaking, eating or blocking.",
+  "skirmish.module.auto_sprint.setting.key": "Key",
+  "skirmish.module.auto_sprint.setting.key.tooltip": "Turn auto sprint on or off (unbound by default)",
+  "skirmish.auto_sprint.toggled_on": "Auto Sprint on",
+  "skirmish.auto_sprint.toggled_off": "Auto Sprint off"
+}

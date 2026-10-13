@@ -130,4 +130,21 @@ class DurabilityTest {
         assertEquals(EnchantmentStatus.NO_DATA, EnchantmentStatus.classify(false, 0, true, false));
         assertEquals(EnchantmentStatus.NOT_APPLICABLE, EnchantmentStatus.classify(false, 0, false, false));
     }
+
+    /** HolyWorld sends other players' armour as "x64" stacks with damage 123 of any max (captured 2026-09). */
+    @Test
+    void placeholderStackHasNoDurability() {
+        Durability d = Durability.classify(new DamageFacts(false, false, true, 240, 123, true, true), false);
+        assertEquals(Durability.Kind.NO_DATA, d.kind());
+        assertEquals(Durability.Reason.PLACEHOLDER, d.reason());
+    }
+
+    @Test
+    void compactEnchantCount() {
+        assertEquals(4, GearFormat.enchantCount(EnchantmentStatus.LISTED, 3, 1));
+        // Vanilla names only count when they were received; lore enchantments always do.
+        assertEquals(2, GearFormat.enchantCount(EnchantmentStatus.GLINT_ONLY, 5, 2));
+        assertEquals(0, GearFormat.enchantCount(EnchantmentStatus.NO_DATA, 0, 0));
+        assertEquals(0, GearFormat.enchantCount(EnchantmentStatus.NOT_APPLICABLE, 0, 0));
+    }
 }

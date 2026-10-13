@@ -28,6 +28,14 @@ public final class GearFormat {
         return (int) ((long) clamped * 100 / max);
     }
 
+    /**
+     * Enchantments counted in the compact card's «+N чар.» badge: the received vanilla ones (only when listed) plus
+     * HolyWorld lore enchantments. 0 hides the badge.
+     */
+    public static int enchantCount(EnchantmentStatus status, int listed, int custom) {
+        return (status == EnchantmentStatus.LISTED ? Math.max(0, listed) : 0) + Math.max(0, custom);
+    }
+
     /** "87%", "0%" for a broken item and "<1%" when something is left but less than one percent. */
     public static String percentText(int remaining, int max) {
         int percent = percent(remaining, max);

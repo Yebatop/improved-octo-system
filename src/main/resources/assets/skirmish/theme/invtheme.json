@@ -1,0 +1,13 @@
+{
+  "colors": {
+    "inv_panel": "#0F0F18F2",
+    "inv_slot": "#FFFFFF0C",
+    "inv_slot_stroke": "#FFFFFF14",
+    "inv_model": "#00000055"
+  },
+  "layout": {
+    "invtheme": {
+      "pad": 4
+    }
+  }
+}

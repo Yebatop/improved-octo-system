@@ -1,0 +1,61 @@
+{
+  "colors": {
+    "minimap_bg": "#0A0A12D8",
+    "minimap_rim": "#FFFFFF2E",
+    "minimap_player": "#F2F2F7",
+    "minimap_hostile": "#FF5A5A",
+    "minimap_passive": "#7CE38B",
+    "minimap_outline": "#000000A0"
+  },
+  "layout": {
+    "minimap": {
+      "size": 148,
+      "texels": 192,
+      "radius": 16,
+      "rim": 1.5,
+      "gap": 5,
+      "pill_h": 20,
+      "face": 10,
+      "dot": 5,
+      "arrow": 6,
+      "marker": 4,
+      "letter": 13,
+      "inset": 7,
+      "rebuild_ms": 400,
+      "scale_ms": 1500
+    }
+  },
+  "text": {
+    "minimap_n": {
+      "size": 9,
+      "weight": 800,
+      "color": "bad"
+    },
+    "minimap_letter": {
+      "size": 8,
+      "weight": 700,
+      "color": "text_2"
+    },
+    "minimap_name": {
+      "size": 8,
+      "weight": 600,
+      "color": "text"
+    },
+    "minimap_coords": {
+      "size": 10,
+      "weight": 600,
+      "color": "text",
+      "mono": true
+    },
+    "minimap_axis": {
+      "size": 9,
+      "weight": 700,
+      "color": "text_3"
+    },
+    "minimap_scale": {
+      "size": 9,
+      "weight": 700,
+      "color": "text"
+    }
+  }
+}

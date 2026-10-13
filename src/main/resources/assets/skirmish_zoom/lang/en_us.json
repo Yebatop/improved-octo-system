@@ -1,0 +1,17 @@
+{
+  "key.skirmish.zoom": "Zoom (hold)",
+  "skirmish.module.zoom.name": "Zoom",
+  "skirmish.module.zoom.description": "Hold the key to zoom in. The mouse wheel changes the zoom while the key is held.",
+  "skirmish.module.zoom.setting.factor": "Zoom",
+  "skirmish.module.zoom.setting.factor.tooltip": "How many times narrower the view gets when the key is pressed",
+  "skirmish.module.zoom.setting.scroll": "Wheel changes zoom",
+  "skirmish.module.zoom.setting.scroll.tooltip": "While the key is held, the wheel zooms in and out instead of changing the hotbar slot",
+  "skirmish.module.zoom.setting.smooth": "Smooth transition",
+  "skirmish.module.zoom.setting.smooth.tooltip": "Ease into the zoom instead of jumping",
+  "skirmish.module.zoom.setting.lower_sensitivity": "Lower sensitivity",
+  "skirmish.module.zoom.setting.lower_sensitivity.tooltip": "The camera turns slower by the same factor as the zoom",
+  "skirmish.module.zoom.setting.hide_hand": "Hide hand",
+  "skirmish.module.zoom.setting.hide_hand.tooltip": "Don't draw the hand and held item while zoomed",
+  "skirmish.module.zoom.setting.key": "Key",
+  "skirmish.module.zoom.setting.key.tooltip": "Hold to zoom (C by default)"
+}

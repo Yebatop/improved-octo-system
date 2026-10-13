@@ -40,5 +40,18 @@
   "skirmish.anvilcalc.reason.conflict": "несовместимо с «%s»",
   "skirmish.anvilcalc.reason.nothing_new": "ничего не добавит",
   "skirmish.anvilcalc.reason.over_limit": "не влезает в лимит",
-  "skirmish.anvilcalc.reason.not_needed": "дороже, чем даёт"
+  "skirmish.anvilcalc.reason.not_needed": "дороже, чем даёт",
+  "skirmish.module.anvilcalc.setting.rules": "Правила наковальни",
+  "skirmish.module.anvilcalc.setting.rules.tooltip": "Авто: на HolyWorld — правила Лайт Анархии, на других серверах — ванильные. Лайт и Прайм клиент надёжно различить не может, поэтому на Прайме выберите «HolyWorld Прайм» вручную.",
+  "skirmish.module.anvilcalc.setting.rules.auto": "Авто",
+  "skirmish.module.anvilcalc.setting.rules.vanilla": "Ванилла",
+  "skirmish.module.anvilcalc.setting.rules.holyworld_lite": "HolyWorld Лайт",
+  "skirmish.module.anvilcalc.setting.rules.holyworld_prime": "HolyWorld Прайм",
+  "skirmish.anvilcalc.rules.holyworld_lite": "правила HolyWorld Лайт",
+  "skirmish.anvilcalc.rules.holyworld_prime": "правила HolyWorld Прайм",
+  "skirmish.anvilcalc.rules.auto": " (авто)",
+  "skirmish.anvilcalc.warn.lite_armor": "Лайт: на броню нельзя наложить Починку, и броню нельзя чинить на наковальне. Stinger, Eternity и Infinity чинятся незеритовыми слитками: +25 прочности за слиток.",
+  "skirmish.anvilcalc.warn.dubious_books": "Сомнительные книги %s: накладываются только отдельно на незачарованный предмет, с обычными книгами не объединяются. После наложения их уровень уже не поднять — сначала прокачайте саму книгу.",
+  "skirmish.anvilcalc.warn.dubious_item": "На предмете сомнительное зачарование: его уровень больше не повысить.",
+  "skirmish.anvilcalc.reason.dubious": "сомнительная книга, только отдельно"
 }

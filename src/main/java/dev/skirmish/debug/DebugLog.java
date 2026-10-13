@@ -37,8 +37,10 @@ public final class DebugLog {
     private static final AtomicInteger DROPPED = new AtomicInteger();
 
     private static volatile Path file;
-    private static volatile long maxBytes = 2L * 1024 * 1024;
-    private static volatile int keepFiles = 3;
+    private static volatile long maxBytes = 4L * 1024 * 1024;
+    private static volatile int keepFiles = 4;
+    /** Folds repeats and caps chatty modules (writer thread only). */
+    private static final LogCompactor COMPACTOR = new LogCompactor();
     private static ScheduledExecutorService executor;
 
     private DebugLog() {
@@ -109,7 +111,7 @@ public final class DebugLog {
     /** Writes queued entries now. Called by the background thread; public for tests. */
     public static synchronized void flush() throws IOException {
         Path target = file;
-        if (target == null || QUEUE.isEmpty()) {
+        if (target == null) {
             return;
         }
         rotateIfNeeded(target);
@@ -122,15 +124,15 @@ public final class DebugLog {
                 out.newLine();
             }
             long written = 0;
+            for (LogCompactor.Line l : COMPACTOR.tick(System.currentTimeMillis())) {
+                written += write(out, line, l);
+            }
             Entry entry;
             while ((entry = QUEUE.poll()) != null) {
                 QUEUED.decrementAndGet();
-                line.setLength(0);
-                line.append(TIME.format(Instant.ofEpochMilli(entry.time)))
-                        .append(" [").append(entry.tag).append("] ").append(entry.message);
-                out.write(line.toString());
-                out.newLine();
-                written += line.length() + 1;
+                for (LogCompactor.Line l : COMPACTOR.accept(entry.time, entry.tag, entry.message)) {
+                    written += write(out, line, l);
+                }
                 if (written > maxBytes) {
                     break;
                 }
@@ -139,6 +141,14 @@ public final class DebugLog {
         if (!QUEUE.isEmpty()) {
             flush();
         }
+    }
+
+    private static long write(BufferedWriter out, StringBuilder line, LogCompactor.Line l) throws IOException {
+        line.setLength(0);
+        line.append(TIME.format(Instant.ofEpochMilli(l.time()))).append(" [").append(l.tag()).append("] ").append(l.message());
+        out.write(line.toString());
+        out.newLine();
+        return line.length() + 1L;
     }
 
     private static void rotateIfNeeded(Path target) throws IOException {

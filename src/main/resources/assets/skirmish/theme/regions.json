@@ -1,0 +1,53 @@
+{
+  "colors": {
+    "rb_iron": "#DCE1EA",
+    "rb_gold": "#FFC83D",
+    "rb_diamond": "#4FE0E8",
+    "rb_emerald": "#3DDC84",
+    "rb_netherite": "#B07CFF",
+    "rb_unique": "#FF8A3D",
+    "rb_prime_gold": "#FFC83D",
+    "rb_copper": "#F0905E",
+    "rb_debris": "#D08A62",
+    "rb_resin": "#FF9F43",
+    "rb_amethyst": "#C08CFF"
+  },
+  "text": {
+    "rb_title": {
+      "size": 12,
+      "weight": 700,
+      "color": "text"
+    },
+    "rb_size": {
+      "size": 12,
+      "weight": 700,
+      "color": "text",
+      "mono": true
+    },
+    "rb_note": {
+      "size": 10,
+      "weight": 600,
+      "color": "text_2"
+    }
+  },
+  "layout": {
+    "regions": {
+      "max_regions": 4,
+      "holo_height": 3.5,
+      "appear_ms": 260,
+      "fade_ms": 1200,
+      "line_alpha": 235,
+      "wall_alpha": 38,
+      "line_width": 2.5,
+      "lift": 0.02,
+      "column_above": 10,
+      "column_below": 4,
+      "pill_width": 196,
+      "pill_pad_x": 10,
+      "pill_pad_y": 7,
+      "pill_line_gap": 2,
+      "pill_accent": 3,
+      "pill_accent_gap": 8
+    }
+  }
+}

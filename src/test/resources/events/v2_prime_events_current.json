@@ -1,0 +1,46 @@
+[
+  {
+    "id": {
+      "uuid": "0e771ae6-4b19-4ef2-a3f5-24f75325c89e"
+    },
+    "server": "2",
+    "plugin": "pandora_box",
+    "template": "pandora_v3",
+    "state": "RUNNING",
+    "scheduledAt": "2026-09-23T20:00:00Z",
+    "startedAt": "2026-09-23T20:00:05.483698564Z"
+  },
+  {
+    "id": {
+      "uuid": "3ed1e482-2be2-4113-9851-3938009cf0d3"
+    },
+    "server": "1",
+    "plugin": "pandora_box",
+    "template": "pandora_v3",
+    "state": "RUNNING",
+    "scheduledAt": "2026-09-23T20:00:00Z",
+    "startedAt": "2026-09-23T20:00:15.497011969Z"
+  },
+  {
+    "id": {
+      "uuid": "d7187168-ec3e-4f74-9114-6ee4b086a6f9"
+    },
+    "server": "5",
+    "plugin": "pandora_box",
+    "template": "pandora_v2",
+    "state": "RUNNING",
+    "scheduledAt": "2026-09-23T20:00:00Z",
+    "startedAt": "2026-09-23T20:00:20.406730007Z"
+  },
+  {
+    "id": {
+      "uuid": "b3cdb3a6-eb36-4980-bf85-b556b112147b"
+    },
+    "server": "4",
+    "plugin": "pandora_box",
+    "template": "pandora_v3",
+    "state": "RUNNING",
+    "scheduledAt": "2026-09-23T20:00:00Z",
+    "startedAt": "2026-09-23T20:00:05.438397249Z"
+  }
+]

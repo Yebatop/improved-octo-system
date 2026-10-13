@@ -1,0 +1,98 @@
+{
+  "colors": {
+    "totem_gold": "#FFC857",
+    "studio_card_bg": "#0B0A12"
+  },
+  "layout": {
+    "studio": {
+      "width": 1280,
+      "height": 740,
+      "min_width": 900,
+      "min_height": 560,
+      "pad": 22,
+      "gap": 12,
+      "stage_share": 0.55,
+      "hp_w": 64,
+      "hp_h": 6,
+      "scene_w": 132,
+      "tab_h": 30,
+      "tab_pad": 13,
+      "indent": 16,
+      "slider_w": 120,
+      "dropdown_w": 150,
+      "row_min_h": 38,
+      "card_gap": 10,
+      "card_ratio": 1.0,
+      "card_label_h": 28,
+      "card_r": 12,
+      "badge": 18,
+      "swatch": 24,
+      "swatch_gap": 9,
+      "chip_h": 28,
+      "chip_pad": 11,
+      "chip_gap": 6,
+      "chip_icon": 11,
+      "section_gap": 16
+    },
+    "player_fx": {
+      "pill_h": 34,
+      "pill_pad": 14,
+      "pill_icon": 16,
+      "pill_gap": 8
+    }
+  },
+  "text": {
+    "studio_hp": {
+      "size": 11,
+      "weight": 700,
+      "color": "text",
+      "mono": true
+    },
+    "studio_streak": {
+      "size": 22,
+      "weight": 800,
+      "color": "warn"
+    },
+    "studio_hint": {
+      "size": 10,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "studio_tab": {
+      "size": 12,
+      "weight": 700,
+      "color": "text_2"
+    },
+    "studio_row_desc": {
+      "size": 10,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "pfx_totem_title": {
+      "size": 13,
+      "weight": 800,
+      "color": "totem_gold"
+    },
+    "pfx_totem_left": {
+      "size": 12,
+      "weight": 600,
+      "color": "text_2"
+    },
+    "studio_card": {
+      "size": 12,
+      "weight": 700,
+      "color": "text_2"
+    },
+    "studio_chip": {
+      "size": 11,
+      "weight": 600,
+      "color": "text_2"
+    },
+    "studio_section": {
+      "size": 10,
+      "weight": 800,
+      "color": "text_3",
+      "tracking": 0.8
+    }
+  }
+}

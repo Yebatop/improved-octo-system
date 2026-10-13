@@ -1,0 +1,125 @@
+{
+  "colors": {
+    "hwb_bg": "#0B0B12C8",
+    "hwb_stats": "#F2F2F7",
+    "hwb_rune_immortality": "#FFE08A",
+    "hwb_rune_restoration": "#3DDC97",
+    "hwb_backpack": "#A99BFF",
+    "hwb_tnt": "#FF9F5A",
+    "hwt_header": "#A99BFF",
+    "hwt_line": "#A3A3B5",
+    "hwt_hint": "#6E6E82"
+  },
+  "radius": {
+    "hw_badge": 3
+  },
+  "text": {
+    "hwb_text": {
+      "size": 10,
+      "weight": 800,
+      "color": "hwb_stats"
+    },
+    "recap_title": {
+      "size": 20,
+      "weight": 800,
+      "color": "text",
+      "tracking": -0.3
+    },
+    "recap_sub": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_2"
+    },
+    "recap_section": {
+      "size": 10,
+      "weight": 700,
+      "color": "text_3",
+      "tracking": 0.8
+    },
+    "recap_best": {
+      "size": 16,
+      "weight": 800,
+      "color": "text"
+    },
+    "recap_tile_value": {
+      "size": 20,
+      "weight": 800,
+      "color": "text"
+    },
+    "recap_tile_label": {
+      "size": 10,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "recap_status": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "recap_card_sub": {
+      "size": 13,
+      "weight": 500,
+      "color": "text_2"
+    },
+    "recap_card_value": {
+      "size": 24,
+      "weight": 800,
+      "color": "text"
+    },
+    "recap_card_label": {
+      "size": 11,
+      "weight": 700,
+      "color": "text_3",
+      "tracking": 1.0
+    },
+    "recap_card_best": {
+      "size": 20,
+      "weight": 800,
+      "color": "text"
+    }
+  },
+  "layout": {
+    "hw_badges": {
+      "pad_x": 2,
+      "inset": 0,
+      "overhang": 2
+    },
+    "recap": {
+      "width": 640,
+      "height": 440,
+      "min_width": 520,
+      "min_height": 400,
+      "pad_x": 24,
+      "pad_y": 20,
+      "close_size": 30,
+      "close_icon": 14,
+      "close_inset": 4,
+      "header_gap": 6,
+      "section_gap": 16,
+      "tile_gap": 8,
+      "tile_pad_x": 12,
+      "tile_pad_y": 10,
+      "tile_value_gap": 2,
+      "button_gap": 10
+    },
+    "recap_card": {
+      "width": 800,
+      "height": 480,
+      "pad_x": 36,
+      "pad_y": 32,
+      "gap": 22,
+      "deco_right": -60,
+      "deco_top": -60,
+      "deco_size": 240,
+      "deco_width": 40,
+      "header_gap": 10,
+      "logo": 24,
+      "badge_pad_x": 10,
+      "badge_pad_y": 5,
+      "title_gap": 4,
+      "tile_gap": 10,
+      "tile_pad": 14,
+      "tile_value_gap": 4
+    }
+  }
+}

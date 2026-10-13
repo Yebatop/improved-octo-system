@@ -1,8 +1,14 @@
 package dev.skirmish.module.gearinspector;
 
+import dev.skirmish.module.Category;
 import dev.skirmish.SkirmishKeys;
+import dev.skirmish.holyworld.HolyWorld;
+import dev.skirmish.hud.DetailMode;
 import dev.skirmish.module.Module;
+import dev.skirmish.module.gearinspector.holy.HolyProfile;
 import dev.skirmish.setting.BoolSetting;
+import dev.skirmish.setting.EnumSetting;
+import dev.skirmish.setting.KeySetting;
 import dev.skirmish.setting.NumberSetting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -19,21 +25,35 @@ public final class GearInspectorModule extends Module {
     final NumberSetting lockDistance = add(new NumberSetting("lock_distance", 64, 5, 128, 1).unit(" m"));
     final NumberSetting linger = add(new NumberSetting("linger", 1.0, 0, 5, 0.5).unit(" s"));
     final NumberSetting hitboxMargin = add(new NumberSetting("hitbox_margin", 0.2, 0, 1, 0.1).unit(" m"));
-    final BoolSetting throughWalls = add(new BoolSetting("through_walls", false));
     final BoolSetting showHands = add(new BoolSetting("show_hands", true));
     final BoolSetting showEmptySlots = add(new BoolSetting("show_empty_slots", true));
     final BoolSetting showEnchantments = add(new BoolSetting("show_enchantments", false));
+    /** Compact list (name, durability, «+N чар.»), full list while {@link SkirmishKeys#DETAILS} is held, or always full. */
+    final EnumSetting<DetailMode> details = add(new EnumSetting<>("details", DetailMode.HOLD));
+    private final KeySetting detailsKey = add(new KeySetting("details_key", "key.skirmish.details"));
     final BoolSetting showMissingEnchantments = add(new BoolSetting("show_missing_enchantments", true));
     final BoolSetting showAbsolute = add(new BoolSetting("show_absolute", false));
     final BoolSetting assumeUndamaged = add(new BoolSetting("assume_undamaged", false));
     final BoolSetting lockMessages = add(new BoolSetting("lock_messages", true));
+    /** HolyWorld item knowledge: donor tiers, lore enchantments, off-hand talismans, Lite armour wear. */
+    final EnumSetting<HolyProfile> holyProfile = (EnumSetting<HolyProfile>) add(new EnumSetting<>("holy_profile", HolyProfile.AUTO))
+            .feature("holy_gear_profile");
+    final BoolSetting holyHitsLeft = add(new BoolSetting("holy_hits_left", true));
 
     private final TargetTracker tracker = new TargetTracker(this);
 
+    @Override
+    public Category category() {
+        return Category.COMBAT;
+    }
+
     public GearInspectorModule() {
         super(ID, true);
-        showMissingEnchantments.visibleWhen(showEnchantments::get);
-        showAbsolute.visibleWhen(showEnchantments::get);
+        details.under(showEnchantments).visibleWhen(showEnchantments::get);
+        detailsKey.under(showEnchantments).visibleWhen(() -> showEnchantments.get() && details.get() == DetailMode.HOLD);
+        showMissingEnchantments.under(showEnchantments).visibleWhen(showEnchantments::get);
+        showAbsolute.under(showEnchantments).visibleWhen(showEnchantments::get);
+        holyHitsLeft.under(showEnchantments).visibleWhen(() -> showEnchantments.get() && holyProfile.get() == HolyProfile.AUTO && !holyProfile.isBlocked());
     }
 
     @Override
@@ -61,6 +81,16 @@ public final class GearInspectorModule extends Module {
 
     TargetTracker tracker() {
         return tracker;
+    }
+
+    /** «Профиль HolyWorld» is AUTO, not blocked by Feature Control, and the client is on HolyWorld. */
+    boolean holyActive() {
+        return holyProfile.get() == HolyProfile.AUTO && !holyProfile.isBlocked() && HolyWorld.isConnected();
+    }
+
+    /** The target card shows the full list now (mode FULL, or HOLD with the details key held). */
+    boolean detailsExpanded() {
+        return details.get().expanded(SkirmishKeys.DETAILS.isDown());
     }
 
     KeyMapping lockKey() {

@@ -363,6 +363,27 @@ public final class ReplayBuffer {
         return tracks[track].eqCount;
     }
 
+    /** Tick of the {@code k}-th stored equipment change of the track (0 = oldest, up to {@link #equipmentChanges}). */
+    public long equipmentChangeTick(int track, int k) {
+        return tracks[track].eqTick[equipmentChange(track, k)];
+    }
+
+    public int equipmentChangeSlot(int track, int k) {
+        return tracks[track].eqSlot[equipmentChange(track, k)];
+    }
+
+    public @Nullable Object equipmentChangePayload(int track, int k) {
+        return tracks[track].eqPayload[equipmentChange(track, k)];
+    }
+
+    private int equipmentChange(int track, int k) {
+        Track t = tracks[track];
+        if (k < 0 || k >= t.eqCount) {
+            throw new IndexOutOfBoundsException(k);
+        }
+        return (t.eqStart + k) % EQUIPMENT_EVENTS;
+    }
+
     /** Stored equipment payloads over all tracks (change events plus base states). */
     public int equipmentPayloads() {
         int count = 0;

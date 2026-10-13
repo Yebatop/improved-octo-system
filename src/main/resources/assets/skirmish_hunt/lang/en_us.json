@@ -1,0 +1,23 @@
+{
+  "skirmish.module.hunt.name": "Treasure Hunt",
+  "skirmish.module.hunt.description": "When the server says where something was placed but hides digits («… Золотой Спавнер на координатах 1*4*, 5, 1*9*»), a hunt starts: the mask with its hidden digits, the nearest cell you have not been in with an arrow and distance, how many cells you have been through, and how far to dig in a candidate cell. A waypoint follows the nearest cell; the map shades visited cells. Only the chat line and your own position are used.",
+  "skirmish.module.hunt.setting.card": "Card",
+  "skirmish.module.hunt.setting.card.tooltip": "The hunt card on the HUD (left column)",
+  "skirmish.module.hunt.setting.waypoint": "Waypoint on the nearest cell",
+  "skirmish.module.hunt.setting.waypoint.tooltip": "A «Hunt: …» waypoint moves to the nearest cell you have not been in",
+  "skirmish.module.hunt.setting.sound": "Sound",
+  "skirmish.module.hunt.setting.sound.tooltip": "A short sound when a hunt starts",
+  "skirmish.module.hunt.setting.stop_key": "Stop hunt",
+  "skirmish.module.hunt.setting.stop_key.tooltip": "Ends the hunt and removes its waypoint (also /skirmish hunt stop)",
+  "skirmish.hud.element.hunt": "Treasure Hunt",
+  "skirmish.hunt.waypoint": "Hunt: %s",
+  "skirmish.hunt.nearest": "Nearest cell",
+  "skirmish.hunt.all_visited": "You have been in every cell",
+  "skirmish.hunt.visited": "Been in %s of %s cells",
+  "skirmish.hunt.in_cell": "You are in a candidate cell",
+  "skirmish.hunt.below": "%s down",
+  "skirmish.hunt.above": "%s up",
+  "skirmish.hunt.level": "at the right height",
+  "skirmish.hunt.other_dim": "The hunt is in another dimension",
+  "skirmish.hunt.stopped": "Hunt stopped"
+}

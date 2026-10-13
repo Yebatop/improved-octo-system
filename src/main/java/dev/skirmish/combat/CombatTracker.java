@@ -10,6 +10,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Shared combat tracker. The core mixin on {@code ClientPacketListener} is the only place that hooks
@@ -24,6 +27,11 @@ import java.util.UUID;
  */
 public final class CombatTracker {
     private static final long HEALTH_PRUNE_INTERVAL_MS = 5_000;
+    /** Test aid: ignore the attacker in damage packets, as HolyWorld sends none ({@code -Dskirmish.debug.anonymousDamage=true}). */
+    private static final boolean SIMULATE_ANONYMOUS = Boolean.getBoolean("skirmish.debug.anonymousDamage");
+    /** HolyWorld death line: «▶ Вы были убиты игроком Enemy_3 на координатах -541 53 -193». */
+    private static final Pattern CHAT_KILLER = Pattern.compile("(?iu)убит[аы]?\\s+игроком\\s+([A-Za-z0-9_]{3,16})");
+    private static final long CHAT_KILLER_MAX_AGE_MS = 3_000;
     private static @Nullable CombatTracker instance;
 
     private final CombatTrackerModule module;
@@ -55,13 +63,23 @@ public final class CombatTracker {
     }
 
     private long lastAttackAttemptMs = -1;
+    private int lastAttackTargetId = -1;
+    private final Map<Integer, Long> lastSwingMs = new HashMap<>();
+    private @Nullable String chatKiller;
+    private long chatKillerMs;
 
-    /** Left-click attack attempt by the local player (read from Minecraft.startAttack, never sent anywhere). */
-    public void onAttackAttempt() {
+    /**
+     * Left-click attack attempt by the local player (read from Minecraft.startAttack, never sent anywhere).
+     *
+     * @param targetId the entity under the crosshair, or -1
+     */
+    public void onAttackAttempt(int targetId) {
         lastAttackAttemptMs = now();
+        lastAttackTargetId = targetId;
         for (Fight fight : logic.activeFights()) {
             fight.attackAttempts++;
         }
+        logic.dispatch(l -> l.onAttackAttempt(targetId));
     }
 
     /** The attempt that opened a fight happened before the fight existed; count it. */
@@ -115,11 +133,81 @@ public final class CombatTracker {
     // ---- called by dev.skirmish.mixin.ClientPacketListenerMixin (client thread, after vanilla handling) ----
 
     public void onDamagePacket(Entity victim, DamageSource source) {
-        Entity cause = source.getEntity();
-        Entity direct = source.getDirectEntity();
+        Entity cause = SIMULATE_ANONYMOUS ? null : source.getEntity();
+        Entity direct = SIMULATE_ANONYMOUS ? null : source.getDirectEntity();
         String type = source.typeHolder().unwrapKey().map(key -> key.identifier().toString()).orElse(source.getMsgId());
-        logic.onDamage(new DamageInfo(combatant(victim), cause == null ? null : combatant(cause),
-                direct == null ? null : combatant(direct), type, now()));
+        long now = now();
+        Combatant attacker = cause == null ? null : combatant(cause);
+        if (cause == null && direct == null) {
+            attacker = inferAttacker(victim, now);
+            if (attacker != null) {
+                type = type + " (inferred)";
+            }
+        }
+        logic.onDamage(new DamageInfo(combatant(victim), attacker, direct == null ? null : combatant(direct), type, now));
+    }
+
+    /** The server named no attacker: see {@link AttackerInference}. */
+    private @Nullable Combatant inferAttacker(Entity victim, long now) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) {
+            return null;
+        }
+        if (victim.getId() != mc.player.getId()) {
+            if (AttackerInference.isMyHit(victim.getId(), lastAttackTargetId, now - lastAttackAttemptMs)) {
+                return combatant(mc.player);
+            }
+            return null;
+        }
+        List<AttackerInference.Candidate> candidates = new ArrayList<>();
+        for (Player other : mc.level.players()) {
+            if (other == mc.player || !other.isAlive()) {
+                continue;
+            }
+            double distance = other.distanceTo(mc.player);
+            if (distance > AttackerInference.MELEE_RANGE) {
+                continue;
+            }
+            Long swing = lastSwingMs.get(other.getId());
+            candidates.add(new AttackerInference.Candidate(combatant(other), distance, swing == null ? -1 : now - swing,
+                    logic.fightWith(other.getUUID()) != null));
+        }
+        Combatant found = AttackerInference.attackerOnMe(candidates);
+        if (found != null) {
+            module.log("hit on me without attacker in the packet: inferred " + found.name() + " from " + candidates.size() + " player(s) in range");
+        }
+        return found;
+    }
+
+    /** System chat line; HolyWorld names my killer there, not in the death packet. */
+    public void onSystemChat(String text) {
+        Matcher m = CHAT_KILLER.matcher(text);
+        if (m.find()) {
+            chatKiller = m.group(1);
+            chatKillerMs = now();
+        }
+    }
+
+    private @Nullable Combatant chatKiller(long now) {
+        String name = chatKiller;
+        if (name == null || now - chatKillerMs > CHAT_KILLER_MAX_AGE_MS) {
+            return null;
+        }
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level != null) {
+            for (Player player : mc.level.players()) {
+                if (player.getGameProfile().name().equalsIgnoreCase(name)) {
+                    return combatant(player);
+                }
+            }
+        }
+        if (mc.getConnection() != null) {
+            var info = mc.getConnection().getPlayerInfo(name);
+            if (info != null) {
+                return new Combatant(-1, info.getProfile().id(), info.getProfile().name(), true, false);
+            }
+        }
+        return null;
     }
 
     public void onEntityEvent(Entity entity, byte eventId) {
@@ -131,6 +219,9 @@ public final class CombatTracker {
     }
 
     public void onAnimate(Entity entity, int action) {
+        if ((action == 0 || action == 3) && entity instanceof Player) {
+            lastSwingMs.put(entity.getId(), now());
+        }
         switch (action) {
             case 0 -> logic.dispatch(l -> l.onSwing(entity, InteractionHand.MAIN_HAND));
             case 3 -> logic.dispatch(l -> l.onSwing(entity, InteractionHand.OFF_HAND));
@@ -152,7 +243,9 @@ public final class CombatTracker {
     }
 
     public void onOwnDeath(Component message) {
-        logic.onOwnDeath(message, now());
+        long now = now();
+        logic.onOwnDeath(message, now, chatKiller(now));
+        chatKiller = null;
     }
 
     // ---- lifecycle ----
@@ -184,11 +277,14 @@ public final class CombatTracker {
         }
         if (now - lastHealthPrune > HEALTH_PRUNE_INTERVAL_MS) {
             lastHealthPrune = now;
+            lastSwingMs.values().removeIf(t -> now - t > HEALTH_PRUNE_INTERVAL_MS);
             logic.retainHealth(id -> mc.level.getEntity(id) != null);
         }
     }
 
     void reset(String reason) {
+        lastSwingMs.clear();
+        lastAttackTargetId = -1;
         logic.reset(reason, now());
     }
 }

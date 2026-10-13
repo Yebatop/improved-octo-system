@@ -1,0 +1,262 @@
+package dev.skirmish.module.pvp;
+
+import dev.skirmish.module.Category;
+import dev.skirmish.combat.CombatListener;
+import dev.skirmish.combat.CombatTracker;
+import dev.skirmish.combat.Combatant;
+import dev.skirmish.combat.DamageInfo;
+import dev.skirmish.holyworld.HolyWorld;
+import dev.skirmish.hud.Hud;
+import dev.skirmish.module.Module;
+import dev.skirmish.setting.BoolSetting;
+import dev.skirmish.setting.NumberSetting;
+import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.minecraft.client.Minecraft;
+import org.jspecify.annotations.Nullable;
+
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * PvP HUD: the combat-tag (КТ) countdown and the local player's own item cooldowns. On HolyWorld the tag is read
+ * from the sidebar board or a boss bar ({@link TagParser}); elsewhere, or while no server format has been seen on
+ * this connection, a local timer restarted by PvP hits stands in. Read and render only: nothing is sent, no action
+ * is automated, and other players' cooldowns are never shown or estimated.
+ */
+public final class PvpModule extends Module {
+    public static final String ID = "pvp";
+    private static final int LOGGED_LINES_MAX = 256;
+
+    final BoolSetting combatTagHud = (BoolSetting) add(new BoolSetting("combat_tag_hud", true)).feature("combat_tag_hud");
+    final BoolSetting serverTimer = add(new BoolSetting("server_timer", true));
+    final NumberSetting tagDuration = add(new NumberSetting("tag_duration", 20, 5, 60, 1).unit(" s"));
+    final BoolSetting cooldownHud = (BoolSetting) add(new BoolSetting("cooldown_hud", true)).feature("cooldown_hud");
+
+    private final TagClock clock = new TagClock();
+    private TagParser.@Nullable Reading reading;
+    /** A server tag was parsed on this connection: from then on the board is trusted over the local timer. */
+    private boolean serverFormatSeen;
+    private boolean boardDumped;
+    private boolean tagDumped;
+    private final Set<String> loggedLines = new LinkedHashSet<>();
+
+    /**
+     * What the combat-tag element shows.
+     *
+     * @param seconds   whole seconds left, -1 when the server gives only a bar
+     * @param fraction  ring fill in [0, 1]
+     * @param opponents tagged opponents from the board
+     * @param details   per-opponent timer and health when the server lists them (HolyWorld), else empty
+     */
+    record TagView(int seconds, float fraction, List<String> opponents, Source source, List<TagParser.Opponent> details) {
+        TagView(int seconds, float fraction, List<String> opponents, Source source) {
+            this(seconds, fraction, opponents, source, List.of());
+        }
+    }
+
+    enum Source {
+        BOARD, BOSS_BAR, LOCAL
+    }
+
+    @Override
+    public Category category() {
+        return Category.COMBAT;
+    }
+
+    public PvpModule() {
+        super(ID, true);
+    }
+
+    @Override
+    public void onInitialize() {
+        Hud.get().register(new CombatTagHud(this));
+        Hud.get().register(new CooldownHud(this));
+        CombatTracker.get().addListener(new CombatListener() {
+            @Override
+            public void onDamage(DamageInfo info) {
+                if (isEnabled() && isPvpHit(info)) {
+                    clock.hit(info.timeMs());
+                }
+            }
+        });
+        ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
+            if (!overlay) {
+                onSystemChat(message.getString());
+            }
+        });
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> resetConnection());
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> resetConnection());
+    }
+
+    /** A player hit me, or I hit a player. */
+    private static boolean isPvpHit(DamageInfo info) {
+        Combatant attacker = info.attacker();
+        if (attacker == null) {
+            return false;
+        }
+        if (info.onMe()) {
+            return attacker.player() && !attacker.self();
+        }
+        return info.byMe() && info.victim().player() && !info.victim().self();
+    }
+
+    /**
+     * HolyWorld announces the tag in chat: «▶ Вы вошли в режим PVP!» / «▶ Вы вышли из режима PVP!». Entering starts
+     * the local timer as a fallback until the board shows the opponent timers; leaving ends the tag at once.
+     */
+    void onSystemChat(String text) {
+        if (!isEnabled()) {
+            return;
+        }
+        String norm = PvpText.normalize(text);
+        if (!norm.contains("режим pvp") && !norm.contains("режима pvp")) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        if (norm.contains("вышли из режима")) {
+            log("chat: left PvP mode");
+            reading = null;
+            clock.clearServer();
+            clock.clearLocal();
+        } else if (norm.contains("вошли в режим")) {
+            log("chat: entered PvP mode");
+            clock.hit(now);
+        }
+    }
+
+    private void resetConnection() {
+        reading = null;
+        serverFormatSeen = false;
+        boardDumped = false;
+        tagDumped = false;
+        clock.clearServer();
+        clock.clearLocal();
+    }
+
+    @Override
+    protected void onDisable() {
+        resetConnection();
+    }
+
+    @Override
+    public void tick() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null || !combatTagHud.get() || !serverTimer.get() || !HolyWorld.isConnected()) {
+            reading = null;
+            clock.clearServer();
+            return;
+        }
+        long now = System.currentTimeMillis();
+        ServerSurfaces.Board board = ServerSurfaces.board(mc);
+        List<TagParser.BossBar> bars = ServerSurfaces.bossBars(mc);
+        TagParser.Result result = TagParser.parse(board.title(), board.lines(), bars, mc.player.getGameProfile().name());
+        TagParser.Reading next = result.reading();
+        if (isDebug()) {
+            result.unrecognized().forEach(line -> logOnce("unrecognized candidate: " + line));
+            logChange(next);
+            dumpIfMissed(board, bars, next, now);
+            dumpOnTagStart(board, bars, next);
+        }
+        reading = next;
+        if (next == null) {
+            clock.clearServer();
+            return;
+        }
+        serverFormatSeen = true;
+        if (next.seconds() >= 0) {
+            clock.serverSeconds(next.seconds(), now);
+        } else {
+            clock.clearServer();
+        }
+    }
+
+    /** Whether the combat tag (КТ) runs right now; read by other modules (survival alerts, nametag HP). */
+    public boolean isTagged() {
+        return isEnabled() && tag(System.currentTimeMillis()) != null;
+    }
+
+    /** The tag to show now, or null when not tagged (or the tag reached 0). */
+    @Nullable TagView tag(long nowMs) {
+        TagParser.Reading r = reading;
+        if (r != null) {
+            Source source = r.source() == TagParser.Source.BOARD ? Source.BOARD : Source.BOSS_BAR;
+            if (r.seconds() == 0) {
+                return null;
+            }
+            if (r.seconds() > 0) {
+                return new TagView(r.seconds(), clock.serverFraction(nowMs), r.opponents(), source, r.details());
+            }
+            return new TagView(-1, Float.isNaN(r.progress()) ? 1f : r.progress(), r.opponents(), source, r.details());
+        }
+        if (serverFormatSeen) {
+            return null;
+        }
+        long duration = Math.round(tagDuration.get() * 1000);
+        float remaining = clock.localRemaining(nowMs, duration);
+        if (remaining <= 0f) {
+            return null;
+        }
+        return new TagView((int) Math.ceil(remaining), remaining * 1000f / duration, List.of(), Source.LOCAL);
+    }
+
+    // ---- debug capture: helps pin down HolyWorld's real formats ----
+
+    private void logOnce(String line) {
+        if (loggedLines.add(line)) {
+            log(line);
+            if (loggedLines.size() > LOGGED_LINES_MAX) {
+                loggedLines.remove(loggedLines.iterator().next());
+            }
+        }
+    }
+
+    private void logChange(TagParser.@Nullable Reading next) {
+        TagParser.Reading prev = reading;
+        boolean changed = prev == null ? next != null : next == null || prev.source() != next.source()
+                || !prev.opponents().equals(next.opponents());
+        if (changed) {
+            log(next == null ? "server tag ended" : "server tag from " + next.source() + ": \"" + next.line()
+                    + "\" seconds=" + next.seconds() + " opponents=" + next.opponents());
+        }
+    }
+
+    /** Full board and boss bars once per tag, so the log shows every line the server used for it. */
+    private void dumpOnTagStart(ServerSurfaces.Board board, List<TagParser.BossBar> bars, TagParser.@Nullable Reading next) {
+        if (next == null) {
+            tagDumped = false;
+            return;
+        }
+        if (tagDumped) {
+            return;
+        }
+        tagDumped = true;
+        log(describe("tag started; board title=\"" + board.title() + "\"", board, bars));
+    }
+
+    private static String describe(String head, ServerSurfaces.Board board, List<TagParser.BossBar> bars) {
+        StringBuilder dump = new StringBuilder(head);
+        for (int i = 0; i < board.lines().size(); i++) {
+            dump.append("\n  line ").append(i).append(": \"").append(board.lines().get(i)).append("\" score=").append(board.scores().get(i));
+        }
+        for (TagParser.BossBar bar : bars) {
+            dump.append("\n  bossbar: \"").append(bar.name()).append("\" progress=").append(bar.progress());
+        }
+        return dump.toString();
+    }
+
+    /** A local PvP hit happened on HolyWorld but nothing was parsed: dump the board and boss bars once per tag. */
+    private void dumpIfMissed(ServerSurfaces.Board board, List<TagParser.BossBar> bars, TagParser.@Nullable Reading next, long now) {
+        boolean localTag = clock.localRemaining(now, Math.round(tagDuration.get() * 1000)) > 0f;
+        if (!localTag) {
+            boardDumped = false;
+            return;
+        }
+        if (next != null || boardDumped) {
+            return;
+        }
+        boardDumped = true;
+        log(describe("PvP hit without a parsed tag; board title=\"" + board.title() + "\"", board, bars));
+    }
+}

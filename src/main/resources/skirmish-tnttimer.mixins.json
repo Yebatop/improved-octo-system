@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.skirmish.module.tnttimer.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "TntRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

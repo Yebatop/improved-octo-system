@@ -1,0 +1,21 @@
+{
+  "layout": {
+    "tablist": {
+      "radius": 12,
+      "row_radius": 4
+    }
+  },
+  "text": {
+    "tab_meta": {
+      "size": 11,
+      "weight": 600,
+      "color": "text_2"
+    },
+    "tab_ping": {
+      "size": 10,
+      "weight": 700,
+      "color": "text_2",
+      "mono": true
+    }
+  }
+}

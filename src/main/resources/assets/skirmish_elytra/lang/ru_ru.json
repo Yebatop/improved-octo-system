@@ -1,0 +1,16 @@
+{
+  "skirmish.module.elytra_hud.name": "Elytra HUD",
+  "skirmish.module.elytra_hud.description": "Пока летишь на элитрах: скорость, высота и угол, сколько ракет осталось, сколько ещё продержатся элитры (1 прочность в секунду) и расстояние и время до выбранной метки.",
+  "skirmish.module.elytra_hud.setting.waypoint": "До метки",
+  "skirmish.module.elytra_hud.setting.waypoint.tooltip": "Расстояние и время полёта до выбранной метки",
+  "skirmish.module.elytra_hud.setting.angle": "Угол",
+  "skirmish.module.elytra_hud.setting.angle.tooltip": "Угол наклона рядом с высотой",
+  "skirmish.hud.element.elytra_hud": "Elytra HUD",
+  "skirmish.elytra.title": "Полёт",
+  "skirmish.elytra.speed": "%s бл/с",
+  "skirmish.elytra.height": "Высота",
+  "skirmish.elytra.rockets": "Ракеты",
+  "skirmish.elytra.elytra": "Элитры",
+  "skirmish.elytra.m": "м",
+  "skirmish.elytra.km": "км"
+}

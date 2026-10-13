@@ -85,6 +85,9 @@ final class Recorder {
 
     /** Drops everything; with {@code release} the arrays are freed too (module disabled). */
     void reset(String reason, boolean release) {
+        if (buffer != null && !buffer.isEmpty()) {
+            module.beforeBufferReset(reason);
+        }
         if (buffer != null) {
             if (release) {
                 buffer = null;

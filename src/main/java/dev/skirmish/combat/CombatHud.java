@@ -131,8 +131,15 @@ final class CombatHud {
             return module.sessionPanel.get();
         }
 
+        /** Only once there is a score: all zeros is just a panel taking room. */
         @Override
         public boolean shown() {
+            SessionStats s = module.session();
+            return Minecraft.getInstance().player != null && (s.kills() > 0 || s.deaths() > 0);
+        }
+
+        @Override
+        public boolean hasContent() {
             return Minecraft.getInstance().player != null;
         }
 

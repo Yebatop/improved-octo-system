@@ -1,0 +1,59 @@
+{
+  "colors": {},
+  "text": {
+    "pvp_tag_seconds": {
+      "size": 22,
+      "weight": 800,
+      "color": "text"
+    },
+    "pvp_tag_label": {
+      "size": 13,
+      "weight": 800,
+      "color": "text"
+    },
+    "pvp_tag_hint": {
+      "size": 11,
+      "weight": 600,
+      "color": "warn"
+    },
+    "pvp_tag_name": {
+      "size": 11,
+      "weight": 700,
+      "color": "text"
+    },
+    "pvp_tag_more": {
+      "size": 11,
+      "weight": 500,
+      "color": "text_3"
+    },
+    "pvp_cd_seconds": {
+      "size": 11,
+      "weight": 600,
+      "color": "text",
+      "mono": true
+    },
+    "pvp_tag_detail": {
+      "size": 11,
+      "weight": 600,
+      "color": "text_2",
+      "mono": true
+    }
+  },
+  "layout": {
+    "pvp": {
+      "arc_segments": 64,
+      "tag_width": 256,
+      "tag_ring": 56,
+      "tag_ring_width": 4,
+      "tag_gap": 12,
+      "tag_line_gap": 3,
+      "tag_names_gap": 6,
+      "tag_max_names": 3,
+      "cd_ring": 34,
+      "cd_ring_width": 3,
+      "cd_icon": 16,
+      "cd_gap": 10,
+      "cd_label_gap": 4
+    }
+  }
+}

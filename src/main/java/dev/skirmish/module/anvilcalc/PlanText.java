@@ -9,6 +9,7 @@ import dev.skirmish.module.anvilcalc.calc.AnvilPlan.Reason;
 import dev.skirmish.module.anvilcalc.calc.AnvilPlan.Skipped;
 import dev.skirmish.module.anvilcalc.calc.AnvilPlan.Step;
 import dev.skirmish.module.anvilcalc.calc.Piece;
+import dev.skirmish.module.anvilcalc.calc.RulesProfile;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
@@ -100,6 +101,7 @@ final class PlanText {
             case NOTHING_NEW -> tr("reason.nothing_new");
             case OVER_LIMIT -> tr("reason.over_limit");
             case NOT_NEEDED -> tr("reason.not_needed");
+            case DUBIOUS -> tr("reason.dubious");
         };
     }
 
@@ -116,7 +118,15 @@ final class PlanText {
         if (input.creative()) {
             subtitle.append(Component.literal(" · ")).append(tr("mode.creative"));
         }
+        RulesProfile profile = input.profile();
+        if (profile.kind() != RulesProfile.Kind.VANILLA) {
+            subtitle.append(Component.literal(" · ")).append(tr("rules." + profile.kind().name().toLowerCase(Locale.ROOT)));
+            if (snapshot.autoRules()) {
+                subtitle.append(tr("rules.auto"));
+            }
+        }
         lines.add(subtitle);
+        lines.addAll(warnings(snapshot, input));
 
         if (plan.status() == AnvilPlan.Status.NOTHING_TO_DO) {
             lines.add(tr("problem.nothing").withStyle(ChatFormatting.GOLD));
@@ -184,6 +194,30 @@ final class PlanText {
         return lines;
     }
 
+    /** Server-rule warnings: Lite armour rules, Prime «сомнительные» books and items. */
+    static List<Component> warnings(Snapshot snapshot, AnvilInput input) {
+        List<Component> out = new ArrayList<>();
+        RulesProfile profile = input.profile();
+        if (profile.armorNotRepairable() && input.baseArmor()) {
+            out.add(tr("warn.lite_armor").withStyle(ChatFormatting.GOLD));
+        }
+        if (!input.dubious().isEmpty()) {
+            MutableComponent letters = Component.empty();
+            List<Integer> sorted = input.dubious().stream().sorted().toList();
+            for (int i = 0; i < sorted.size(); i++) {
+                if (i > 0) {
+                    letters.append(", ");
+                }
+                letters.append(Component.literal(letter(sorted.get(i))).withStyle(ChatFormatting.BOLD));
+            }
+            out.add(tr("warn.dubious_books", letters).withStyle(ChatFormatting.GOLD));
+        }
+        if (snapshot.baseDubious()) {
+            out.add(tr("warn.dubious_item").withStyle(ChatFormatting.GOLD));
+        }
+        return out;
+    }
+
     static List<String> logInput(Snapshot snapshot) {
         List<String> out = new ArrayList<>();
         AnvilInput input = snapshot.input();
@@ -194,6 +228,9 @@ final class PlanText {
         out.add(String.format(Locale.ROOT, "input: item %s x%d, enchantments [%s], repair cost %d, %s, too expensive at %d, exact up to %d books",
                 snapshot.base().getItemHolder().getRegisteredName(), base.count(), base.describe(), base.repairCost(),
                 input.creative() ? "creative (no limit, every enchantment applicable)" : "survival", input.tooExpensiveAt(), input.exactLimit()));
+        out.add(String.format(Locale.ROOT, "rules: %s%s, left item is %sarmour, dubious books %s, dubious item %s",
+                input.profile().kind(), snapshot.autoRules() ? " (auto)" : "", input.baseArmor() ? "" : "not ",
+                input.dubious().stream().sorted().map(PlanText::letter).toList(), snapshot.baseDubious()));
         for (int i = 0; i < input.books().size(); i++) {
             Piece book = input.books().get(i);
             out.add(String.format(Locale.ROOT, "book %s (%s): [%s], repair cost %d%s", letter(i), whereLog(snapshot.books().get(i)),

@@ -1,0 +1,22 @@
+{
+  "skirmish.module.camera_comfort.name": "Camera Comfort",
+  "skirmish.module.camera_comfort.description": "Vanilla camera options in one place: view bobbing, damage tilt, FOV and distortion effects, lightning flashes. While the module is on it changes these game options; your previous values come back when it is turned off.",
+  "skirmish.module.camera_comfort.setting.view_bobbing": "View bobbing",
+  "skirmish.module.camera_comfort.setting.view_bobbing.tooltip": "Vanilla \"View Bobbing\" while walking",
+  "skirmish.module.camera_comfort.setting.damage_tilt": "Damage tilt",
+  "skirmish.module.camera_comfort.setting.damage_tilt.tooltip": "Vanilla \"Damage Tilt\": how much the camera shakes when hit",
+  "skirmish.module.camera_comfort.setting.fov_effects": "FOV effects",
+  "skirmish.module.camera_comfort.setting.fov_effects.tooltip": "Vanilla \"FOV Effects\": view changes from sprinting, speed and slowness",
+  "skirmish.module.camera_comfort.setting.distortion": "Distortion effects",
+  "skirmish.module.camera_comfort.setting.distortion.tooltip": "Vanilla \"Distortion Effects\": nausea and portals",
+  "skirmish.module.camera_comfort.setting.hide_lightning": "Hide lightning flashes",
+  "skirmish.module.camera_comfort.setting.hide_lightning.tooltip": "Vanilla option: the sky doesn't flash on lightning (bolts stay visible)",
+  "skirmish.module.low_fire.name": "Low Fire",
+  "skirmish.module.low_fire.description": "Lower, fainter fire on screen, like a \"low fire\" resource pack. You can still see that you are burning.",
+  "skirmish.module.low_fire.setting.lower_by": "Lower by",
+  "skirmish.module.low_fire.setting.lower_by.tooltip": "How far below vanilla the flames sit",
+  "skirmish.module.low_fire.setting.opacity": "Opacity",
+  "skirmish.module.low_fire.setting.opacity.tooltip": "How dense the flames are (100% is vanilla)",
+  "skirmish.module.low_fire.setting.hide_when_resistant": "Hide with Fire Resistance",
+  "skirmish.module.low_fire.setting.hide_when_resistant.tooltip": "Don't draw the fire overlay while the Fire Resistance effect is active"
+}

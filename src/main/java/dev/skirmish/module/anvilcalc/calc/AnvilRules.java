@@ -6,6 +6,7 @@ import java.util.Map;
 /**
  * One anvil operation, a line-by-line port of {@code AnvilMenu.createResult} (1.21.11) for the case the calculator
  * plans: an enchanted book in the right slot, no rename. Material/durability repair (item + same item) is not planned.
+ * A {@link RulesProfile} adapts it to a server by rewriting the enchantment definitions, never the logic.
  */
 public final class AnvilRules {
     public enum Failure {
@@ -29,7 +30,15 @@ public final class AnvilRules {
 
     /** @param creative {@code player.hasInfiniteMaterials()}: every enchantment counts as applicable (line 184) */
     public AnvilRules(Map<String, EnchantInfo> catalog, boolean creative) {
-        this.catalog = Map.copyOf(catalog);
+        this(catalog, creative, RulesProfile.VANILLA, false);
+    }
+
+    /**
+     * @param profile   server rules, see {@link RulesProfile#adjust}
+     * @param baseArmor the item in the left slot is armour
+     */
+    public AnvilRules(Map<String, EnchantInfo> catalog, boolean creative, RulesProfile profile, boolean baseArmor) {
+        this.catalog = Map.copyOf(profile.adjust(catalog, baseArmor));
         this.creative = creative;
     }
 

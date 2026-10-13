@@ -1,0 +1,28 @@
+{
+  "colors": {
+    "kfx_accent": "#FF6B78",
+    "kfx_chip_fill": "#FF6B7833",
+    "kfx_bolt": "#D9E1FFB3"
+  },
+  "text": {
+    "kfx_title": {"size": 22, "weight": 800, "color": "kfx_accent", "tracking": 1.2},
+    "kfx_name": {"size": 16, "weight": 700, "color": "text"},
+    "kfx_chip": {"size": 10, "weight": 800, "color": "text", "tracking": 0.6}
+  },
+  "layout": {
+    "kill_fx": {
+      "default_dy": -264,
+      "min_width": 180,
+      "pad_x": 18,
+      "pad_y": 10,
+      "chip_gap": 6,
+      "chip_height": 20,
+      "chip_pad_x": 9,
+      "bar": 2,
+      "bar_gap": 8,
+      "bar_width": 96,
+      "bolt_ms": 700,
+      "bolt_height": 40
+    }
+  }
+}

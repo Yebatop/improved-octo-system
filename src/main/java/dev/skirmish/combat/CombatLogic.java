@@ -252,6 +252,11 @@ public final class CombatLogic {
     }
 
     public OwnDeath onOwnDeath(@Nullable Component message, long now) {
+        return onOwnDeath(message, now, null);
+    }
+
+    /** @param named the killer named by the server elsewhere (HolyWorld's chat line), used when no hit points at anyone */
+    public OwnDeath onOwnDeath(@Nullable Component message, long now, @Nullable Combatant named) {
         Combatant killer = null;
         long window = config.killWindowMs();
         if (lastDamageOnMe != null && now - lastDamageOnMe.timeMs() <= window && lastDamageOnMe.attacker() != null
@@ -262,6 +267,10 @@ public final class CombatLogic {
             if (recent != null) {
                 killer = recent.opponent();
             }
+        }
+        if (named != null && (killer == null || !killer.uuid().equals(named.uuid()))) {
+            log.accept("killer named by the server: " + named.name() + (killer == null ? "" : " (hits pointed at " + killer.name() + ")"));
+            killer = named;
         }
         List<Fight> fights = new ArrayList<>(active.values());
         OwnDeath death = new OwnDeath(message, killer, List.copyOf(fights), now);
