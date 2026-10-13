@@ -52,7 +52,7 @@ public final class KillFxModule extends Module {
         ARPEGGIO, BASS_DROP, ARCADE, CHOIR, SHATTER, GONG, FANFARE, SOUL;
 
         /** Resolved lazily so the enum can be loaded without the game's registries (menu tests). */
-        SoundEvent event() {
+        public SoundEvent event() {
             return switch (this) {
                 case ARPEGGIO -> FxSounds.of("kill_chime");
                 case BASS_DROP -> FxSounds.of("kill_bass");
@@ -67,7 +67,7 @@ public final class KillFxModule extends Module {
             };
         }
 
-        float pitch() {
+        public float pitch() {
             return switch (this) {
                 case PLING, ORB -> 1.5f;
                 case ANVIL -> 1.2f;
@@ -79,7 +79,7 @@ public final class KillFxModule extends Module {
     public enum HitSound {
         CLICK, CRIT, ORB, HAT, TICK, PUNCH, GLASS, LASER, BUBBLE, COIN, METAL, SNAP;
 
-        SoundEvent event() {
+        public SoundEvent event() {
             return switch (this) {
                 case TICK, PUNCH, GLASS, LASER, BUBBLE, COIN, METAL, SNAP -> FxSounds.of("hit_" + name().toLowerCase(java.util.Locale.ROOT));
                 case CLICK -> SoundEvents.UI_BUTTON_CLICK.value();
@@ -89,7 +89,7 @@ public final class KillFxModule extends Module {
             };
         }
 
-        float pitch() {
+        public float pitch() {
             return this == ORB ? 1.8f : this == HAT ? 1.4f : this.ordinal() >= TICK.ordinal() ? 1f : 1.2f;
         }
     }
@@ -98,7 +98,7 @@ public final class KillFxModule extends Module {
     public enum CritSound {
         SAME, SPARKLE, HEAVY, ZAP, VANILLA;
 
-        @Nullable SoundEvent event() {
+        public @Nullable SoundEvent event() {
             return switch (this) {
                 case SAME -> null;
                 case VANILLA -> SoundEvents.PLAYER_ATTACK_CRIT;
@@ -138,30 +138,30 @@ public final class KillFxModule extends Module {
         }
     }
 
-    final BoolSetting sound = add(new BoolSetting("sound", true));
-    final EnumSetting<KillSound> soundType = (EnumSetting<KillSound>) add(new EnumSetting<>("sound_type", KillSound.LEVEL_UP))
+    public final BoolSetting sound = add(new BoolSetting("sound", true));
+    public final EnumSetting<KillSound> soundType = (EnumSetting<KillSound>) add(new EnumSetting<>("sound_type", KillSound.LEVEL_UP))
             .under(sound).visibleWhen(sound::get);
-    final NumberSetting volume = (NumberSetting) add(new NumberSetting("volume", 70, 5, 100, 5).unit("%"))
+    public final NumberSetting volume = (NumberSetting) add(new NumberSetting("volume", 70, 5, 100, 5).unit("%"))
             .under(sound).visibleWhen(sound::get);
-    final BoolSetting streakPitch = (BoolSetting) add(new BoolSetting("streak_pitch", true)).under(sound).visibleWhen(sound::get);
-    final BoolSetting particles = add(new BoolSetting("particles", true));
-    final EnumSetting<Burst> burst = (EnumSetting<Burst>) add(new EnumSetting<>("burst", Burst.TOTEM))
+    public final BoolSetting streakPitch = (BoolSetting) add(new BoolSetting("streak_pitch", true)).under(sound).visibleWhen(sound::get);
+    public final BoolSetting particles = add(new BoolSetting("particles", true));
+    public final EnumSetting<Burst> burst = (EnumSetting<Burst>) add(new EnumSetting<>("burst", Burst.TOTEM))
             .under(particles).visibleWhen(particles::get);
-    final EnumSetting<FxPalette> burstColor = (EnumSetting<FxPalette>) add(new EnumSetting<>("burst_color", FxPalette.ACCENT))
+    public final EnumSetting<FxPalette> burstColor = (EnumSetting<FxPalette>) add(new EnumSetting<>("burst_color", FxPalette.ACCENT))
             .under(particles).visibleWhen(() -> particles.get() && burst.get().fx() != null);
-    final NumberSetting amount = (NumberSetting) add(new NumberSetting("amount", 40, 10, 120, 5))
+    public final NumberSetting amount = (NumberSetting) add(new NumberSetting("amount", 40, 10, 120, 5))
             .under(particles).visibleWhen(particles::get);
-    final BoolSetting lightning = add(new BoolSetting("lightning", false));
-    final BoolSetting banner = add(new BoolSetting("banner", true));
+    public final BoolSetting lightning = add(new BoolSetting("lightning", false));
+    public final BoolSetting banner = add(new BoolSetting("banner", true));
     final BoolSetting streak = (BoolSetting) add(new BoolSetting("streak", true)).under(banner).visibleWhen(banner::get);
     final NumberSetting bannerTime = (NumberSetting) add(new NumberSetting("banner_time", 2.5, 1, 6, 0.5).unit(" s"))
             .under(banner).visibleWhen(banner::get);
-    final BoolSetting hitSound = add(new BoolSetting("hit_sound", false));
-    final EnumSetting<HitSound> hitSoundType = (EnumSetting<HitSound>) add(new EnumSetting<>("hit_sound_type", HitSound.CLICK))
+    public final BoolSetting hitSound = add(new BoolSetting("hit_sound", false));
+    public final EnumSetting<HitSound> hitSoundType = (EnumSetting<HitSound>) add(new EnumSetting<>("hit_sound_type", HitSound.CLICK))
             .under(hitSound).visibleWhen(hitSound::get);
-    final NumberSetting hitVolume = (NumberSetting) add(new NumberSetting("hit_volume", 40, 5, 100, 5).unit("%"))
+    public final NumberSetting hitVolume = (NumberSetting) add(new NumberSetting("hit_volume", 40, 5, 100, 5).unit("%"))
             .under(hitSound).visibleWhen(hitSound::get);
-    final EnumSetting<CritSound> critSound = (EnumSetting<CritSound>) add(new EnumSetting<>("crit_sound", CritSound.SAME))
+    public final EnumSetting<CritSound> critSound = (EnumSetting<CritSound>) add(new EnumSetting<>("crit_sound", CritSound.SAME))
             .under(hitSound).visibleWhen(hitSound::get);
 
     final KillStreak streakCounter = new KillStreak();

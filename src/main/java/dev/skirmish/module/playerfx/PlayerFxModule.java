@@ -47,7 +47,7 @@ public final class PlayerFxModule extends Module {
     public enum TotemSound {
         VANILLA, SHIMMER, CHOIR, BELL, PHOENIX;
 
-        @Nullable SoundEvent event() {
+        public @Nullable SoundEvent event() {
             return this == VANILLA ? null : FxSounds.of("totem_" + name().toLowerCase(java.util.Locale.ROOT));
         }
     }
@@ -188,8 +188,11 @@ public final class PlayerFxModule extends Module {
         if (mc.player == null || !(victim instanceof net.minecraft.world.entity.player.Player) && !hitMobs.get()) {
             return;
         }
-        Vec3 at = victim.position().add(0, victim.getBbHeight() * 0.6, 0);
-        Vec3 dir = at.subtract(mc.player.position());
+        Vec3 center = victim.position().add(0, victim.getBbHeight() * 0.6, 0);
+        Vec3 dir = center.subtract(mc.player.position());
+        // On the victim's side facing me, so its own body doesn't hide the effect.
+        Vec3 flat = new Vec3(dir.x, 0, dir.z);
+        Vec3 at = flat.lengthSqr() < 1e-6 ? center : center.subtract(flat.normalize().scale(victim.getBbWidth() * 0.55 + 0.05));
         FxPresets.hit(FxWorld.field(), hit.get(), hitColor.get(), critColor.get(), crit, at.x, at.y, at.z, dir.x, dir.z,
                 hitSize.getFloat() * Math.max(0.6f, victim.getBbWidth() / 0.6f));
     }

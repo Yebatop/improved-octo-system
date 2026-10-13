@@ -1,6 +1,6 @@
 {
   "skirmish.studio.title": "Студия",
-  "skirmish.studio.subtitle": "Твой персонаж и манекен в 3D — меняй эффекты справа и смотри, как они выглядят в игре",
+  "skirmish.studio.subtitle": "Наведи на карточку — эффект сразу на модели, кликни — надел. Звуки играют при выборе",
   "skirmish.studio.pose.stand": "Стоит",
   "skirmish.studio.pose.run": "Бег",
   "skirmish.studio.pose.attack": "Удары",
@@ -33,5 +33,17 @@
   "skirmish.studio.note.hand": "Предмет в руке видно от первого лица — закрой Студию и посмотри на руку.",
   "skirmish.studio.note.cape": "Плащ виден только тебе. «Показать спину» разворачивает камеру.",
   "skirmish.menu.shortcut.studio": "Студия",
-  "skirmish.studio.slow": "Замедлить ×¼"
+  "skirmish.studio.slow": "Замедлить ×¼",
+  "skirmish.studio.auto": "Авто",
+  "skirmish.studio.trying": "Примерка — клик, чтобы надеть",
+  "skirmish.studio.enable": "Включить",
+  "skirmish.studio.disabled": "Модуль %s выключен — в игре эффекты не видны",
+  "skirmish.studio.off": "Выкл",
+  "skirmish.studio.color": "Цвет",
+  "skirmish.studio.color_hit": "Цвет удара",
+  "skirmish.studio.color_crit": "Цвет крита",
+  "skirmish.studio.sound_hit": "Звук попадания",
+  "skirmish.studio.sound_crit": "Звук крита",
+  "skirmish.studio.sound_kill": "Звук убийства",
+  "skirmish.studio.sound_totem": "Звук тотема"
 }

@@ -15,7 +15,7 @@ import java.util.Map;
  * sharper). The whole cape box and the elytra area get the pattern, the two big faces also the emblem. Made once per
  * style on first use and kept as textures.
  */
-final class CapeArt {
+public final class CapeArt {
     public enum Style {
         OFF, SKIRMISH, GALAXY, FLAME, AURORA, VOID, GOLD, SAKURA, ICE
     }
@@ -29,7 +29,7 @@ final class CapeArt {
     }
 
     /** The texture of a style, drawing it the first time (render thread). */
-    static Identifier texture(Style style) {
+    public static Identifier texture(Style style) {
         return MADE.computeIfAbsent(style, s -> {
             NativeImage image = new NativeImage(W, H, true);
             paint(image, s);

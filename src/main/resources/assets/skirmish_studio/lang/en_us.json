@@ -1,6 +1,6 @@
 {
   "skirmish.studio.title": "Studio",
-  "skirmish.studio.subtitle": "Your character and a mannequin in 3D: change effects on the right and see them as in the game",
+  "skirmish.studio.subtitle": "Point at a card to see it on the model, click to wear it. Sounds play when picked",
   "skirmish.studio.pose.stand": "Stand",
   "skirmish.studio.pose.run": "Run",
   "skirmish.studio.pose.attack": "Hits",
@@ -33,5 +33,17 @@
   "skirmish.studio.note.hand": "The held item shows in first person: close the Studio and look at your hand.",
   "skirmish.studio.note.cape": "Only you see the cape. «Show back» turns the camera around.",
   "skirmish.menu.shortcut.studio": "Studio",
-  "skirmish.studio.slow": "Slow ×¼"
+  "skirmish.studio.slow": "Slow ×¼",
+  "skirmish.studio.auto": "Auto",
+  "skirmish.studio.trying": "Trying on: click to wear",
+  "skirmish.studio.enable": "Turn on",
+  "skirmish.studio.disabled": "%s is off: the effects don't show in the game",
+  "skirmish.studio.off": "Off",
+  "skirmish.studio.color": "Colour",
+  "skirmish.studio.color_hit": "Hit colour",
+  "skirmish.studio.color_crit": "Crit colour",
+  "skirmish.studio.sound_hit": "Hit sound",
+  "skirmish.studio.sound_crit": "Crit sound",
+  "skirmish.studio.sound_kill": "Kill sound",
+  "skirmish.studio.sound_totem": "Totem sound"
 }

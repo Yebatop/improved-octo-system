@@ -53,7 +53,7 @@ final class StudioSceneRenderer extends PictureInPictureRenderer<StudioSceneStat
                 .rotateX((float) Math.toRadians(stage.pitch))
                 .rotateY((float) Math.toRadians(stage.yaw));
         pose.mulPose(view);
-        pose.translate(0f, -1.0f, 0f);
+        pose.translate(0f, -stage.centerY, 0f);
 
         floor(pose, stage);
         bufferSource.endBatch();
@@ -62,12 +62,12 @@ final class StudioSceneRenderer extends PictureInPictureRenderer<StudioSceneStat
         FeatureRenderDispatcher features = mc.gameRenderer.getFeatureRenderDispatcher();
         CameraRenderState camera = new CameraRenderState();
         camera.orientation = new Quaternionf(view).conjugate().rotateY((float) Math.PI);
-        AvatarRenderState me = stage.me(s.partialTick());
+        AvatarRenderState me = stage.showMe ? stage.me(s.partialTick()) : null;
         if (me != null) {
             dispatcher.submit(me, camera, stage.meX(), stage.feetY(), 0.0, pose, features.getSubmitNodeStorage());
         }
-        if (!stage.dummyGone()) {
-            dispatcher.submit(stage.dummy(), camera, StudioStage.DUMMY_X, 0.0, 0.0, pose, features.getSubmitNodeStorage());
+        if (stage.showDummy && !stage.dummyGone()) {
+            dispatcher.submit(stage.dummy(), camera, stage.dummyX, 0.0, 0.0, pose, features.getSubmitNodeStorage());
         }
         features.renderAllFeatures();
 
@@ -85,7 +85,7 @@ final class StudioSceneRenderer extends PictureInPictureRenderer<StudioSceneStat
             float t = boltAge / 0.45f;
             float alpha = t < 0.15f ? 1f : t < 0.25f ? 0.35f : (1f - t) / 0.75f;
             pose.pushPose();
-            pose.translate(StudioStage.DUMMY_X, 0, 0);
+            pose.translate(stage.dummyX, 0, 0);
             BoltRenderer.geometry(pose.last().pose(), bufferSource.getBuffer(RenderTypes.lightning()), stage.boltSeed, 0.6f,
                     0.55f, 0.6f, 1f, 0.9f * alpha);
             pose.popPose();
@@ -96,8 +96,8 @@ final class StudioSceneRenderer extends PictureInPictureRenderer<StudioSceneStat
     private void floor(PoseStack pose, StudioStage stage) {
         int[] c = StudioStage.colors(stage.scene);
         Matrix4f m = pose.last().pose();
-        float radius = 2.9f;
-        if ((c[2] >>> 24) > 0) {
+        float radius = stage.floorRadius;
+        if (stage.floorDisc && (c[2] >>> 24) > 0) {
             VertexConsumer v = bufferSource.getBuffer(FxPipelines.paint());
             int segments = 48;
             for (int i = 0; i < segments; i++) {
@@ -121,7 +121,7 @@ final class StudioSceneRenderer extends PictureInPictureRenderer<StudioSceneStat
             }
             // Grid lines along the run, sliding with the treadmill.
             if ((c[3] >>> 24) > 0) {
-                double[] f = StudioStage.facing(StudioStage.ME_YAW);
+                double[] f = StudioStage.facing(stage.meYaw);
                 float fx = (float) f[0];
                 float fz = (float) f[1];
                 float sx = -fz;
@@ -157,7 +157,7 @@ final class StudioSceneRenderer extends PictureInPictureRenderer<StudioSceneStat
             float x1 = (float) Math.cos(a1);
             float z1 = (float) Math.sin(a1);
             float r = radius * 0.78f;
-            float w = 0.05f;
+            float w = 0.05f * Math.max(0.6f, radius / 2.9f);
             int on = FxColor.alpha(rim, 0.55f);
             int off = FxColor.alpha(rim, 0f);
             g.addVertex(m, x0 * (r - w), 0.004f, z0 * (r - w)).setColor(off);
