@@ -80,6 +80,13 @@ public final class Fx {
     public float orbitAngle;
     public double ox;
     public double oz;
+    /** The ground under it (NaN = none): it bounces off it with {@code bounce} of its speed, then rests on it. */
+    public double floor = Double.NaN;
+    public float bounce;
+    /** Leaves a splat of this colour where it lands instead of resting (0 = none). */
+    public int splat;
+    /** Lying on its floor: no gravity, sliding to a stop. */
+    public boolean grounded;
     int seed;
 
     Fx() {
@@ -234,6 +241,19 @@ public final class Fx {
         return this;
     }
 
+    /** Lands on the ground at height {@code y}, bouncing back with {@code bounciness} of its speed. */
+    public Fx floor(double y, float bounciness) {
+        floor = y;
+        bounce = bounciness;
+        return this;
+    }
+
+    /** Leaves a splat of {@code argb} where it lands (with {@link #floor}). */
+    public Fx splat(int argb) {
+        splat = argb;
+        return this;
+    }
+
     /** 0 at birth, 1 at death. */
     public float t() {
         return Math.min(1f, age / life);
@@ -308,5 +328,9 @@ public final class Fx {
         frame0 = 0;
         orbitR = orbitSpeed = orbitAngle = 0;
         ox = oz = 0;
+        floor = Double.NaN;
+        bounce = 0;
+        splat = 0;
+        grounded = false;
     }
 }

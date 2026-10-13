@@ -83,6 +83,7 @@ public final class FxField {
             });
             due.forEach(d -> d.action().run());
         }
+        List<Fx> landed = null;
         for (int i = live.size() - 1; i >= 0; i--) {
             Fx fx = live.get(i);
             fx.age += dt;
@@ -91,7 +92,9 @@ public final class FxField {
                 pool.add(fx);
                 continue;
             }
-            fx.vy -= fx.gravity * dt;
+            if (!fx.grounded) {
+                fx.vy -= fx.gravity * dt;
+            }
             if (fx.drag < 1f) {
                 double keep = Math.pow(fx.drag, dt);
                 fx.vx *= keep;
@@ -115,6 +118,43 @@ public final class FxField {
                 fx.z += Math.sin(fx.swayPhase * 1.7 + fx.age * fx.swayFreq * 0.8) * fx.sway * dt;
             }
             fx.rot += fx.spin * dt;
+            if (fx.y < fx.floor) {
+                if (fx.splat != 0) {
+                    // A drop hitting the ground: gone, a splat left where it fell.
+                    live.remove(i);
+                    if (landed == null) {
+                        landed = new ArrayList<>();
+                    }
+                    landed.add(fx);
+                    continue;
+                }
+                fx.y = fx.floor;
+                if (fx.bounce > 0 && fx.vy < -1.2) {
+                    fx.vy = -fx.vy * fx.bounce;
+                    fx.vx *= 0.7;
+                    fx.vz *= 0.7;
+                    fx.spin *= 0.6f;
+                } else {
+                    fx.vy = 0;
+                    fx.grounded = true;
+                }
+            }
+            if (fx.grounded) {
+                // Sliding to a stop on the ground.
+                double keep = Math.pow(0.02, dt);
+                fx.vx *= keep;
+                fx.vz *= keep;
+                fx.spin *= (float) keep;
+            }
+        }
+        if (landed != null) {
+            for (Fx drop : landed) {
+                float size = Math.max(drop.size0, drop.size1) * 2.2f;
+                int c = drop.splat;
+                spawn(FxSprite.SPLAT).at(drop.x, drop.floor + 0.012, drop.z).flat().painted().spin(random.nextFloat() * 6.28f, 0f)
+                        .life(3f).size(size * 0.6f, size).grow(Fx.Grow.EASE).fadeIn(0.01f).ramp(c, c, c & 0x00FFFFFF);
+                pool.add(drop);
+            }
         }
         for (int i = ribbons.size() - 1; i >= 0; i--) {
             FxRibbon r = ribbons.get(i);

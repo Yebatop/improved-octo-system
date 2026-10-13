@@ -822,14 +822,20 @@ public final class StudioScreen extends UiScreen {
             float cx = x + w / 2f;
             float cy = y + h / 2f;
             float d = w * (over ? 1f : 0.86f);
-            if (palette == FxPalette.RAINBOW) {
-                int n = 18;
+            if (palette == FxPalette.RAINBOW || palette == FxPalette.AUTO) {
+                // Rainbow is a colour wheel; Signature is four of the styles' own colours in quarters.
+                int[] quarters = {0xFFFFB627, 0xFF5AC8FA, 0xFFD7263D, 0xFF16D983};
+                int n = palette == FxPalette.AUTO ? 16 : 18;
                 for (int i = 0; i < n; i++) {
-                    double a0 = i * Math.PI * 2 / n;
-                    double a1 = (i + 1) * Math.PI * 2 / n;
+                    double a0 = i * Math.PI * 2 / n - Math.PI / 2;
+                    double a1 = (i + 1) * Math.PI * 2 / n - Math.PI / 2;
                     float r = d / 2f;
+                    int col = palette == FxPalette.AUTO ? quarters[i * 4 / n] : FxColor.hsv(i / (float) n, 0.75f, 1f);
                     ui.triangle(cx, cy, cx + (float) Math.cos(a0) * r, cy + (float) Math.sin(a0) * r,
-                            cx + (float) Math.cos(a1) * r, cy + (float) Math.sin(a1) * r, 0.6f, FxColor.hsv(i / (float) n, 0.75f, 1f));
+                            cx + (float) Math.cos(a1) * r, cy + (float) Math.sin(a1) * r, 0.6f, col);
+                }
+                if (palette == FxPalette.AUTO) {
+                    ui.circle(cx, cy, d * 0.36f, ui.color("window"));
                 }
             } else {
                 ui.circle(cx, cy, d, palette.main(0f));

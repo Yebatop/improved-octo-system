@@ -384,6 +384,50 @@ def leaf(w, h):
 def bolt_glow(w, h):
     return ribbon(w, h)
 
+def toon_star(w, h):
+    """A fat cartoon star with rounded points and a darker rim, the kind that circles a dazed head."""
+    pts = []
+    for k in range(10):
+        a = -math.pi / 2 + k * math.pi / 5
+        r = 0.46 if k % 2 == 0 else 0.22
+        pts.append(((0.5 + math.cos(a) * r) * w, (0.53 + math.sin(a) * r) * h))
+    img = Image.new('L', (w, h), 0)
+    ImageDraw.Draw(img).polygon(pts, fill=255)
+    img = img.filter(ImageFilter.GaussianBlur(w / 70)).point(lambda v: 255 if v > 110 else int(v * 255 / 110))
+    inner = img.filter(ImageFilter.MinFilter(max(3, (w // 22) | 1)))
+    a = np.asarray(img) / 255.0
+    core = np.asarray(inner) / 255.0
+    x, y = grid(w, h)
+    shine = 0.25 * np.exp(-(((x + 0.15) / 0.18) ** 2 + ((y + 0.2) / 0.12) ** 2))
+    lum = (0.55 + 0.45 * core) * (0.88 + 0.12 * smooth(0.5, -0.5, y)) + shine * core
+    return rgba(lum, a)
+
+def crack(w, h):
+    """Cracks in the ground spreading from a small crater: a decal for heavy blows."""
+    r = np.random.default_rng(5)
+    img = Image.new('L', (w, h), 0)
+    d = ImageDraw.Draw(img)
+    cx, cy = w / 2, h / 2
+    for k in range(9):
+        a0 = k * 2 * math.pi / 9 + r.uniform(-0.25, 0.25)
+        length = r.uniform(0.3, 0.47)
+        prev = (cx, cy)
+        ang = a0
+        for s in range(1, 8):
+            t = s / 7
+            ang += r.uniform(-0.22, 0.22)
+            ang = a0 + max(-0.3, min(0.3, ang - a0))
+            p = (cx + math.cos(ang) * t * length * w, cy + math.sin(ang) * t * length * h)
+            d.line([prev, p], fill=255, width=max(1, int(w * 0.026 * (1 - t) ** 1.5 + w * 0.005)))
+            if s == 3 and r.uniform() < 0.6:
+                b = ang + r.choice([-1, 1]) * r.uniform(0.5, 0.9)
+                q = (p[0] + math.cos(b) * w * 0.12, p[1] + math.sin(b) * h * 0.12)
+                d.line([p, q], fill=255, width=max(1, int(w * 0.008)))
+            prev = p
+    d.ellipse([cx - w * 0.04, cy - h * 0.04, cx + w * 0.04, cy + h * 0.04], fill=255)
+    img = img.filter(ImageFilter.GaussianBlur(w / 300))
+    return white(np.asarray(img) / 255.0)
+
 # ---- layout ----
 
 sprites = []  # (name, painter, cells_w, cells_h, frames)
@@ -419,6 +463,8 @@ sprites.append(('RIBBON', ribbon, 1, 1, 1))
 sprites.append(('CONFETTI', confetti, 1, 1, 1))
 sprites.append(('RUNE', None, 1, 1, 6))
 sprites.append(('LEAF', leaf, 1, 1, 1))
+sprites.append(('TOON_STAR', toon_star, 1, 1, 1))
+sprites.append(('CRACK', crack, 2, 2, 1))
 
 frame_painters = {
     'FLAME': lambda i: flame_frame(i, 8),

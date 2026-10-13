@@ -1,5 +1,6 @@
 package dev.skirmish.studio;
 
+import dev.skirmish.fx.Fx;
 import dev.skirmish.fx.FxColor;
 import dev.skirmish.fx.FxField;
 import dev.skirmish.fx.FxPresets;
@@ -7,6 +8,7 @@ import dev.skirmish.fx.FxSounds;
 import dev.skirmish.fx.FxSprite;
 import dev.skirmish.fx.FxStyles;
 import dev.skirmish.module.killfx.KillFxModule;
+import dev.skirmish.module.killfx.KillPatterns;
 import dev.skirmish.module.playerfx.CapeArt;
 import dev.skirmish.module.playerfx.PlayerFxModule;
 import net.minecraft.client.Minecraft;
@@ -23,6 +25,7 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.PlayerModelType;
 import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.FireworkExplosion;
 import net.minecraft.world.item.Items;
 import org.jspecify.annotations.Nullable;
 
@@ -351,30 +354,52 @@ public final class StudioStage {
         }
     }
 
-    /** The vanilla-particle bursts drawn with effect particles of the same look (the Studio has no world). */
+    /**
+     * The particle bursts drawn with effect sprites made to look like the vanilla particles the game uses (the Studio
+     * has no world), in the same shapes: the same {@link KillPatterns} lay them out.
+     */
     private void vanillaLike(KillFxModule.Burst burst, float scale) {
-        var r = RandomSource.create();
-        int n = Math.round(40 * scale);
-        for (int i = 0; i < n; i++) {
-            double vx = (r.nextDouble() - 0.5) * 2;
-            double vz = (r.nextDouble() - 0.5) * 2;
-            double x = dummyX + (r.nextDouble() - 0.5) * 0.6;
-            double y = 0.2 + r.nextDouble() * 1.6;
-            double z = (r.nextDouble() - 0.5) * 0.6;
-            switch (burst) {
-                case TOTEM -> field.spawn(FxSprite.TWINKLE).at(x, y, z).vel(vx * 4, r.nextDouble() * 5, vz * 4).gravity(6f).drag(0.4f)
-                        .life(1.2f).size(0.06f, 0.02f).fade(r.nextBoolean() ? 0xFFE8D33F : 0xFF7CD85A);
-                case FLAME -> field.spawn(FxSprite.FLAME).at(x, y, z).vel(vx * 0.3, 0.5, vz * 0.3).fps(14).life(0.8f).size(0.1f, 0.02f)
-                        .ramp(0xFFFFF0B0, 0xFFFF9A2A, 0x00C21807);
-                case SOUL -> field.spawn(FxSprite.FLAME).at(x, y, z).vel(vx * 0.3, 0.5, vz * 0.3).fps(14).life(0.8f).size(0.1f, 0.02f)
-                        .ramp(0xFFE0FCFF, 0xFF2FD8FF, 0x000A5A80);
-                case HEARTS -> field.spawn(FxSprite.HEART).at(x, y, z).vel(0, 0.4, 0).painted().life(1f).size(0.1f, 0.06f)
-                        .grow(dev.skirmish.fx.Fx.Grow.POP).fade(0xFFFF3050);
-                case SPARKS -> field.spawn(FxSprite.TWINKLE).at(x, y, z).vel(vx, 0.4, vz).life(1.2f).size(0.06f, 0f).flicker(0.4f)
-                        .fade(0xFFFFFFFF);
-                default -> field.spawn(FxSprite.SPARK).at(x, y, z).vel(vx * 2, r.nextDouble() * 2, vz * 2).drag(0.3f).life(1f)
-                        .size(0.03f, 0f).stretch(0.06f).fade(FxColor.hsv(r.nextFloat(), 0.6f, 1f));
+        RandomSource r = RandomSource.create();
+        int[] colors = KillFxModule.fireworkColors(look.burstColor, r);
+        KillPatterns.emit(burst, r, dummyX, 0, 0, yaw, scale, colors, new KillPatterns.Sink() {
+            @Override
+            public void particle(KillPatterns.Role role, double x, double y, double z, double vx, double vy, double vz) {
+                imitate(burst, role, r, x, y, z, vx * 20, vy * 20, vz * 20);
             }
+
+            @Override
+            public void firework(FireworkExplosion.Shape shape, int[] colors, double x, double y, double z) {
+                KillPatterns.drawFirework(field, shape, colors, r, x, y, z, yaw);
+            }
+        });
+    }
+
+    /** One vanilla particle, imitated: its look, its drag (per second from per tick), gravity and life. */
+    private void imitate(KillFxModule.Burst burst, KillPatterns.Role role, RandomSource r, double x, double y, double z,
+                         double vx, double vy, double vz) {
+        boolean accent = role == KillPatterns.Role.ACCENT;
+        switch (burst) {
+            case TOTEM -> field.spawn(FxSprite.TWINKLE).at(x, y, z).vel(vx, vy, vz).drag(0.00004f).gravity(20f)
+                    .life(2.4f + r.nextFloat()).size(0.11f, 0.04f).spin(r.nextFloat() * 6, 0f).core(0.4f)
+                    .fade(r.nextInt(4) == 0 ? 0xFFF2DF4A : FxColor.lerp(0xFF5CC23A, 0xFFB4F06A, r.nextFloat()));
+            case FLAME -> field.spawn(FxSprite.FLAME).at(x, y, z).vel(vx, vy, vz).drag(0.44f).fps(14).life(0.6f + r.nextFloat() * 1.4f)
+                    .size(accent ? 0.09f : 0.075f, 0.03f).ramp(0xFFFFF0B0, 0xFFFF9A2A, 0x00C21807);
+            case SOUL -> {
+                if (accent) {
+                    field.spawn(FxSprite.SOUL).at(x, y, z).vel(vx, vy, vz).drag(0.44f).fps(10).life(1.6f).size(0.12f, 0.06f)
+                            .ramp(0xFFE0FCFF, 0xFF6FE6FF, 0x002FB8D8);
+                } else {
+                    field.spawn(FxSprite.FLAME).at(x, y, z).vel(vx, vy, vz).drag(0.44f).fps(14).life(0.8f + r.nextFloat() * 1.2f)
+                            .size(0.075f, 0.03f).ramp(0xFFE0FCFF, 0xFF2FD8FF, 0x000A5A80);
+                }
+            }
+            case HEARTS -> field.spawn(FxSprite.HEART).at(x, y, z).vel(0, 2.0, 0).drag(0.05f).painted().life(accent ? 1.0f : 0.85f)
+                    .size(0.09f, 0.08f).grow(Fx.Grow.POP).fadeIn(0.02f).ramp(0xFFFF3050, 0xFFFF3050, 0x00FF3050);
+            case SPARKS -> field.spawn(accent ? FxSprite.TWINKLE : FxSprite.GLOW).at(x, y, z).vel(vx, vy, vz).drag(0.15f)
+                    .life(2.6f + r.nextFloat() * 0.8f).size(accent ? 0.08f : 0.045f, 0.01f).flicker(0.2f).core(0.5f)
+                    .ramp(0xFFFFFFFF, 0xFFF2DCC9, 0x00F2DCC9);
+            default -> field.spawn(FxSprite.TWINKLE).at(x, y, z).vel(vx, vy, vz).gravity(2f).life(0.9f).size(0.05f, 0.01f)
+                    .flicker(0.4f).fade(0xFFFFFFFF);
         }
     }
 

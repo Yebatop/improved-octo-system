@@ -73,6 +73,7 @@
   "skirmish.module.kill_fx.setting.burst.pillar": "Pillar of light",
   "skirmish.module.kill_fx.setting.burst_color": "Colour",
   "skirmish.module.kill_fx.setting.burst_color.tooltip": "Colour of the drawn bursts (Supernova, Vortex, Bloom…)",
+  "skirmish.module.kill_fx.setting.burst_color.auto": "Signature",
   "skirmish.module.kill_fx.setting.burst_color.accent": "Accent",
   "skirmish.module.kill_fx.setting.burst_color.rainbow": "Rainbow",
   "skirmish.module.kill_fx.setting.burst_color.gold": "Gold",

@@ -3,8 +3,12 @@ package dev.skirmish.fx;
 import dev.skirmish.ui.Theme;
 import net.minecraft.util.RandomSource;
 
-/** Colour sets for effects. Each gives a main colour and a lighter one; Rainbow walks the hue wheel. */
+/**
+ * Colour sets for effects. Each gives a main colour and a lighter one; Rainbow walks the hue wheel. Signature lets
+ * every style keep its own colours (gold sparks, red hearts, icy glass), resolved by the recipe with {@link #or}.
+ */
 public enum FxPalette {
+    AUTO(0, 0),
     ACCENT(0, 0),
     RAINBOW(0, 0),
     GOLD(0xFFFFB627, 0xFFFFF1B8),
@@ -29,7 +33,7 @@ public enum FxPalette {
     /** The main colour (for Rainbow: the hue at {@code phase}). */
     public int main(float phase) {
         return switch (this) {
-            case ACCENT -> Theme.get().color("accent") | 0xFF000000;
+            case AUTO, ACCENT -> Theme.get().color("accent") | 0xFF000000;
             case RAINBOW -> FxColor.hsv(phase, 0.75f, 1f);
             default -> main;
         };
@@ -37,7 +41,7 @@ public enum FxPalette {
 
     public int light(float phase) {
         return switch (this) {
-            case ACCENT -> FxColor.lighten(main(phase), 0.55f);
+            case AUTO, ACCENT -> FxColor.lighten(main(phase), 0.55f);
             case RAINBOW -> FxColor.hsv(phase, 0.35f, 1f);
             default -> light;
         };
@@ -49,5 +53,10 @@ public enum FxPalette {
             return FxColor.hsv(phase + random.nextFloat() * 0.25f, 0.7f, 1f);
         }
         return FxColor.lerp(main(phase), light(phase), random.nextFloat() * 0.6f);
+    }
+
+    /** This palette, or the style's own one when this is Signature. */
+    public FxPalette or(FxPalette signature) {
+        return this == AUTO ? signature : this;
     }
 }

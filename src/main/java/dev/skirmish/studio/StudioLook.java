@@ -12,19 +12,19 @@ import dev.skirmish.module.playerfx.PlayerFxModule;
  */
 final class StudioLook {
     FxStyles.Trail trail = FxStyles.Trail.OFF;
-    FxPalette trailColor = FxPalette.ACCENT;
+    FxPalette trailColor = FxPalette.AUTO;
     float trailDensity = 1f;
     PlayerFxModule.TrailWhen trailWhen = PlayerFxModule.TrailWhen.MOVING;
     FxStyles.Aura aura = FxStyles.Aura.OFF;
-    FxPalette auraColor = FxPalette.ACCENT;
+    FxPalette auraColor = FxPalette.AUTO;
     float auraSize = 1f;
     FxStyles.Hit hit = FxStyles.Hit.SPARKS;
-    FxPalette hitColor = FxPalette.ACCENT;
-    FxPalette critColor = FxPalette.GOLD;
+    FxPalette hitColor = FxPalette.AUTO;
+    FxPalette critColor = FxPalette.AUTO;
     float hitSize = 1f;
     boolean killParticles = true;
     KillFxModule.Burst burst = KillFxModule.Burst.TOTEM;
-    FxPalette burstColor = FxPalette.ACCENT;
+    FxPalette burstColor = FxPalette.AUTO;
     float burstScale = 1f;
     boolean lightning;
     FxStyles.Totem totem = FxStyles.Totem.GOLDEN;

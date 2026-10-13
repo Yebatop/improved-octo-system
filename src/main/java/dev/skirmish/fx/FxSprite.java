@@ -36,7 +36,9 @@ public enum FxSprite {
     RIBBON(128, 640, 128, 128, 1),
     CONFETTI(256, 640, 128, 128, 1),
     RUNE(384, 640, 128, 128, 6),
-    LEAF(1152, 640, 128, 128, 1);
+    LEAF(1152, 640, 128, 128, 1),
+    TOON_STAR(1280, 640, 128, 128, 1),
+    CRACK(1408, 640, 256, 256, 1);
 
     public static final float SIZE = 2048f;
     public final float u0;

@@ -122,4 +122,46 @@ class FxFieldTest {
         }
         assertEquals(FxSprite.FLAME.frames > 0 ? (int) (fx.age * 10) % FxSprite.FLAME.frames : 0, fx.frame());
     }
+
+    @Test
+    void particlesBounceOffTheFloorThenRestOnIt() {
+        FxField f = new FxField(10);
+        Fx fx = f.spawn(FxSprite.SPARK).at(0, 1, 0).vel(1, -6, 0).gravity(10f).floor(0, 0.5f).life(10f);
+        boolean bounced = false;
+        for (int i = 0; i < 200; i++) {
+            f.update(0.02f);
+            assertTrue(fx.y >= 0, "never sinks under its floor");
+            bounced |= fx.vy > 0;
+        }
+        assertTrue(bounced);
+        assertTrue(fx.grounded);
+        assertEquals(0.0, fx.y, 1e-9);
+        assertEquals(0.0, fx.vx, 1e-3);
+    }
+
+    @Test
+    void dropsLeaveASplatWhereTheyLand() {
+        FxField f = new FxField(10);
+        f.spawn(FxSprite.DROP).at(2, 1, 3).vel(0, -5, 0).floor(0, 0f).splat(0xFF800000).life(5f);
+        for (int i = 0; i < 20; i++) {
+            f.update(0.02f);
+        }
+        assertEquals(1, f.size());
+        Fx splat = f.live().getFirst();
+        assertEquals(FxSprite.SPLAT, splat.sprite);
+        assertEquals(Fx.Orient.FLAT, splat.orient);
+        assertEquals(2.0, splat.x, 0.2);
+        assertTrue(splat.y > 0 && splat.y < 0.05);
+    }
+
+    @Test
+    void noFloorMeansNoLanding() {
+        FxField f = new FxField(10);
+        Fx fx = f.spawn(FxSprite.SPARK).at(0, 1, 0).vel(0, -5, 0).life(10f);
+        for (int i = 0; i < 5; i++) {
+            f.update(0.1f);
+        }
+        assertTrue(fx.y < 0);
+        assertTrue(!fx.grounded);
+    }
 }

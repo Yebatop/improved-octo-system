@@ -53,18 +53,18 @@ public final class PlayerFxModule extends Module {
     }
 
     public final EnumSetting<FxStyles.Trail> trail = add(new EnumSetting<>("trail", FxStyles.Trail.OFF));
-    public final EnumSetting<FxPalette> trailColor = (EnumSetting<FxPalette>) add(new EnumSetting<>("trail_color", FxPalette.ACCENT)).under(trail);
+    public final EnumSetting<FxPalette> trailColor = (EnumSetting<FxPalette>) add(new EnumSetting<>("trail_color", FxPalette.AUTO)).under(trail);
     public final EnumSetting<TrailWhen> trailWhen = (EnumSetting<TrailWhen>) add(new EnumSetting<>("trail_when", TrailWhen.MOVING)).under(trail);
     public final NumberSetting trailDensity = (NumberSetting) add(new NumberSetting("trail_density", 1, 0.25, 3, 0.25).unit("×")).under(trail);
 
     public final EnumSetting<FxStyles.Aura> aura = add(new EnumSetting<>("aura", FxStyles.Aura.OFF));
-    public final EnumSetting<FxPalette> auraColor = (EnumSetting<FxPalette>) add(new EnumSetting<>("aura_color", FxPalette.ACCENT)).under(aura);
+    public final EnumSetting<FxPalette> auraColor = (EnumSetting<FxPalette>) add(new EnumSetting<>("aura_color", FxPalette.AUTO)).under(aura);
     public final NumberSetting auraSize = (NumberSetting) add(new NumberSetting("aura_size", 1, 0.5, 1.8, 0.1).unit("×")).under(aura);
     public final BoolSetting auraFirstPerson = (BoolSetting) add(new BoolSetting("aura_first_person", false)).under(aura);
 
     public final EnumSetting<FxStyles.Hit> hit = add(new EnumSetting<>("hit", FxStyles.Hit.SPARKS));
-    public final EnumSetting<FxPalette> hitColor = (EnumSetting<FxPalette>) add(new EnumSetting<>("hit_color", FxPalette.ACCENT)).under(hit);
-    public final EnumSetting<FxPalette> critColor = (EnumSetting<FxPalette>) add(new EnumSetting<>("crit_color", FxPalette.GOLD)).under(hit);
+    public final EnumSetting<FxPalette> hitColor = (EnumSetting<FxPalette>) add(new EnumSetting<>("hit_color", FxPalette.AUTO)).under(hit);
+    public final EnumSetting<FxPalette> critColor = (EnumSetting<FxPalette>) add(new EnumSetting<>("crit_color", FxPalette.AUTO)).under(hit);
     public final NumberSetting hitSize = (NumberSetting) add(new NumberSetting("hit_size", 1, 0.5, 2, 0.1).unit("×")).under(hit);
     public final BoolSetting hitMobs = (BoolSetting) add(new BoolSetting("hit_mobs", true)).under(hit);
 
@@ -180,8 +180,28 @@ public final class PlayerFxModule extends Module {
         // On the victim's side facing me, so its own body doesn't hide the effect.
         Vec3 flat = new Vec3(dir.x, 0, dir.z);
         Vec3 at = flat.lengthSqr() < 1e-6 ? center : center.subtract(flat.normalize().scale(victim.getBbWidth() * 0.55 + 0.05));
-        FxPresets.hit(FxWorld.field(), hit.get(), hitColor.get(), critColor.get(), crit, at.x, at.y, at.z, victim.getY(), dir.x, dir.z,
+        FxPresets.hit(FxWorld.field(), hit.get(), hitColor.get(), critColor.get(), crit, at.x, at.y, at.z, groundUnder(victim), dir.x, dir.z,
                 hitSize.getFloat() * Math.max(0.6f, victim.getBbWidth() / 0.6f));
+    }
+
+    /** The top of the ground under {@code e}, or NaN when there is none within a few blocks (effects then don't land). */
+    private static double groundUnder(Entity e) {
+        if (e.onGround()) {
+            return e.getY();
+        }
+        net.minecraft.world.level.Level level = e.level();
+        net.minecraft.core.BlockPos.MutableBlockPos pos = e.blockPosition().mutable();
+        for (int i = 0; i < 8; i++) {
+            net.minecraft.world.phys.shapes.VoxelShape shape = level.getBlockState(pos).getCollisionShape(level, pos);
+            if (!shape.isEmpty()) {
+                double top = pos.getY() + shape.max(net.minecraft.core.Direction.Axis.Y);
+                if (top <= e.getY() + 0.01) {
+                    return top;
+                }
+            }
+            pos.move(net.minecraft.core.Direction.DOWN);
+        }
+        return Double.NaN;
     }
 
     // ---- totems ----

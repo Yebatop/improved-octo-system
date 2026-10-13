@@ -53,6 +53,66 @@ public final class FxPresets {
         }
     }
 
+    /** Each style's own colours, used when the colour setting is Signature. */
+    public static FxPalette signature(FxStyles.Trail style) {
+        return switch (style) {
+            case SPARKS -> FxPalette.GOLD;
+            case STARS, SNOW, SMOKE -> FxPalette.WHITE;
+            case SOULS -> FxPalette.SOUL;
+            case FLAME -> FxPalette.FIRE;
+            case PETALS -> FxPalette.ROSE;
+            case CRYSTALS -> FxPalette.EMERALD;
+            case ELECTRIC -> FxPalette.ICE;
+            case HEARTS -> FxPalette.BLOOD;
+            default -> FxPalette.RAINBOW;
+        };
+    }
+
+    public static FxPalette signature(FxStyles.Aura style) {
+        return switch (style) {
+            case RIPPLE -> FxPalette.ICE;
+            case SPIRAL -> FxPalette.RAINBOW;
+            case HALO -> FxPalette.GOLD;
+            case RUNES -> FxPalette.VOID;
+            case FIREFLIES -> FxPalette.TOXIC;
+            case FLAMES -> FxPalette.FIRE;
+            default -> FxPalette.ACCENT;
+        };
+    }
+
+    public static FxPalette signature(FxStyles.Hit style) {
+        return switch (style) {
+            case SPARKS, STARS -> FxPalette.GOLD;
+            case FLASH, SLASH -> FxPalette.WHITE;
+            case SHARDS, ELECTRIC -> FxPalette.ICE;
+            case BLOOD -> FxPalette.BLOOD;
+            default -> FxPalette.ACCENT;
+        };
+    }
+
+    /** The colours of a critical hit when the crit colour is Signature: hotter than the plain hit. */
+    public static FxPalette critSignature(FxStyles.Hit style) {
+        return switch (style) {
+            case SPARKS, STARS -> FxPalette.FIRE;
+            case SHARDS -> FxPalette.WHITE;
+            case ELECTRIC -> FxPalette.VOID;
+            case BLOOD -> FxPalette.BLOOD;
+            default -> FxPalette.GOLD;
+        };
+    }
+
+    public static FxPalette signature(FxStyles.Kill style) {
+        return switch (style) {
+            case SHATTER -> FxPalette.ICE;
+            case SOUL_RISE -> FxPalette.SOUL;
+            case BLOOD_BURST -> FxPalette.BLOOD;
+            case VORTEX -> FxPalette.VOID;
+            case BLOOM, CONFETTI -> FxPalette.RAINBOW;
+            case PILLAR -> FxPalette.GOLD;
+            default -> FxPalette.ACCENT;
+        };
+    }
+
     /** The clock phase for Rainbow colours: one turn every four seconds. */
     public static float phase() {
         return (System.currentTimeMillis() % 4000L) / 4000f;
@@ -94,7 +154,7 @@ public final class FxPresets {
      * One frame of a trail shed at the feet ({@code x, y, z}) of a body moving at {@code mx, mz} blocks per second;
      * {@code moving} says whether it sheds at all now. Ribbon trails follow the feet; the others shed particles.
      */
-    public static void trail(FxField f, Emitter e, FxStyles.Trail style, FxPalette pal, double x, double y, double z,
+    public static void trail(FxField f, Emitter e, FxStyles.Trail style, FxPalette chosen, double x, double y, double z,
                              double mx, double mz, float dt, float density, boolean moving) {
         if (e.trailStyle != style) {
             e.stopTrail();
@@ -103,6 +163,7 @@ public final class FxPresets {
         if (style == FxStyles.Trail.OFF) {
             return;
         }
+        FxPalette pal = chosen.or(signature(style));
         float ph = phase();
         if (style == FxStyles.Trail.RAINBOW) {
             if (!moving) {
@@ -175,7 +236,7 @@ public final class FxPresets {
                         .ramp(0xFFFFFFFF, pal.light(ph), pal.main(ph) & 0x00FFFFFF).spin(R.nextFloat() * 6, between(-3f, 3f)).core(0.3f);
             }
             case SOULS -> {
-                FxPalette soul = pal == FxPalette.ACCENT ? FxPalette.SOUL : pal;
+                FxPalette soul = pal;
                 tint(f.spawn(FxSprite.SOUL).at(px, py, pz).vel(bx, between(0.5f, 0.9f), bz).sway(0.7f, 3f).fps(12)
                         .life(between(1.0f, 1.5f)).size(between(0.14f, 0.2f), 0.08f).core(0.4f), soul, ph);
                 if (R.nextInt(3) == 0) {
@@ -184,7 +245,7 @@ public final class FxPresets {
                 }
             }
             case FLAME -> {
-                FxPalette fire = pal == FxPalette.ACCENT ? FxPalette.FIRE : pal;
+                FxPalette fire = pal;
                 int hot = fire == FxPalette.FIRE ? 0xFFFFF0B0 : FxColor.lighten(fire.light(ph), 0.4f);
                 f.spawn(FxSprite.FLAME).at(px, py, pz).vel(bx + rnd(0.15), between(1.0f, 1.7f), bz + rnd(0.15)).fps(16)
                         .life(between(0.4f, 0.65f)).size(between(0.18f, 0.24f), 0.06f).sway(0.4f, 6f)
@@ -199,7 +260,7 @@ public final class FxPresets {
                 }
             }
             case PETALS -> {
-                FxPalette p = pal == FxPalette.ACCENT ? FxPalette.ROSE : pal;
+                FxPalette p = pal;
                 f.spawn(FxSprite.PETAL).at(px, py + 0.5, pz).vel(bx + rnd(0.3), between(-0.1f, 0.3f), bz + rnd(0.3)).painted()
                         .gravity(0.35f).drag(0.5f).sway(0.8f, 2.5f).tumble(0.8f).spin(R.nextFloat() * 6, between(-3f, 3f))
                         .life(between(1.8f, 2.6f)).size(0.09f, 0.08f).fadeIn(0.1f).fade(FxColor.alpha(p.pick(R, ph), 0.95f));
@@ -208,19 +269,19 @@ public final class FxPresets {
                 f.spawn(FxSprite.SNOWFLAKE).at(px, py + 0.6, pz).vel(bx + rnd(0.2), between(-0.35f, -0.15f), bz + rnd(0.2))
                         .sway(0.4f, 2f).spin(R.nextFloat() * 6, between(-1.5f, 1.5f)).life(between(1.8f, 2.4f))
                         .size(between(0.07f, 0.11f), 0.05f).fadeIn(0.1f)
-                        .fade(pal == FxPalette.ACCENT ? 0xFFEAF6FF : FxColor.lighten(pal.light(ph), 0.5f));
+                        .fade(FxColor.lighten(pal.light(ph), 0.5f));
                 if (R.nextInt(3) == 0) {
                     f.spawn(FxSprite.DUST).at(px, py + 0.3, pz).vel(rnd(0.1), -0.1, rnd(0.1)).life(1f).size(0.035f, 0f).flicker(0.7f).fade(0xFFFFFFFF);
                 }
             }
             case SMOKE -> {
-                int base = pal == FxPalette.ACCENT ? 0xA0707078 : FxColor.alpha(FxColor.lerp(pal.main(ph), 0xFF606068, 0.55f), 0.63f);
+                int base = FxColor.alpha(FxColor.lerp(pal.main(ph), 0xFF606068, 0.55f), 0.63f);
                 f.spawn(FxSprite.SMOKE).at(px, py, pz).vel(bx + rnd(0.12), between(0.25f, 0.45f), bz + rnd(0.12)).painted()
                         .drag(0.55f).spin(R.nextFloat() * 6, between(-0.8f, 0.8f)).life(between(1.3f, 1.9f))
                         .size(0.14f, 0.55f).grow(Fx.Grow.EASE).fadeIn(0.12f).fade(base);
             }
             case CRYSTALS -> {
-                FxPalette p = pal == FxPalette.ACCENT ? FxPalette.ICE : pal;
+                FxPalette p = pal;
                 f.spawn(FxSprite.SHARD).at(px, py, pz).vel(bx + rnd(0.6), between(1.2f, 2.0f), bz + rnd(0.6))
                         .gravity(6f).tumble(0.9f).spin(R.nextFloat() * 6, between(-7f, 7f)).life(between(0.8f, 1.1f))
                         .size(between(0.06f, 0.09f), 0.03f).fade(FxColor.alpha(p.light(ph), 0.85f));
@@ -230,7 +291,7 @@ public final class FxPresets {
                 }
             }
             case ELECTRIC -> {
-                FxPalette p = pal == FxPalette.ACCENT ? FxPalette.ICE : pal;
+                FxPalette p = pal;
                 double a = R.nextDouble() * Math.PI * 2;
                 double r = between(0.4f, 0.9f);
                 f.bolt().between(x + rnd(0.1), y + between(0.2f, 1.0f), z + rnd(0.1), x + Math.cos(a) * r, y + 0.02, z + Math.sin(a) * r)
@@ -240,9 +301,9 @@ public final class FxPresets {
             }
             case NOTES -> f.spawn(FxSprite.NOTE).at(px, py + 0.3, pz).vel(bx, between(0.5f, 0.8f), bz).sway(0.9f, 3f)
                     .spin(rnd(0.4) > 0 ? 0.2f : -0.2f, 0f).life(between(1.2f, 1.6f)).size(0.12f, 0.1f).grow(Fx.Grow.POP)
-                    .fade(pal == FxPalette.ACCENT ? FxColor.hsv(R.nextFloat(), 0.55f, 1f) : pal.pick(R, ph)).core(0.25f);
+                    .fade(pal == FxPalette.RAINBOW ? FxColor.hsv(R.nextFloat(), 0.55f, 1f) : pal.pick(R, ph)).core(0.25f);
             case HEARTS -> {
-                FxPalette p = pal == FxPalette.ACCENT ? FxPalette.ROSE : pal;
+                FxPalette p = pal;
                 f.spawn(FxSprite.HEART).at(px, py + 0.3, pz).vel(bx, between(0.5f, 0.8f), bz).sway(0.5f, 2.5f)
                         .life(between(1.0f, 1.4f)).size(between(0.1f, 0.14f), 0.06f).grow(Fx.Grow.POP).fade(p.main(ph)).core(0.3f);
             }
@@ -257,12 +318,13 @@ public final class FxPresets {
      * One frame of an aura around a body standing at {@code x, y, z} ({@code h} tall) at clock {@code t} seconds.
      * Ribbons and short-lived sprites are laid down every frame, so the aura follows smoothly.
      */
-    public static void aura(FxField f, Emitter e, FxStyles.Aura style, FxPalette pal, double x, double y, double z, float h,
+    public static void aura(FxField f, Emitter e, FxStyles.Aura style, FxPalette chosen, double x, double y, double z, float h,
                             float t, float dt, float scale) {
         if (e.auraStyle != style) {
             e.stopAura();
             e.auraStyle = style;
         }
+        FxPalette pal = chosen.or(signature(style));
         float ph = phase();
         float keep = Math.max(0.03f, dt * 1.7f);
         switch (style) {
@@ -368,7 +430,7 @@ public final class FxPresets {
                 }
             }
             case FLAMES -> {
-                FxPalette fire = pal == FxPalette.ACCENT ? FxPalette.FIRE : pal;
+                FxPalette fire = pal;
                 int hot = fire == FxPalette.FIRE ? 0xFFFFF0B0 : FxColor.lighten(fire.light(ph), 0.4f);
                 int n = Math.max(1, Math.round(dt * 55));
                 for (int i = 0; i < n; i++) {
@@ -389,136 +451,212 @@ public final class FxPresets {
     // ---- hits ----
 
     /**
-     * A hit landing at {@code x, y, z} (on the victim's side facing the attacker, its feet at {@code groundY});
-     * {@code dx, dz} points from the attacker to the victim. A critical hit is bigger and in {@code critPal}.
+     * A hit landing at {@code x, y, z} (on the victim's side facing the attacker, the ground under it at {@code groundY},
+     * NaN when there is none); {@code dx, dz} points from the attacker to the victim. A critical hit is bigger and in
+     * {@code critPal}. Each style has a shape and a motion of its own that read at a glance in a real fight: sparks
+     * skitter on the ground, glass lands and glints, blood leaves splats, stars circle the head.
      */
     public static void hit(FxField f, FxStyles.Hit style, FxPalette pal, FxPalette critPal, boolean crit,
                            double x, double y, double z, double groundY, double dx, double dz, float scale) {
+        if (style == FxStyles.Hit.OFF) {
+            return;
+        }
         float ph = phase();
-        FxPalette p = crit ? critPal : pal;
-        float s = scale * (crit ? 1.4f : 1f);
+        FxPalette base = pal.or(signature(style));
+        FxPalette hot = critPal.or(critSignature(style));
+        FxPalette p = crit ? hot : base;
+        float s = scale * (crit ? 1.35f : 1f);
         double len = Math.sqrt(dx * dx + dz * dz);
         double nx = len < 1e-4 ? 1 : dx / len;
         double nz = len < 1e-4 ? 0 : dz / len;
         // Square to the swing, horizontally.
         double sx = -nz;
         double sz = nx;
+        boolean ground = !Double.isNaN(groundY);
+        double floor = ground ? groundY + 0.02 : Double.NaN;
+        // The victim's middle, a little behind the hit point.
+        double cx = x + nx * 0.35;
+        double cz = z + nz * 0.35;
         switch (style) {
             case OFF -> {
             }
             case SPARKS -> {
-                for (int i = 0; i < count(15, s); i++) {
-                    double[] d = sphere(between(2f, 3.5f));
-                    tint(f.spawn(FxSprite.SPARK).at(x, y, z).vel(d[0] - nx * between(1.5f, 3f), d[1] + 1.2, d[2] - nz * between(1.5f, 3f))
-                            .gravity(12f).drag(0.4f).life(between(0.3f, 0.55f)).size(0.045f * s, 0.015f).stretch(0.06f).core(0.5f), p, ph);
+                // Steel on steel: a spray of white-hot streaks thrown back at me that fall, bounce and skitter.
+                for (int i = 0; i < count(crit ? 30 : 20, scale); i++) {
+                    double[] d = sphere(between(2.5f, 5f));
+                    double back = between(1.5f, 3.5f);
+                    f.spawn(FxSprite.SPARK).at(x, y, z).vel(d[0] * 0.8 - nx * back, Math.abs(d[1]) * 0.9 + 1.4, d[2] * 0.8 - nz * back)
+                            .gravity(14f).drag(0.6f).floor(floor, 0.35f).life(between(0.6f, 1.0f)).size(0.05f * s, 0.025f * s)
+                            .stretch(0.075f).ramp(FxColor.lighten(p.light(ph), 0.7f), p.main(ph), p.main(ph) & 0x00FFFFFF).core(0.45f);
                 }
-                flash(f, x, y, z, 0.45f * s, p.light(ph), 0.12f);
-                for (int i = 0; i < 3; i++) {
-                    f.spawn(FxSprite.EMBER).at(x + rnd(0.1), y + rnd(0.1), z + rnd(0.1)).vel(rnd(0.6), between(0.3f, 0.9f), rnd(0.6))
-                            .life(0.5f).size(0.05f * s, 0f).flicker(0.5f).fade(p.light(ph));
+                flash(f, x, y, z, 0.6f * s, FxColor.lighten(p.light(ph), 0.5f), 0.14f);
+                for (int i = 0; i < 4; i++) {
+                    f.spawn(FxSprite.EMBER).at(x + rnd(0.1), y + rnd(0.1), z + rnd(0.1)).vel(rnd(0.6) - nx * 0.5, between(0.2f, 0.7f), rnd(0.6) - nz * 0.5)
+                            .gravity(1.5f).floor(floor, 0.2f).life(between(0.8f, 1.2f)).size(0.06f * s, 0.02f).flicker(0.5f).fade(p.light(ph));
                 }
             }
             case FLASH -> {
-                flash(f, x, y, z, 1.05f * s, p.light(ph), 0.2f);
-                f.spawn(FxSprite.STARBURST).at(x, y, z).life(0.16f).size(0.7f * s, 1.15f * s).spin(R.nextFloat() * 6, 0f)
-                        .fade(FxColor.lighten(p.light(ph), 0.4f)).core(0.3f);
-                f.spawn(FxSprite.SHOCKWAVE).at(x, y, z).facing(-nx, 0, -nz).life(0.3f).size(0.2f * s, 1.25f * s)
-                        .grow(Fx.Grow.EASE).fade(p.main(ph));
+                // A camera flash: a white-hot point, a long horizontal lens streak, rays and a ring of light.
+                int white = FxColor.lighten(p.light(ph), 0.6f);
+                flash(f, x, y, z, 1.0f * s, white, 0.24f);
+                f.spawn(FxSprite.GLOW).at(x, y, z).aspect(8f).size(0.13f * s, 0.05f * s).grow(Fx.Grow.EASE).life(0.34f).fadeIn(0.02f)
+                        .fade(white).core(0.4f);
+                f.spawn(FxSprite.GLOW).at(x, y, z).aspect(0.12f).size(0.7f * s, 0.2f * s).grow(Fx.Grow.EASE).life(0.22f).fadeIn(0.02f)
+                        .fade(FxColor.alpha(white, 0.7f));
+                f.spawn(FxSprite.STARBURST).at(x, y, z).life(0.3f).size(0.7f * s, 1.3f * s).grow(Fx.Grow.EASE).spin(R.nextFloat() * 6, 1.2f)
+                        .fade(FxColor.lighten(p.light(ph), 0.3f)).core(0.3f);
+                f.spawn(FxSprite.RING).at(x, y, z).facing(-nx, 0, -nz).life(0.4f).size(0.2f * s, 1.4f * s).grow(Fx.Grow.EASE)
+                        .ramp(white, p.main(ph), p.main(ph) & 0x00FFFFFF);
             }
             case SHARDS -> {
-                for (int i = 0; i < count(11, s); i++) {
-                    double[] d = sphere(between(1.8f, 3.2f));
-                    f.spawn(FxSprite.SHARD).at(x, y, z).vel(d[0] - nx * 1.8, d[1] + 1.6, d[2] - nz * 1.8)
-                            .gravity(11f).tumble(0.9f).spin(R.nextFloat() * 6, between(-10f, 10f)).life(between(0.6f, 0.9f))
-                            .size(between(0.07f, 0.11f) * s, 0.03f).ramp(0xFFFFFFFF, p.light(ph), p.main(ph) & 0x00FFFFFF);
+                // Breaking glass: shards fly out, fall, bounce once or twice and lie glinting on the ground.
+                for (int i = 0; i < count(crit ? 18 : 13, scale); i++) {
+                    double[] d = sphere(between(1.8f, 3.4f));
+                    f.spawn(FxSprite.SHARD).at(x + rnd(0.08), y + rnd(0.08), z + rnd(0.08))
+                            .vel(d[0] - nx * 1.6, Math.abs(d[1]) + 1.3, d[2] - nz * 1.6).gravity(12f).drag(0.7f).floor(floor, 0.3f)
+                            .tumble(0.9f).spin(R.nextFloat() * 6, between(-12f, 12f)).life(between(1.3f, 1.8f))
+                            .size(between(0.09f, 0.15f) * s, 0.06f * s).fadeIn(0.02f)
+                            .ramp(FxColor.lighten(p.light(ph), 0.6f), p.light(ph), p.main(ph) & 0x00FFFFFF);
                 }
-                for (int i = 0; i < 3; i++) {
-                    f.spawn(FxSprite.TWINKLE).at(x + rnd(0.3), y + rnd(0.3), z + rnd(0.3)).life(0.3f).size(0.18f * s, 0f)
-                            .grow(Fx.Grow.POP).fade(0xFFFFFFFF).spin(R.nextFloat() * 6, 0f);
+                double gy = ground ? groundY + 0.12 : y - 0.6;
+                for (int i = 0; i < 7; i++) {
+                    f.later(between(0.25f, 1.1f), () -> f.spawn(FxSprite.TWINKLE).at(cx + rnd(0.8), gy + R.nextDouble() * 0.1, cz + rnd(0.8))
+                            .life(0.3f).size(0.14f * s, 0f).grow(Fx.Grow.POP).fade(0xFFFFFFFF).spin(R.nextFloat() * 6, 0f).core(0.4f));
                 }
-                flash(f, x, y, z, 0.35f * s, p.light(ph), 0.1f);
+                f.spawn(FxSprite.THIN_RING).at(x, y, z).facing(-nx, 0, -nz).life(0.25f).size(0.1f * s, 0.7f * s).grow(Fx.Grow.EASE)
+                        .fade(p.light(ph));
+                flash(f, x, y, z, 0.4f * s, FxColor.lighten(p.light(ph), 0.5f), 0.1f);
             }
             case IMPACT -> {
-                f.spawn(FxSprite.SHOCKWAVE).at(x, y, z).facing(-nx, 0, -nz).life(0.32f).size(0.15f * s, 1.1f * s)
+                // A blow that shakes the ground: a ring of force where it lands, cracks and a ring of dust at the feet.
+                f.spawn(FxSprite.SHOCKWAVE).at(x, y, z).facing(-nx, 0, -nz).life(0.4f).size(0.15f * s, 1.3f * s)
                         .grow(Fx.Grow.EASE).ramp(p.light(ph), p.main(ph), p.main(ph) & 0x00FFFFFF);
-                f.later(0.06f, () -> f.spawn(FxSprite.THIN_RING).at(x, y, z).facing(-nx, 0, -nz).life(0.3f).size(0.1f * s, 0.8f * s)
+                f.later(0.05f, () -> f.spawn(FxSprite.THIN_RING).at(x, y, z).facing(-nx, 0, -nz).life(0.32f).size(0.1f * s, 0.9f * s)
                         .grow(Fx.Grow.EASE).fade(p.light(ph)));
+                if (ground) {
+                    f.spawn(FxSprite.SHOCKWAVE).at(cx, groundY + 0.03, cz).flat().life(0.55f).size(0.2f * s, 1.7f * s).grow(Fx.Grow.EASE)
+                            .fade(FxColor.alpha(p.main(ph), 0.85f));
+                    f.spawn(FxSprite.CRACK).at(cx, groundY + 0.015, cz).flat().painted().spin(R.nextFloat() * 6, 0f).life(1.6f)
+                            .size(0.55f * s, 0.6f * s).fadeIn(0.01f).ramp(0xB0202020, 0xB0202020, 0x00202020);
+                    for (int i = 0; i < 12; i++) {
+                        double a = i * Math.PI * 2 / 12 + rnd(0.2);
+                        f.spawn(FxSprite.SMOKE).at(cx + Math.cos(a) * 0.3, groundY + 0.1, cz + Math.sin(a) * 0.3)
+                                .vel(Math.cos(a) * 2.2, 0.35, Math.sin(a) * 2.2).drag(0.15f).painted().spin(R.nextFloat() * 6, 0.8f)
+                                .life(between(0.7f, 1.0f)).size(0.1f * s, 0.32f * s).grow(Fx.Grow.EASE).fadeIn(0.05f).fade(0x707A7468);
+                    }
+                }
                 for (int i = 0; i < count(10, s); i++) {
                     double a = R.nextDouble() * Math.PI * 2;
-                    double cx = Math.cos(a);
-                    double cy = Math.sin(a);
-                    f.spawn(FxSprite.DUST).at(x, y, z).vel(sx * cx * 3.2, cy * 3.2, sz * cx * 3.2).drag(0.15f)
-                            .life(0.3f).size(0.06f * s, 0f).fade(p.light(ph));
+                    double ca = Math.cos(a);
+                    double sa = Math.sin(a);
+                    f.spawn(FxSprite.SPARK).at(x, y, z).vel(sx * ca * 4, sa * 4, sz * ca * 4).drag(0.1f).life(0.28f).size(0.04f * s, 0f)
+                            .stretch(0.05f).fade(p.light(ph));
                 }
-                flash(f, x, y, z, 0.5f * s, p.light(ph), 0.12f);
+                flash(f, x, y, z, 0.55f * s, p.light(ph), 0.12f);
             }
             case BLOOD -> {
-                for (int i = 0; i < count(13, s); i++) {
-                    double[] d = sphere(between(1.4f, 2.6f));
-                    f.spawn(FxSprite.DROP).at(x, y, z).vel(d[0] - nx * 1.4, d[1] + 1.6, d[2] - nz * 1.4).painted()
-                            .gravity(13f).stretch(0.05f).aspect(0.6f).life(between(0.55f, 0.85f)).size(between(0.05f, 0.08f) * s, 0.04f)
-                            .fade(FxColor.lerp(0xFFB0101C, 0xFF5A0008, R.nextFloat()));
+                // A burst of red at the wound, a spray of drops that arc, fall and leave splats where they land.
+                f.spawn(FxSprite.SPLAT).at(x - nx * 0.04, y, z - nz * 0.04).facing(-nx, 0, -nz).painted().spin(R.nextFloat() * 6, 0f)
+                        .life(0.3f).size(0.18f * s, 0.55f * s).grow(Fx.Grow.EASE).fadeIn(0.01f).ramp(0xF0D0101C, 0xD0A00818, 0x00800010);
+                for (int i = 0; i < count(crit ? 24 : 18, scale); i++) {
+                    double[] d = sphere(between(1.6f, 3.2f));
+                    float size = between(0.07f, 0.11f) * s;
+                    int c = FxColor.lerp(0xFFE01828, 0xFF900012, R.nextFloat());
+                    f.spawn(FxSprite.DROP).at(x, y, z).vel(d[0] - nx * 1.6, Math.abs(d[1]) * 0.8 + 1.4, d[2] - nz * 1.6).painted()
+                            .gravity(13f).stretch(0.05f).aspect(0.6f).life(ground ? 2.5f : between(0.6f, 0.9f)).size(size, size)
+                            .floor(floor, 0f).splat(FxColor.alpha(FxColor.lerp(c, 0xFFB00818, 0.3f), 0.95f)).fade(c);
                 }
-                f.spawn(FxSprite.SPLAT).at(x - nx * 0.3, groundY + 0.02, z - nz * 0.3).flat().painted().spin(R.nextFloat() * 6, 0f)
-                        .life(2.4f).size(0.32f * s, 0.36f * s).fadeIn(0.03f).color(0xD8700008, 0x00500006);
-                f.spawn(FxSprite.SMOKE).at(x, y, z).painted().vel(-nx * 0.4, 0.2, -nz * 0.4).life(0.6f).size(0.12f * s, 0.4f * s)
-                        .grow(Fx.Grow.EASE).fade(0x60701018);
+                for (int i = 0; i < 3; i++) {
+                    f.spawn(FxSprite.SMOKE).at(x, y, z).painted().vel(-nx * 0.5 + rnd(0.2), 0.2, -nz * 0.5 + rnd(0.2))
+                            .spin(R.nextFloat() * 6, 0.5f).life(0.7f).size(0.14f * s, 0.5f * s).grow(Fx.Grow.EASE).fade(0x80A01020);
+                }
+                if (ground && crit) {
+                    f.spawn(FxSprite.SPLAT).at(cx, groundY + 0.014, cz).flat().painted().spin(R.nextFloat() * 6, 0f)
+                            .life(3f).size(0.2f * s, 0.5f * s).grow(Fx.Grow.EASE).fadeIn(0.02f).ramp(0xE8A00818, 0xE8A00818, 0x00800010);
+                }
             }
             case STARS -> {
-                double headY = y + 0.65;
-                int n = crit ? 5 : 4;
+                // Seeing stars: fat cartoon stars circle the head for a second and a half.
+                double headY = y + 0.7;
+                int n = crit ? 6 : 5;
                 for (int i = 0; i < n; i++) {
-                    FxSprite sp = i % 2 == 0 ? FxSprite.STAR4 : FxSprite.STAR6;
-                    int col = crit ? critPal.light(ph) : FxColor.lerp(0xFFFFE27A, p.light(ph), 0.3f);
-                    f.spawn(sp).orbit(x + nx * 0.3, z + nz * 0.3, 0.38f * s, i * 6.28f / n, 6f).at(0, headY, 0)
-                            .orbit(x + nx * 0.3, z + nz * 0.3, 0.38f * s, i * 6.28f / n, 6f)
-                            .life(0.95f).size(0.14f * s, 0.05f).grow(Fx.Grow.POP).fade(col).spin(0f, 4f).core(0.4f);
+                    int col = i % 2 == 0 ? p.main(ph) : p.light(ph);
+                    float a0 = i * 6.28f / n;
+                    f.spawn(FxSprite.TOON_STAR).orbit(cx, cz, 0.42f * s, a0, 4.2f).at(0, headY + (i % 2) * 0.06, 0)
+                            .orbit(cx, cz, 0.42f * s, a0, 4.2f).vel(0, 0.05, 0).painted().spin(0f, 1.5f)
+                            .life(1.6f).size(0.17f * s, 0.15f * s).grow(Fx.Grow.POP).fadeIn(0.02f).ramp(col, col, col & 0x00FFFFFF);
+                    f.spawn(FxSprite.GLOW).orbit(cx, cz, 0.42f * s, a0, 4.2f).at(0, headY + (i % 2) * 0.06, 0)
+                            .orbit(cx, cz, 0.42f * s, a0, 4.2f).vel(0, 0.05, 0).life(1.6f).size(0.16f * s, 0.12f * s)
+                            .fade(FxColor.alpha(p.light(ph), 0.5f));
                 }
-                flash(f, x, y, z, 0.35f * s, p.light(ph), 0.1f);
+                f.spawn(FxSprite.STARBURST).at(x, y, z).life(0.18f).size(0.35f * s, 0.6f * s).grow(Fx.Grow.EASE)
+                        .spin(R.nextFloat() * 6, 0f).fade(p.light(ph));
+                for (int i = 0; i < 3; i++) {
+                    f.spawn(FxSprite.TWINKLE).at(x + rnd(0.25), y + rnd(0.25), z + rnd(0.25)).life(0.35f).size(0.14f * s, 0f)
+                            .grow(Fx.Grow.POP).fade(0xFFFFFFFF).spin(R.nextFloat() * 6, 0f);
+                }
             }
             case ELECTRIC -> {
-                FxPalette e = pal == FxPalette.ACCENT && !crit ? FxPalette.ICE : p;
-                for (int i = 0; i < (crit ? 6 : 4); i++) {
-                    double[] d = sphere(between(0.5f, 0.9f));
-                    f.bolt().between(x, y, z, x + d[0] + nx * 0.3, y + d[1] * 1.2, z + d[2] + nz * 0.3)
-                            .look(between(0.18f, 0.3f), 0.028f * s, 0.4f, e.light(ph));
+                // A shock: arcs jump from the hit into the ground and crawl over the body, crackling for a moment.
+                double gy = ground ? groundY + 0.02 : y - 1.0;
+                for (int i = 0; i < (crit ? 4 : 3); i++) {
+                    double a = R.nextDouble() * Math.PI * 2;
+                    double r = between(0.3f, 0.75f);
+                    f.bolt().between(x, y, z, cx + Math.cos(a) * r, gy, cz + Math.sin(a) * r)
+                            .look(between(0.35f, 0.5f), 0.032f * s, 0.32f, p.light(ph));
+                    f.spawn(FxSprite.FLARE).at(cx + Math.cos(a) * r, gy + 0.05, cz + Math.sin(a) * r).life(0.25f).size(0.3f * s, 0f)
+                            .grow(Fx.Grow.POP).fade(p.light(ph));
                 }
-                flash(f, x, y, z, 0.7f * s, e.light(ph), 0.15f);
-                for (int i = 0; i < 6; i++) {
-                    double[] d = sphere(between(3f, 5f));
-                    f.spawn(FxSprite.SPARK).at(x, y, z).vel(d[0], d[1], d[2]).drag(0.1f).life(0.15f).size(0.03f * s, 0f).stretch(0.04f)
-                            .fade(0xFFFFFFFF);
+                for (int i = 0; i < 3; i++) {
+                    double[] d = sphere(between(0.45f, 0.8f));
+                    f.bolt().between(x, y, z, cx + d[0] * 0.6, y + d[1] * 0.9, cz + d[2] * 0.6)
+                            .look(between(0.25f, 0.35f), 0.026f * s, 0.4f, p.light(ph));
+                }
+                f.later(0.18f, () -> {
+                    for (int i = 0; i < 2; i++) {
+                        double[] d = sphere(between(0.4f, 0.7f));
+                        f.bolt().between(cx + d[0] * 0.3, y + d[1] * 0.5, cz + d[2] * 0.3, cx - d[0] * 0.4, y - d[1] * 0.6, cz - d[2] * 0.4)
+                                .look(0.2f, 0.022f * s, 0.45f, p.light(ph));
+                    }
+                });
+                flash(f, x, y, z, 0.75f * s, p.light(ph), 0.16f);
+                for (int i = 0; i < 10; i++) {
+                    double[] d = sphere(between(3f, 5.5f));
+                    f.spawn(FxSprite.SPARK).at(x, y, z).vel(d[0], d[1] + 1, d[2]).gravity(9f).drag(0.3f).floor(floor, 0.4f)
+                            .life(between(0.3f, 0.55f)).size(0.03f * s, 0f).stretch(0.05f).fade(0xFFFFFFFF);
                 }
             }
             case SLASH -> {
+                // A blade's cut: a wide crescent across the target, a second one crossing it on a crit.
                 float angle = (R.nextBoolean() ? 1 : -1) * between(0.5f, 0.9f);
-                f.spawn(FxSprite.SLASH).at(x - nx * 0.05, y + 0.05, z - nz * 0.05).facing(-nx, 0, -nz).spin(angle, angle > 0 ? -2.5f : 2.5f)
-                        .life(0.24f).size(0.55f * s, 0.95f * s).grow(Fx.Grow.EASE)
-                        .ramp(FxColor.lighten(p.light(ph), 0.5f), p.main(ph), p.main(ph) & 0x00FFFFFF).core(0.6f);
+                f.spawn(FxSprite.SLASH).at(x - nx * 0.05, y + 0.05, z - nz * 0.05).facing(-nx, 0, -nz).spin(angle, angle > 0 ? -2.2f : 2.2f)
+                        .life(0.32f).size(0.65f * s, 1.15f * s).grow(Fx.Grow.EASE)
+                        .ramp(FxColor.lighten(p.light(ph), 0.6f), p.main(ph), p.main(ph) & 0x00FFFFFF).core(0.6f);
                 if (crit) {
-                    f.later(0.05f, () -> f.spawn(FxSprite.SLASH).at(x - nx * 0.06, y + 0.05, z - nz * 0.06).facing(-nx, 0, -nz)
-                            .spin(-angle, angle > 0 ? 2.5f : -2.5f).life(0.22f).size(0.5f * s, 0.85f * s).grow(Fx.Grow.EASE)
-                            .ramp(FxColor.lighten(critPal.light(ph), 0.5f), critPal.main(ph), critPal.main(ph) & 0x00FFFFFF).core(0.6f));
+                    f.later(0.06f, () -> f.spawn(FxSprite.SLASH).at(x - nx * 0.06, y + 0.05, z - nz * 0.06).facing(-nx, 0, -nz)
+                            .spin(-angle, angle > 0 ? 2.2f : -2.2f).life(0.3f).size(0.6f * s, 1.05f * s).grow(Fx.Grow.EASE)
+                            .ramp(FxColor.lighten(hot.light(ph), 0.5f), hot.main(ph), hot.main(ph) & 0x00FFFFFF).core(0.6f));
                 }
                 double ux = Math.cos(angle);
-                for (int i = 0; i < count(6, s); i++) {
+                for (int i = 0; i < count(9, s); i++) {
                     double k = between(-1f, 1f);
-                    f.spawn(FxSprite.SPARK).at(x + sx * k * 0.4, y + k * 0.3 * ux, z + sz * k * 0.4)
-                            .vel(sx * k * 3 - nx, ux * k * 2, sz * k * 3 - nz).drag(0.2f).life(0.22f).size(0.03f * s, 0f)
-                            .stretch(0.05f).fade(p.light(ph));
+                    f.spawn(FxSprite.SPARK).at(x + sx * k * 0.45, y + k * 0.35 * ux, z + sz * k * 0.45)
+                            .vel(sx * k * 3 - nx * 1.5, ux * k * 2 + 1, sz * k * 3 - nz * 1.5).gravity(8f).drag(0.3f).floor(floor, 0.3f)
+                            .life(between(0.3f, 0.5f)).size(0.035f * s, 0f).stretch(0.06f).fade(p.light(ph));
                 }
             }
         }
-        if (crit && style != FxStyles.Hit.OFF && style != FxStyles.Hit.STARS) {
-            f.spawn(FxSprite.STARBURST).at(x, y, z).life(0.2f).size(0.55f * s, 0.2f).grow(Fx.Grow.POP).spin(R.nextFloat() * 6, 0f)
-                    .fade(critPal.light(ph)).core(0.3f);
+        if (crit && style != FxStyles.Hit.STARS) {
+            f.spawn(FxSprite.STARBURST).at(x, y, z).life(0.22f).size(0.6f * s, 0.25f).grow(Fx.Grow.POP).spin(R.nextFloat() * 6, 0f)
+                    .fade(hot.light(ph)).core(0.3f);
         }
     }
 
     // ---- kills ----
 
     /** A kill burst over a body that stood at {@code x, y, z}. */
-    public static void kill(FxField f, FxStyles.Kill style, FxPalette pal, double x, double y, double z, float scale) {
+    public static void kill(FxField f, FxStyles.Kill style, FxPalette chosen, double x, double y, double z, float scale) {
+        FxPalette pal = chosen.or(signature(style));
         float ph = phase();
         double cy = y + 1.0;
         switch (style) {
@@ -590,7 +728,7 @@ public final class FxPresets {
                 }
             }
             case SOUL_RISE -> {
-                FxPalette soul = pal == FxPalette.ACCENT ? FxPalette.SOUL : pal;
+                FxPalette soul = pal;
                 f.spawn(FxSprite.BEAM).at(x, y + 5.5, z).vel(0, 0.001, 0).stretch(5500f).life(1.4f).size(0.45f * scale, 0.15f * scale)
                         .ramp(soul.light(ph), soul.main(ph), soul.main(ph) & 0x00FFFFFF).core(0.35f);
                 f.spawn(FxSprite.MAGIC_CIRCLE).at(x, y + 0.04, z).flat().life(1.5f).size(1.5f * scale, 1.2f * scale).spin(0, 1.2f)

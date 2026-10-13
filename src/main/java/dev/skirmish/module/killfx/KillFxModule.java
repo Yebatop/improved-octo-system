@@ -4,6 +4,7 @@ import dev.skirmish.combat.CombatListener;
 import dev.skirmish.combat.CombatTracker;
 import dev.skirmish.combat.Fight;
 import dev.skirmish.combat.OwnDeath;
+import dev.skirmish.fx.FxColor;
 import dev.skirmish.fx.FxPalette;
 import dev.skirmish.fx.FxPresets;
 import dev.skirmish.fx.FxSounds;
@@ -26,8 +27,10 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.component.FireworkExplosion;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
@@ -116,26 +119,27 @@ public final class KillFxModule extends Module {
             return ordinal() >= SUPERNOVA.ordinal() ? FxStyles.Kill.valueOf(name()) : null;
         }
 
-        SimpleParticleType particle() {
+        /** The vanilla particle drawing a part of the burst. */
+        SimpleParticleType particle(KillPatterns.Role role) {
             return switch (this) {
-                case SUPERNOVA, CONFETTI, SHATTER, SOUL_RISE, BLOOD_BURST, VORTEX, BLOOM, PILLAR -> ParticleTypes.END_ROD;
                 case TOTEM -> ParticleTypes.TOTEM_OF_UNDYING;
                 case FLAME -> ParticleTypes.FLAME;
-                case SOUL -> ParticleTypes.SOUL_FIRE_FLAME;
+                case SOUL -> role == KillPatterns.Role.ACCENT ? ParticleTypes.SOUL : ParticleTypes.SOUL_FIRE_FLAME;
                 case HEARTS -> ParticleTypes.HEART;
-                case SPARKS -> ParticleTypes.END_ROD;
                 case FIREWORK -> ParticleTypes.FIREWORK;
+                default -> ParticleTypes.END_ROD;
             };
         }
+    }
 
-        /** Particle launch speed: hearts float, totem particles fly far on their own. */
-        double speed() {
-            return switch (this) {
-                case TOTEM -> 0.6;
-                case HEARTS -> 0.05;
-                default -> 0.15;
-            };
+    /** Colours (RGB) for a firework in {@code pal}; Signature and Rainbow pick bright random ones. */
+    public static int[] fireworkColors(FxPalette pal, RandomSource r) {
+        if (pal == FxPalette.AUTO || pal == FxPalette.RAINBOW) {
+            float h = r.nextFloat();
+            return new int[]{FxColor.hsv(h, 0.8f, 1f) & 0xFFFFFF, FxColor.hsv(h + 0.33f, 0.8f, 1f) & 0xFFFFFF,
+                    FxColor.hsv(h + 0.66f, 0.8f, 1f) & 0xFFFFFF};
         }
+        return new int[]{pal.main(0f) & 0xFFFFFF, pal.light(0f) & 0xFFFFFF};
     }
 
     public final BoolSetting sound = add(new BoolSetting("sound", true));
@@ -147,8 +151,8 @@ public final class KillFxModule extends Module {
     public final BoolSetting particles = add(new BoolSetting("particles", true));
     public final EnumSetting<Burst> burst = (EnumSetting<Burst>) add(new EnumSetting<>("burst", Burst.TOTEM))
             .under(particles).visibleWhen(particles::get);
-    public final EnumSetting<FxPalette> burstColor = (EnumSetting<FxPalette>) add(new EnumSetting<>("burst_color", FxPalette.ACCENT))
-            .under(particles).visibleWhen(() -> particles.get() && burst.get().fx() != null);
+    public final EnumSetting<FxPalette> burstColor = (EnumSetting<FxPalette>) add(new EnumSetting<>("burst_color", FxPalette.AUTO))
+            .under(particles).visibleWhen(() -> particles.get() && (burst.get().fx() != null || burst.get() == Burst.FIREWORK));
     public final NumberSetting amount = (NumberSetting) add(new NumberSetting("amount", 40, 10, 120, 5))
             .under(particles).visibleWhen(particles::get);
     public final BoolSetting lightning = add(new BoolSetting("lightning", false));
@@ -341,15 +345,22 @@ public final class KillFxModule extends Module {
         }
         RandomSource random = level.getRandom();
         Burst type = burst.get();
-        double speed = type.speed();
-        int n = amount.getInt();
-        for (int i = 0; i < n; i++) {
-            double vx = (random.nextDouble() - 0.5) * 2 * speed;
-            double vy = random.nextDouble() * speed * 1.5;
-            double vz = (random.nextDouble() - 0.5) * 2 * speed;
-            level.addParticle(type.particle(), pos.x + (random.nextDouble() - 0.5) * 0.6, pos.y + 0.2 + random.nextDouble() * 1.6,
-                    pos.z + (random.nextDouble() - 0.5) * 0.6, vx, vy, vz);
-        }
+        float viewYaw = Minecraft.getInstance().gameRenderer.getMainCamera().yRot();
+        KillPatterns.emit(type, random, pos.x, pos.y, pos.z, viewYaw, burstScale(), fireworkColors(burstColor.get(), random),
+                new KillPatterns.Sink() {
+                    @Override
+                    public void particle(KillPatterns.Role role, double x, double y, double z, double vx, double vy, double vz) {
+                        level.addParticle(type.particle(role), x, y, z, vx, vy, vz);
+                    }
+
+                    @Override
+                    public void firework(FireworkExplosion.Shape shape, int[] colors, double x, double y, double z) {
+                        // Drawn compact (a vanilla firework this close would fill the screen), with the bang played locally.
+                        KillPatterns.drawFirework(FxWorld.field(), shape, colors, random, x, y, z, viewYaw);
+                        level.playLocalSound(x, y, z, shape == FireworkExplosion.Shape.LARGE_BALL ? SoundEvents.FIREWORK_ROCKET_LARGE_BLAST
+                                : SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.PLAYERS, 1.5f, 1f, false);
+                    }
+                });
     }
 
     private final class Listener implements CombatListener {

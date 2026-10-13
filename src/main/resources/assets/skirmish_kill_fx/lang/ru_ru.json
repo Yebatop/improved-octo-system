@@ -73,6 +73,7 @@
   "skirmish.module.kill_fx.setting.burst.pillar": "Столп света",
   "skirmish.module.kill_fx.setting.burst_color": "Цвет",
   "skirmish.module.kill_fx.setting.burst_color.tooltip": "Цвет нарисованных взрывов (Сверхновая, Воронка, Салют…)",
+  "skirmish.module.kill_fx.setting.burst_color.auto": "Родной",
   "skirmish.module.kill_fx.setting.burst_color.accent": "Акцент",
   "skirmish.module.kill_fx.setting.burst_color.rainbow": "Радуга",
   "skirmish.module.kill_fx.setting.burst_color.gold": "Золото",
